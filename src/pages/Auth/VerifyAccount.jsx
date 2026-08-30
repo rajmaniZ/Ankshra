@@ -12,6 +12,10 @@ import {
   useAuthContext,
 } from "../../context/AuthContext";
 
+import {
+  resendRegistrationOtp,
+} from "../../services/authService";
+
 import styles from "./VerifyAccount.module.css";
 
 function normalizePhone(value) {
@@ -19,7 +23,9 @@ function normalizePhone(value) {
     String(value || "")
       .replace(/\D/g, "");
 
-  if (digits.length === 10) {
+  if (
+    digits.length === 10
+  ) {
     return `+91${digits}`;
   }
 
@@ -33,7 +39,9 @@ function normalizePhone(value) {
   return "";
 }
 
-function getLocalPhone(value) {
+function getLocalPhone(
+  value,
+) {
   const normalized =
     normalizePhone(value);
 
@@ -42,6 +50,30 @@ function getLocalPhone(value) {
   }
 
   return normalized.slice(3);
+}
+
+function getStoredChannel() {
+  return (
+    localStorage.getItem(
+      "registrationOtpChannel",
+    ) ||
+    localStorage.getItem(
+      "registrationChannel",
+    ) ||
+    "sms"
+  );
+}
+
+function getStoredRecipient() {
+  return (
+    localStorage.getItem(
+      "registrationOtpRecipient",
+    ) ||
+    localStorage.getItem(
+      "registrationRecipient",
+    ) ||
+    ""
+  );
 }
 
 function VerifyAccount() {
@@ -64,8 +96,27 @@ function VerifyAccount() {
   ] = useState("");
 
   const [
+    otpChannel,
+    setOtpChannel,
+  ] = useState(
+    getStoredChannel(),
+  );
+
+  const [
+    recipient,
+    setRecipient,
+  ] = useState(
+    getStoredRecipient(),
+  );
+
+  const [
     loading,
     setLoading,
+  ] = useState(false);
+
+  const [
+    resendLoading,
+    setResendLoading,
   ] = useState(false);
 
   const [
@@ -78,6 +129,13 @@ function VerifyAccount() {
     setSuccess,
   ] = useState("");
 
+  const isLoading =
+    loading ||
+    authLoading;
+
+  const isEmailOtp =
+    otpChannel === "email";
+
   useEffect(() => {
     const savedPhone =
       localStorage.getItem(
@@ -86,39 +144,142 @@ function VerifyAccount() {
 
     if (savedPhone) {
       setPhone(
-        getLocalPhone(savedPhone),
+        getLocalPhone(
+          savedPhone,
+        ),
+      );
+    }
+
+    const savedChannel =
+      getStoredChannel();
+
+    const savedRecipient =
+      getStoredRecipient();
+
+    if (savedChannel) {
+      setOtpChannel(
+        savedChannel,
+      );
+    }
+
+    if (savedRecipient) {
+      setRecipient(
+        savedRecipient,
       );
     }
   }, []);
 
-  const isLoading =
-    loading || authLoading;
+  const handlePhoneChange =
+    (event) => {
+      const value =
+        event.target.value
+          .replace(/\D/g, "")
+          .slice(0, 10);
 
-  const handlePhoneChange = (
-    event,
+      setPhone(value);
+      setError("");
+      setSuccess("");
+    };
+
+  const handleOtpChange =
+    (event) => {
+      const value =
+        event.target.value
+          .replace(/\D/g, "")
+          .slice(0, 6);
+
+      setOtp(value);
+      setError("");
+      setSuccess("");
+    };
+
+  const saveDestination = (
+    channel,
+    destination,
   ) => {
-    const value =
-      event.target.value
-        .replace(/\D/g, "")
-        .slice(0, 10);
+    const safeChannel =
+      channel === "email"
+        ? "email"
+        : channel ===
+            "whatsapp"
+          ? "whatsapp"
+          : "sms";
 
-    setPhone(value);
-    setError("");
-    setSuccess("");
+    const safeRecipient =
+      String(
+        destination || "",
+      ).trim();
+
+    setOtpChannel(
+      safeChannel,
+    );
+
+    setRecipient(
+      safeRecipient,
+    );
+
+    localStorage.setItem(
+      "registrationOtpChannel",
+      safeChannel,
+    );
+
+    localStorage.setItem(
+      "registrationOtpRecipient",
+      safeRecipient,
+    );
   };
 
-  const handleOtpChange = (
-    event,
-  ) => {
-    const value =
-      event.target.value
-        .replace(/\D/g, "")
-        .slice(0, 6);
+  const getDestination =
+    (response) => {
+      const responseData =
+        response?.data || {};
 
-    setOtp(value);
-    setError("");
-    setSuccess("");
-  };
+      const channel =
+        responseData.channel ||
+        response?.channel ||
+        otpChannel ||
+        "sms";
+
+      const actualChannel =
+        String(channel)
+          .trim()
+          .toLowerCase();
+
+      const safeChannel =
+        actualChannel ===
+        "email"
+          ? "email"
+          : actualChannel ===
+              "whatsapp"
+            ? "whatsapp"
+            : "sms";
+
+      const responseRecipient =
+        responseData.recipient ||
+        response?.recipient ||
+        "";
+
+      const fallbackRecipient =
+        safeChannel ===
+        "email"
+          ? localStorage.getItem(
+              "registrationEmail",
+            ) || ""
+          : normalizePhone(
+              phone,
+            );
+
+      return {
+        channel:
+          safeChannel,
+        recipient:
+          String(
+            responseRecipient ||
+              fallbackRecipient ||
+              "",
+          ).trim(),
+      };
+    };
 
   const handleSubmit =
     async (event) => {
@@ -162,19 +323,74 @@ function VerifyAccount() {
           cleanPhone,
         );
 
+      if (!internationalPhone) {
+        setError(
+          "Please enter a valid mobile number.",
+        );
+
+        return;
+      }
+
+      const requestData = {
+        phone:
+          internationalPhone,
+        code:
+          cleanOtp,
+        channel:
+          otpChannel,
+      };
+
+      /*
+       * When email fallback is being
+       * used, recipient MUST be the
+       * email address that received
+       * the OTP.
+       */
+      if (
+        otpChannel === "email"
+      ) {
+        const email =
+          String(
+            recipient ||
+              localStorage.getItem(
+                "registrationEmail",
+              ) ||
+              "",
+          )
+            .trim()
+            .toLowerCase();
+
+        if (
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+            email,
+          )
+        ) {
+          setError(
+            "A valid registered email address is required for email OTP verification.",
+          );
+
+          return;
+        }
+
+        requestData.recipient =
+          email;
+      } else {
+        requestData.recipient =
+          internationalPhone;
+      }
+
       try {
         setLoading(true);
 
         const response =
-          await verifyRegister({
-            phone:
-              internationalPhone,
-            code: cleanOtp,
-          });
+          await verifyRegister(
+            requestData,
+          );
 
         const token =
           response?.data?.token ||
-          response?.data?.accessToken ||
+          response?.data
+            ?.accessToken ||
           response?.token ||
           response?.accessToken ||
           null;
@@ -208,6 +424,26 @@ function VerifyAccount() {
           "registrationEmail",
         );
 
+        localStorage.removeItem(
+          "registrationOtpChannel",
+        );
+
+        localStorage.removeItem(
+          "registrationOtpRecipient",
+        );
+
+        localStorage.removeItem(
+          "registrationChannel",
+        );
+
+        localStorage.removeItem(
+          "registrationRecipient",
+        );
+
+        localStorage.removeItem(
+          "registrationFallbackUsed",
+        );
+
         setSuccess(
           "Your account has been verified successfully.",
         );
@@ -220,7 +456,9 @@ function VerifyAccount() {
             },
           );
         }, 900);
-      } catch (requestError) {
+      } catch (
+        requestError
+      ) {
         setError(
           requestError?.message ||
             "Invalid or expired OTP.",
@@ -230,10 +468,126 @@ function VerifyAccount() {
       }
     };
 
+  const handleResendOtp =
+    async () => {
+      setError("");
+      setSuccess("");
+
+      const cleanPhone =
+        phone.trim();
+
+      if (
+        !/^[6-9]\d{9}$/.test(
+          cleanPhone,
+        )
+      ) {
+        setError(
+          "Please enter a valid 10-digit mobile number before resending the OTP.",
+        );
+
+        return;
+      }
+
+      const internationalPhone =
+        normalizePhone(
+          cleanPhone,
+        );
+
+      if (!internationalPhone) {
+        setError(
+          "Please enter a valid mobile number.",
+        );
+
+        return;
+      }
+
+      try {
+        setResendLoading(
+          true,
+        );
+
+        /*
+         * Ask backend to retry SMS.
+         *
+         * If SMS fails again, backend
+         * automatically sends a NEW
+         * OTP to registered email.
+         */
+        const response =
+          await resendRegistrationOtp(
+            {
+              phone:
+                internationalPhone,
+              channel: "sms",
+            },
+          );
+
+        const destination =
+          getDestination(
+            response,
+          );
+
+        saveDestination(
+          destination.channel,
+          destination.recipient,
+        );
+
+        setOtp("");
+
+        if (
+          destination.channel ===
+          "email"
+        ) {
+          setSuccess(
+            destination.recipient
+              ? `A new verification code has been sent to ${destination.recipient}.`
+              : "A new verification code has been sent to your registered email address.",
+          );
+
+          return;
+        }
+
+        if (
+          destination.channel ===
+          "whatsapp"
+        ) {
+          setSuccess(
+            `A new verification code has been sent to WhatsApp at ${
+              destination.recipient ||
+              internationalPhone
+            }.`,
+          );
+
+          return;
+        }
+
+        setSuccess(
+          `A new verification code has been sent to ${internationalPhone}.`,
+        );
+      } catch (
+        requestError
+      ) {
+        setError(
+          requestError?.message ||
+            "Unable to resend verification code.",
+        );
+      } finally {
+        setResendLoading(
+          false,
+        );
+      }
+    };
+
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        <div className={styles.header}>
+    <div
+      className={styles.page}
+    >
+      <div
+        className={styles.card}
+      >
+        <div
+          className={styles.header}
+        >
           <span
             className={
               styles.eyebrow
@@ -255,8 +609,9 @@ function VerifyAccount() {
               styles.subtitle
             }
           >
-            Verify your mobile number to
-            activate your account.
+            {isEmailOtp
+              ? "Enter the verification code sent to your registered email address."
+              : "Enter the verification code sent to your registered mobile number."}
           </p>
         </div>
 
@@ -278,7 +633,15 @@ function VerifyAccount() {
             }
             role="status"
           >
-            {success}
+            <strong>
+              {isEmailOtp
+                ? "Verification code sent by email"
+                : "Verification code sent"}
+            </strong>
+
+            <div>
+              {success}
+            </div>
           </div>
         )}
 
@@ -332,7 +695,8 @@ function VerifyAccount() {
                 autoComplete="tel"
                 maxLength={10}
                 disabled={
-                  isLoading
+                  isLoading ||
+                  resendLoading
                 }
                 required
               />
@@ -368,7 +732,8 @@ function VerifyAccount() {
               autoComplete="one-time-code"
               maxLength={6}
               disabled={
-                isLoading
+                isLoading ||
+                resendLoading
               }
               autoFocus
               required
@@ -379,8 +744,15 @@ function VerifyAccount() {
                 styles.helperText
               }
             >
-              Enter the 6-digit verification
-              code sent to your mobile number.
+              {isEmailOtp
+                ? `Enter the 6-digit code sent to ${
+                    recipient ||
+                    "your registered email address"
+                  }.`
+                : `Enter the 6-digit verification code sent to ${
+                    recipient ||
+                    "your mobile number"
+                  }.`}
             </p>
           </div>
 
@@ -390,12 +762,31 @@ function VerifyAccount() {
             }
             type="submit"
             disabled={
-              isLoading
+              isLoading ||
+              resendLoading
             }
           >
-            {isLoading
+            {loading
               ? "Verifying..."
               : "Verify Account"}
+          </button>
+
+          <button
+            className={
+              styles.secondaryButton
+            }
+            type="button"
+            onClick={
+              handleResendOtp
+            }
+            disabled={
+              isLoading ||
+              resendLoading
+            }
+          >
+            {resendLoading
+              ? "Sending..."
+              : "Resend OTP"}
           </button>
         </form>
 

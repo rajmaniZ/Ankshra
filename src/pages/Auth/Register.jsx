@@ -105,6 +105,7 @@ function Register() {
         setError(
           "Please enter your full name.",
         );
+
         return;
       }
 
@@ -116,6 +117,7 @@ function Register() {
         setError(
           "Please enter a valid email address.",
         );
+
         return;
       }
 
@@ -127,6 +129,7 @@ function Register() {
         setError(
           "Please enter a valid 10-digit mobile number.",
         );
+
         return;
       }
 
@@ -134,6 +137,7 @@ function Register() {
         setError(
           "Password must contain at least 8 characters.",
         );
+
         return;
       }
 
@@ -144,6 +148,7 @@ function Register() {
         setError(
           "Passwords do not match.",
         );
+
         return;
       }
 
@@ -153,13 +158,33 @@ function Register() {
       try {
         setLoading(true);
 
-        await register({
-          name,
-          email,
-          phone:
-            internationalPhone,
-          password,
-        });
+        const response =
+          await register({
+            name,
+            email,
+            phone:
+              internationalPhone,
+            password,
+          });
+
+        const registrationData =
+          response?.data || {};
+
+        const channel =
+          registrationData.channel ||
+          response?.channel ||
+          "sms";
+
+        const fallbackUsed =
+          Boolean(
+            registrationData.fallbackUsed ??
+            response?.fallbackUsed,
+          );
+
+        const recipient =
+          registrationData.recipient ||
+          response?.recipient ||
+          internationalPhone;
 
         localStorage.setItem(
           "registrationPhone",
@@ -169,6 +194,23 @@ function Register() {
         localStorage.setItem(
           "registrationEmail",
           email,
+        );
+
+        localStorage.setItem(
+          "registrationChannel",
+          channel,
+        );
+
+        localStorage.setItem(
+          "registrationFallbackUsed",
+          String(
+            fallbackUsed,
+          ),
+        );
+
+        localStorage.setItem(
+          "registrationRecipient",
+          recipient,
         );
 
         navigate(

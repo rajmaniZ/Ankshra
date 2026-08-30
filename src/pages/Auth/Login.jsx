@@ -10,9 +10,6 @@ import {
 
 import {
   FiArrowRight,
-  FiCheck,
-  FiLock,
-  FiPhone,
 } from "react-icons/fi";
 
 import {
@@ -20,6 +17,76 @@ import {
 } from "../../context/AuthContext";
 
 import styles from "./Login.module.css";
+
+function normalizePhone(value) {
+  const digits =
+    String(value || "")
+      .replace(/\D/g, "");
+
+  if (
+    digits.length === 10
+  ) {
+    return `+91${digits}`;
+  }
+
+  if (
+    digits.length === 12 &&
+    digits.startsWith("91")
+  ) {
+    return `+${digits}`;
+  }
+
+  return "";
+}
+
+function getResponseData(
+  response,
+) {
+  if (
+    response?.data &&
+    typeof response.data === "object"
+  ) {
+    return response.data;
+  }
+
+  return {};
+}
+
+function normalizeChannel(
+  value,
+) {
+  const channel =
+    String(value || "")
+      .trim()
+      .toLowerCase();
+
+  if (
+    channel === "email"
+  ) {
+    return "email";
+  }
+
+  if (
+    channel === "whatsapp"
+  ) {
+    return "whatsapp";
+  }
+
+  return "sms";
+}
+
+function getResponseMessage(
+  response,
+) {
+  const data =
+    getResponseData(response);
+
+  return (
+    response?.message ||
+    data?.message ||
+    ""
+  );
+}
 
 function Login() {
   const navigate =
@@ -30,6 +97,7 @@ function Login() {
 
   const {
     loginSendOtp,
+    loginResendOtp,
     loginVerifyOtp,
     loading: authLoading,
   } = useAuthContext();
@@ -50,8 +118,23 @@ function Login() {
   ] = useState("");
 
   const [
+    otpChannel,
+    setOtpChannel,
+  ] = useState("sms");
+
+  const [
+    otpRecipient,
+    setOtpRecipient,
+  ] = useState("");
+
+  const [
     loading,
     setLoading,
+  ] = useState(false);
+
+  const [
+    resendLoading,
+    setResendLoading,
   ] = useState(false);
 
   const [
@@ -65,7 +148,9 @@ function Login() {
   ] = useState("");
 
   const isLoading =
-    loading || authLoading;
+    loading ||
+    resendLoading ||
+    authLoading;
 
   const getSafeRedirect =
     (loggedInUser) => {
@@ -76,7 +161,9 @@ function Login() {
           .trim()
           .toLowerCase();
 
-      if (role === "admin") {
+      if (
+        role === "admin"
+      ) {
         return "/admin";
       }
 
@@ -106,39 +193,95 @@ function Login() {
       return "/";
     };
 
-  const handleMobileChange = (
-    event,
-  ) => {
-    const value =
-      event.target.value.replace(
-        /\D/g,
-        "",
+  const handleMobileChange =
+    (event) => {
+      const value =
+        event.target.value
+          .replace(/\D/g, "")
+          .slice(0, 10);
+
+      setMobile(value);
+      setError("");
+      setMessage("");
+    };
+
+  const handleOtpChange =
+    (event) => {
+      const value =
+        event.target.value
+          .replace(/\D/g, "")
+          .slice(0, 6);
+
+      setOtp(value);
+      setError("");
+      setMessage("");
+    };
+
+  const updateOtpDestination =
+    (
+      response,
+      fallbackChannel = "sms",
+      fallbackRecipient = "",
+    ) => {
+      const data =
+        getResponseData(response);
+
+      const returnedChannel =
+        normalizeChannel(
+          data.channel ||
+            response?.channel ||
+            fallbackChannel,
+        );
+
+      const returnedRecipient =
+        String(
+          data.recipient ||
+            response?.recipient ||
+            fallbackRecipient ||
+            "",
+        ).trim();
+
+      setOtpChannel(
+        returnedChannel,
       );
 
-    setMobile(
-      value.slice(0, 10),
-    );
-
-    setError("");
-    setMessage("");
-  };
-
-  const handleOtpChange = (
-    event,
-  ) => {
-    const value =
-      event.target.value.replace(
-        /\D/g,
-        "",
+      setOtpRecipient(
+        returnedRecipient,
       );
 
-    setOtp(
-      value.slice(0, 6),
-    );
+      return {
+        channel:
+          returnedChannel,
+        recipient:
+          returnedRecipient,
+      };
+    };
 
-    setError("");
-    setMessage("");
-  };
+  const getOtpRecipientText =
+    () => {
+      if (
+        otpChannel === "email"
+      ) {
+        return (
+          otpRecipient ||
+          "your registered email address"
+        );
+      }
+
+      if (
+        otpChannel === "whatsapp"
+      ) {
+        return (
+          otpRecipient ||
+          `+91 ${mobile}`
+        );
+      }
+
+      return (
+        otpRecipient ||
+        `+91 ${mobile}`
+      );
+    };
 
   const handleSendOtp =
     async (event) => {
@@ -147,12 +290,12 @@ function Login() {
       setError("");
       setMessage("");
 
-      const value =
+      const cleanMobile =
         mobile.trim();
 
       if (
         !/^[6-9]\d{9}$/.test(
-          value,
+          cleanMobile,
         )
       ) {
         setError(
@@ -163,30 +306,171 @@ function Login() {
       }
 
       const internationalPhone =
-        `+91${value}`;
+        normalizePhone(
+          cleanMobile,
+        );
+
+      if (!internationalPhone) {
+        setError(
+          "Unable to process this mobile number.",
+        );
+
+        return;
+      }
 
       try {
         setLoading(true);
 
-        await loginSendOtp({
-          identifier:
+        const response =
+          await loginSendOtp({
+            identifier:
+              internationalPhone,
+            channel:
+              "sms",
+          });
+
+        const destination =
+          updateOtpDestination(
+            response,
+            "sms",
             internationalPhone,
-          channel: "sms",
-        });
+          );
 
         setOtp("");
         setStep("otp");
 
-        setMessage(
-          `OTP sent to ${internationalPhone}.`,
-        );
-      } catch (requestError) {
+        if (
+          destination.channel ===
+          "email"
+        ) {
+          setMessage(
+            destination.recipient
+              ? `Verification code sent to ${destination.recipient}.`
+              : "SMS was unavailable. Verification code sent to your registered email address.",
+          );
+        } else if (
+          destination.channel ===
+          "whatsapp"
+        ) {
+          setMessage(
+            destination.recipient
+              ? `Verification code sent to ${destination.recipient} on WhatsApp.`
+              : "Verification code sent to your WhatsApp number.",
+          );
+        } else {
+          setMessage(
+            destination.recipient
+              ? `Verification code sent to ${destination.recipient}.`
+              : `Verification code sent to ${internationalPhone}.`,
+          );
+        }
+      } catch (
+        requestError
+      ) {
         setError(
           requestError?.message ||
             "Unable to send OTP. Please try again.",
         );
       } finally {
         setLoading(false);
+      }
+    };
+
+  const handleResendOtp =
+    async () => {
+      setError("");
+      setMessage("");
+
+      const cleanMobile =
+        mobile.trim();
+
+      if (
+        !/^[6-9]\d{9}$/.test(
+          cleanMobile,
+        )
+      ) {
+        setError(
+          "Enter a valid 10-digit mobile number.",
+        );
+
+        return;
+      }
+
+      const internationalPhone =
+        normalizePhone(
+          cleanMobile,
+        );
+
+      if (!internationalPhone) {
+        setError(
+          "Unable to process this mobile number.",
+        );
+
+        return;
+      }
+
+      try {
+        setResendLoading(true);
+
+        /*
+         * Always resend using the original
+         * mobile identifier.
+         *
+         * The backend decides whether the
+         * OTP is delivered by SMS or falls
+         * back to the registered email.
+         */
+        const response =
+          await loginResendOtp({
+            identifier:
+              internationalPhone,
+            channel:
+              "sms",
+          });
+
+        const destination =
+          updateOtpDestination(
+            response,
+            "sms",
+            internationalPhone,
+          );
+
+        setOtp("");
+
+        if (
+          destination.channel ===
+          "email"
+        ) {
+          setMessage(
+            destination.recipient
+              ? `New verification code sent to ${destination.recipient}.`
+              : "SMS was unavailable. New verification code sent to your registered email address.",
+          );
+        } else if (
+          destination.channel ===
+          "whatsapp"
+        ) {
+          setMessage(
+            destination.recipient
+              ? `New verification code sent to ${destination.recipient} on WhatsApp.`
+              : "New verification code sent to your WhatsApp number.",
+          );
+        } else {
+          setMessage(
+            destination.recipient
+              ? `New verification code sent to ${destination.recipient}.`
+              : `New verification code sent to ${internationalPhone}.`,
+          );
+        }
+      } catch (
+        requestError
+      ) {
+        setError(
+          requestError?.message ||
+            "Unable to resend OTP. Please try again.",
+        );
+      } finally {
+        setResendLoading(false);
       }
     };
 
@@ -201,39 +485,73 @@ function Login() {
         otp.trim();
 
       if (
-        !/^\d{4,6}$/.test(
-          code,
-        )
+        !/^\d{6}$/.test(code)
       ) {
         setError(
-          "Enter the OTP sent to your mobile.",
+          "Enter the 6-digit verification code.",
         );
 
         return;
       }
 
       const internationalPhone =
-        `+91${mobile.trim()}`;
+        normalizePhone(
+          mobile.trim(),
+        );
+
+      if (!internationalPhone) {
+        setError(
+          "Unable to process this mobile number.",
+        );
+
+        return;
+      }
+
+      /*
+       * IMPORTANT:
+       *
+       * identifier remains the original
+       * phone number used to find the account.
+       *
+       * channel and recipient are the actual
+       * destination returned by the backend.
+       *
+       * Example:
+       *
+       * identifier = +919999999999
+       * channel    = email
+       * recipient  = user@gmail.com
+       *
+       * This allows an email fallback OTP
+       * to be verified against the email OTP,
+       * while still logging into the account
+       * found through the phone number.
+       */
+      const requestData = {
+        identifier:
+          internationalPhone,
+        channel:
+          normalizeChannel(
+            otpChannel,
+          ),
+        recipient:
+          otpRecipient ||
+          internationalPhone,
+        code,
+      };
 
       try {
         setLoading(true);
 
         const response =
-          await loginVerifyOtp({
-            identifier:
-              internationalPhone,
-            channel: "sms",
-            code,
-          });
+          await loginVerifyOtp(
+            requestData,
+          );
 
         const loggedInUser =
-          response?.user;
-
-        if (!loggedInUser) {
-          throw new Error(
-            "Unable to load your account. Please try again.",
-          );
-        }
+          response?.user ||
+          response?.data?.user ||
+          null;
 
         const redirectPath =
           getSafeRedirect(
@@ -246,7 +564,9 @@ function Login() {
             replace: true,
           },
         );
-      } catch (requestError) {
+      } catch (
+        requestError
+      ) {
         setError(
           requestError?.message ||
             "Invalid or expired OTP.",
@@ -260,22 +580,22 @@ function Login() {
     () => {
       setStep("mobile");
       setOtp("");
+      setOtpChannel("sms");
+      setOtpRecipient("");
       setError("");
       setMessage("");
     };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        <div className={styles.header}>
-          <div className={styles.icon}>
-            {step === "mobile" ? (
-              <FiPhone size={20} />
-            ) : (
-              <FiLock size={20} />
-            )}
-          </div>
-
+    <div
+      className={styles.page}
+    >
+      <div
+        className={styles.card}
+      >
+        <div
+          className={styles.header}
+        >
           <span
             className={
               styles.eyebrow
@@ -285,9 +605,7 @@ function Login() {
           </span>
 
           <h1
-            className={
-              styles.title
-            }
+            className={styles.title}
           >
             Sign In
           </h1>
@@ -298,8 +616,12 @@ function Login() {
             }
           >
             {step === "mobile"
-              ? "Sign in with your registered mobile number."
-              : `Enter the verification code sent to +91 ${mobile}.`}
+              ? "Enter your mobile number to continue."
+              : otpChannel === "email"
+                ? "Enter the verification code sent to your registered email address."
+                : otpChannel === "whatsapp"
+                  ? "Enter the verification code sent to your WhatsApp number."
+                  : "Enter the verification code sent to your mobile number."}
           </p>
         </div>
 
@@ -321,11 +643,7 @@ function Login() {
             }
             role="status"
           >
-            <FiCheck size={15} />
-
-            <span>
-              {message}
-            </span>
+            {message}
           </div>
         )}
 
@@ -383,6 +701,7 @@ function Login() {
                     isLoading
                   }
                   autoFocus
+                  required
                 />
               </div>
             </div>
@@ -397,12 +716,12 @@ function Login() {
               }
             >
               <span>
-                {isLoading
+                {loading
                   ? "Sending OTP..."
                   : "Continue"}
               </span>
 
-              {!isLoading && (
+              {!loading && (
                 <FiArrowRight
                   size={16}
                 />
@@ -444,6 +763,7 @@ function Login() {
               <input
                 id="login-otp"
                 className={
+                  styles.otpInput ||
                   styles.input
                 }
                 type="text"
@@ -452,14 +772,26 @@ function Login() {
                 onChange={
                   handleOtpChange
                 }
-                placeholder="Enter OTP"
+                placeholder="Enter 6-digit OTP"
                 autoComplete="one-time-code"
                 maxLength={6}
                 disabled={
                   isLoading
                 }
                 autoFocus
+                required
               />
+
+              <p
+                className={
+                  styles.helperText
+                }
+              >
+                Enter the 6-digit
+                verification code sent
+                to{" "}
+                {getOtpRecipientText()}.
+              </p>
             </div>
 
             <button
@@ -472,16 +804,33 @@ function Login() {
               }
             >
               <span>
-                {isLoading
+                {loading
                   ? "Verifying..."
                   : "Verify & Sign In"}
               </span>
 
-              {!isLoading && (
+              {!loading && (
                 <FiArrowRight
                   size={16}
                 />
               )}
+            </button>
+
+            <button
+              type="button"
+              className={
+                styles.secondaryButton
+              }
+              onClick={
+                handleResendOtp
+              }
+              disabled={
+                isLoading
+              }
+            >
+              {resendLoading
+                ? "Sending..."
+                : "Resend OTP"}
             </button>
 
             <button

@@ -30,7 +30,9 @@ function normalizePhone(value) {
     return `+${digits}`;
   }
 
-  return value.trim();
+  return String(
+    value || "",
+  ).trim();
 }
 
 function ForgotPassword() {
@@ -53,8 +55,23 @@ function ForgotPassword() {
   ] = useState("");
 
   const [
+    channel,
+    setChannel,
+  ] = useState("sms");
+
+  const [
+    recipient,
+    setRecipient,
+  ] = useState("");
+
+  const [
     loading,
     setLoading,
+  ] = useState(false);
+
+  const [
+    resendLoading,
+    setResendLoading,
   ] = useState(false);
 
   const [
@@ -87,6 +104,22 @@ function ForgotPassword() {
       setOtp(value);
       setError("");
       setMessage("");
+    };
+
+  const getRequestIdentifier =
+    () => {
+      const value =
+        identifier.trim();
+
+      if (
+        value.includes("@")
+      ) {
+        return value.toLowerCase();
+      }
+
+      return normalizePhone(
+        value,
+      );
     };
 
   const handleSendOtp =
@@ -143,9 +176,7 @@ function ForgotPassword() {
         setLoading(true);
 
         const requestValue =
-          isEmail
-            ? value.toLowerCase()
-            : normalizePhone(value);
+          getRequestIdentifier();
 
         const response =
           await forgotPassword({
@@ -153,11 +184,47 @@ function ForgotPassword() {
               requestValue,
           });
 
+        const responseData =
+          response?.data || {};
+
+        const responseChannel =
+          responseData.channel ||
+          response?.channel ||
+          (
+            isEmail
+              ? "email"
+              : "sms"
+          );
+
+        const responseRecipient =
+          responseData.recipient ||
+          response?.recipient ||
+          requestValue;
+
+        const actualChannel =
+          responseChannel === "email"
+            ? "email"
+            : "sms";
+
+        setChannel(
+          actualChannel,
+        );
+
+        setRecipient(
+          responseRecipient,
+        );
+
+        setOtp("");
         setStep("otp");
 
         setMessage(
           response?.message ||
-            "Verification code sent successfully.",
+            responseData.message ||
+            (
+              actualChannel === "email"
+                ? "Verification code sent to your email address."
+                : "Verification code sent to your mobile number."
+            ),
         );
       } catch (requestError) {
         setError(
@@ -166,6 +233,93 @@ function ForgotPassword() {
         );
       } finally {
         setLoading(false);
+      }
+    };
+
+  const handleResendOtp =
+    async () => {
+      setError("");
+      setMessage("");
+
+      const requestValue =
+        getRequestIdentifier();
+
+      if (!requestValue) {
+        setError(
+          "Your email or mobile number is required.",
+        );
+
+        return;
+      }
+
+      try {
+        setResendLoading(true);
+
+        /*
+         * The existing forgot-password endpoint
+         * creates a new OTP, so it can safely be
+         * used for resend.
+         *
+         * This also preserves the backend's
+         * SMS -> email fallback behaviour.
+         */
+        const response =
+          await forgotPassword({
+            identifier:
+              requestValue,
+          });
+
+        const responseData =
+          response?.data || {};
+
+        const responseChannel =
+          responseData.channel ||
+          response?.channel ||
+          channel;
+
+        const responseRecipient =
+          responseData.recipient ||
+          response?.recipient ||
+          requestValue;
+
+        const actualChannel =
+          responseChannel === "email"
+            ? "email"
+            : "sms";
+
+        setChannel(
+          actualChannel,
+        );
+
+        setRecipient(
+          responseRecipient,
+        );
+
+        setOtp("");
+
+        if (
+          actualChannel === "email"
+        ) {
+          setMessage(
+            responseRecipient &&
+              responseRecipient.includes(
+                "@",
+              )
+              ? `A new verification code has been sent to ${responseRecipient}.`
+              : "A new verification code has been sent to your registered email address.",
+          );
+        } else {
+          setMessage(
+            `A new verification code has been sent to ${responseRecipient}.`,
+          );
+        }
+      } catch (requestError) {
+        setError(
+          requestError?.message ||
+            "Unable to resend verification code.",
+        );
+      } finally {
+        setResendLoading(false);
       }
     };
 
@@ -187,31 +341,21 @@ function ForgotPassword() {
       try {
         setLoading(true);
 
-        const isEmail =
-          identifier.includes("@");
-
         const requestValue =
-          isEmail
-            ? identifier
-                .trim()
-                .toLowerCase()
-            : normalizePhone(
-                identifier,
-              );
+          getRequestIdentifier();
 
         const response =
           await verifyPasswordResetOtp({
             identifier:
               requestValue,
-            code: otp,
-            channel:
-              isEmail
-                ? "email"
-                : "sms",
+            code:
+              otp.trim(),
+            channel,
           });
 
         const resetToken =
-          response?.data?.resetToken;
+          response?.data?.resetToken ||
+          response?.resetToken;
 
         if (!resetToken) {
           throw new Error(
@@ -222,6 +366,11 @@ function ForgotPassword() {
         sessionStorage.setItem(
           "passwordResetToken",
           resetToken,
+        );
+
+        sessionStorage.setItem(
+          "passwordResetChannel",
+          channel,
         );
 
         navigate(
@@ -239,36 +388,67 @@ function ForgotPassword() {
       }
     };
 
+  const handleChangeIdentifier =
+    () => {
+      setStep("identifier");
+      setOtp("");
+      setError("");
+      setMessage("");
+      setChannel("sms");
+      setRecipient("");
+    };
+
+  const isEmailOtp =
+    channel === "email";
+
+  const isBusy =
+    loading ||
+    resendLoading;
+
   return (
     <div
-      className={styles.page}
+      className={
+        styles.page
+      }
     >
       <div
-        className={styles.card}
+        className={
+          styles.card
+        }
       >
         <span
-          className={styles.eyebrow}
+          className={
+            styles.eyebrow
+          }
         >
           Account Recovery
         </span>
 
         <h1
-          className={styles.title}
+          className={
+            styles.title
+          }
         >
           Forgot Password?
         </h1>
 
         <p
-          className={styles.subtitle}
+          className={
+            styles.subtitle
+          }
         >
           {step === "identifier"
             ? "Enter the email or mobile number associated with your account."
-            : "Enter the verification code sent to your account."}
+            : isEmailOtp
+              ? "Enter the verification code sent to your registered email address."
+              : "Enter the verification code sent to your mobile number."}
         </p>
 
         {error && (
           <div
-            className={styles.error}
+            className={
+              styles.error
+            }
             role="alert"
           >
             {error}
@@ -277,7 +457,9 @@ function ForgotPassword() {
 
         {message && (
           <div
-            className={styles.success}
+            className={
+              styles.success
+            }
             role="status"
           >
             {message}
@@ -286,7 +468,9 @@ function ForgotPassword() {
 
         {step === "identifier" && (
           <form
-            className={styles.form}
+            className={
+              styles.form
+            }
             onSubmit={
               handleSendOtp
             }
@@ -320,7 +504,7 @@ function ForgotPassword() {
                 placeholder="Email or mobile number"
                 autoComplete="username"
                 disabled={
-                  loading
+                  isBusy
                 }
                 autoFocus
                 required
@@ -333,7 +517,7 @@ function ForgotPassword() {
               }
               type="submit"
               disabled={
-                loading
+                isBusy
               }
             >
               {loading
@@ -345,7 +529,9 @@ function ForgotPassword() {
 
         {step === "otp" && (
           <form
-            className={styles.form}
+            className={
+              styles.form
+            }
             onSubmit={
               handleVerifyOtp
             }
@@ -379,7 +565,7 @@ function ForgotPassword() {
                 autoComplete="one-time-code"
                 maxLength={6}
                 disabled={
-                  loading
+                  isBusy
                 }
                 autoFocus
                 required
@@ -390,8 +576,15 @@ function ForgotPassword() {
                   styles.helperText
                 }
               >
-                Enter the 6-digit code sent to
-                your registered contact.
+                {isEmailOtp
+                  ? `Enter the 6-digit code sent to ${
+                      recipient ||
+                      "your registered email address"
+                    }.`
+                  : `Enter the 6-digit code sent to ${
+                      recipient ||
+                      "your mobile number"
+                    }.`}
               </p>
             </div>
 
@@ -401,7 +594,7 @@ function ForgotPassword() {
               }
               type="submit"
               disabled={
-                loading
+                isBusy
               }
             >
               {loading
@@ -414,16 +607,28 @@ function ForgotPassword() {
               className={
                 styles.secondaryButton
               }
-              onClick={() => {
-                setStep(
-                  "identifier",
-                );
-                setOtp("");
-                setError("");
-                setMessage("");
-              }}
+              onClick={
+                handleResendOtp
+              }
               disabled={
-                loading
+                isBusy
+              }
+            >
+              {resendLoading
+                ? "Sending..."
+                : "Resend OTP"}
+            </button>
+
+            <button
+              type="button"
+              className={
+                styles.secondaryButton
+              }
+              onClick={
+                handleChangeIdentifier
+              }
+              disabled={
+                isBusy
               }
             >
               Change Email / Mobile

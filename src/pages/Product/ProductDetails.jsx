@@ -517,7 +517,7 @@ function ProductDetails() {
 
     try {
       await addToCart(
-        product.id,
+        product,
         quantity,
       );
 
@@ -549,7 +549,7 @@ function ProductDetails() {
 
     try {
       await addToCart(
-        product.id,
+        product,
         quantity,
       );
 
