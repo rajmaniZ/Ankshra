@@ -1,0 +1,527 @@
+.page {
+  min-height: 100vh;
+  padding: 50px 20px 80px;
+  background: #fafafa;
+}
+
+.container {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 35px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 25px;
+  color: #555;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: #111;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: #777;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-size: 38px;
+  font-weight: 500;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.9fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.main {
+  display: grid;
+  gap: 20px;
+}
+
+.section,
+.summary {
+  padding: 28px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.sectionHeader > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 500;
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  color: #555;
+  font-size: 11px;
+}
+
+.secondaryButton,
+.textButton {
+  border: 0;
+  background: transparent;
+  color: #111;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.secondaryButton {
+  padding: 9px 14px;
+  border: 1px solid #ddd;
+}
+
+.secondaryButton:hover {
+  border-color: #111;
+}
+
+.textButton {
+  text-decoration: underline;
+}
+
+.addressList {
+  display: grid;
+  gap: 12px;
+}
+
+.addressCard {
+  display: flex;
+  width: 100%;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #e4e4e4;
+  background: #fff;
+  color: #222;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.addressCard:hover {
+  border-color: #aaa;
+}
+
+.addressSelected {
+  border-color: #111;
+}
+
+.addressIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+}
+
+.addressContent {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.addressContent strong {
+  margin-bottom: 2px;
+  font-size: 14px;
+}
+
+.noAddresses {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+  border: 1px dashed #ddd;
+  color: #777;
+  font-size: 14px;
+}
+
+.noAddresses p {
+  margin: 0;
+}
+
+.addressForm {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid #eee;
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.formHeader h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.formGrid label {
+  display: grid;
+  gap: 7px;
+  color: #555;
+  font-size: 12px;
+}
+
+.formGrid input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  outline: 0;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.formGrid input:focus {
+  border-color: #111;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.paymentOptions {
+  display: grid;
+  gap: 12px;
+}
+
+.paymentOption {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #e4e4e4;
+  background: #fff;
+  color: #222;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.paymentOption:hover {
+  border-color: #aaa;
+}
+
+.paymentSelected {
+  border-color: #111;
+}
+
+.paymentRadio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #bbb;
+  border-radius: 50%;
+}
+
+.paymentSelected .paymentRadio {
+  border-color: #111;
+  background: #111;
+  color: #fff;
+}
+
+.paymentOption span:last-child {
+  display: grid;
+  gap: 5px;
+}
+
+.paymentOption strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.paymentOption small {
+  color: #777;
+  font-size: 12px;
+}
+
+.sidebar {
+  position: sticky;
+  top: 20px;
+}
+
+.summary h2 {
+  margin: 0 0 22px;
+  font-size: 21px;
+  font-weight: 500;
+}
+
+.productList {
+  display: grid;
+  gap: 15px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.product {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.productImage {
+  width: 60px;
+  height: 70px;
+  overflow: hidden;
+  background: #f4f4f4;
+}
+
+.productImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.productInfo {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.productInfo strong {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.productInfo span {
+  color: #777;
+  font-size: 12px;
+}
+
+.product > strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.coupon {
+  padding: 20px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.couponRow {
+  display: flex;
+  gap: 8px;
+}
+
+.couponRow input {
+  min-width: 0;
+  flex: 1;
+  height: 42px;
+  padding: 9px 11px;
+  border: 1px solid #ddd;
+  outline: 0;
+  font: inherit;
+}
+
+.couponRow input:focus {
+  border-color: #111;
+}
+
+.couponRow button {
+  min-width: 78px;
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.couponRow button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.couponSuccess {
+  margin: 8px 0 0;
+  color: #357a45;
+  font-size: 12px;
+}
+
+.totals {
+  display: grid;
+  gap: 13px;
+  padding: 20px 0;
+}
+
+.totals > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  color: #666;
+  font-size: 13px;
+}
+
+.totals strong {
+  color: #111;
+  font-weight: 500;
+}
+
+.total {
+  margin-top: 4px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  color: #111 !important;
+  font-size: 15px !important;
+}
+
+.total strong {
+  font-size: 17px;
+}
+
+.note {
+  margin: 13px 0 0;
+  color: #777;
+  text-align: center;
+  font-size: 12px;
+}
+
+.error {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border: 1px solid #e7caca;
+  background: #fff7f7;
+  color: #a33;
+  font-size: 13px;
+}
+
+.loading {
+  padding: 30px;
+  color: #777;
+  text-align: center;
+}
+
+.empty {
+  padding: 70px 20px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  text-align: center;
+}
+
+.empty h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.empty p {
+  margin: 0 0 22px;
+  color: #777;
+}
+
+.empty a {
+  color: #111;
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 30px 14px 60px;
+  }
+
+  .title {
+    font-size: 30px;
+  }
+
+  .section,
+  .summary {
+    padding: 20px;
+  }
+
+  .sectionHeader {
+    align-items: flex-start;
+  }
+
+  .sectionHeader h2 {
+    font-size: 18px;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .full {
+    grid-column: auto;
+  }
+
+  .couponRow {
+    flex-direction: column;
+  }
+
+  .couponRow button {
+    min-height: 42px;
+  }
+}
+
+.couponInput {
+  text-transform: uppercase;
+}

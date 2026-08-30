@@ -1,0 +1,2115 @@
+================================================================================
+FILE: adminCategoryService.js
+================================================================================
+
+import {
+  get,
+  post,
+  put,
+  remove,
+} from "./api";
+
+function buildQuery(params = {}) {
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return query
+    ? `?${query}`
+    : "";
+}
+
+export async function getAdminCategories(
+  params = {},
+) {
+  return get(
+    `/admin/categories${buildQuery(params)}`,
+  );
+}
+
+export async function getAdminCategoryById(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Category ID is required.",
+    );
+  }
+
+  return get(
+    `/admin/categories/${id}`,
+  );
+}
+
+export async function createAdminCategory(
+  data,
+) {
+  if (!data) {
+    throw new Error(
+      "Category data is required.",
+    );
+  }
+
+  return post(
+    "/admin/categories",
+    data,
+  );
+}
+
+export async function updateAdminCategory(
+  id,
+  data,
+) {
+  if (!id) {
+    throw new Error(
+      "Category ID is required.",
+    );
+  }
+
+  if (!data) {
+    throw new Error(
+      "Category data is required.",
+    );
+  }
+
+  return put(
+    `/admin/categories/${id}`,
+    data,
+  );
+}
+
+export async function deleteAdminCategory(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Category ID is required.",
+    );
+  }
+
+  return remove(
+    `/admin/categories/${id}`,
+  );
+}
+
+
+================================================================================
+FILE: adminCouponService.js
+================================================================================
+
+import {
+  get,
+  post,
+  patch,
+  remove,
+} from "./api";
+
+function buildQuery(params = {}) {
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return query
+    ? `?${query}`
+    : "";
+}
+
+export async function getAdminCoupons(
+  params = {},
+) {
+  return get(
+    `/coupons${buildQuery(params)}`,
+  );
+}
+
+export async function getAdminCouponById(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Coupon ID is required.",
+    );
+  }
+
+  return get(
+    `/coupons/${id}`,
+  );
+}
+
+export async function createAdminCoupon(
+  data,
+) {
+  if (!data) {
+    throw new Error(
+      "Coupon data is required.",
+    );
+  }
+
+  return post(
+    "/coupons",
+    data,
+  );
+}
+
+export async function updateAdminCoupon(
+  id,
+  data,
+) {
+  if (!id) {
+    throw new Error(
+      "Coupon ID is required.",
+    );
+  }
+
+  if (!data) {
+    throw new Error(
+      "Coupon data is required.",
+    );
+  }
+
+  return patch(
+    `/coupons/${id}`,
+    data,
+  );
+}
+
+export async function deleteAdminCoupon(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Coupon ID is required.",
+    );
+  }
+
+  return remove(
+    `/coupons/${id}`,
+  );
+}
+
+
+================================================================================
+FILE: adminOfferService.js
+================================================================================
+
+import {
+  get,
+  post,
+  put,
+  patch,
+  remove,
+} from "./api";
+
+function buildQuery(params = {}) {
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return query
+    ? `?${query}`
+    : "";
+}
+
+export async function getAdminOffers(
+  params = {},
+) {
+  return get(
+    `/offers${buildQuery(params)}`,
+  );
+}
+
+export async function getAdminOfferById(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Offer ID is required.",
+    );
+  }
+
+  return get(
+    `/offers/${id}`,
+  );
+}
+
+export async function createAdminOffer(
+  data,
+) {
+  if (!data) {
+    throw new Error(
+      "Offer data is required.",
+    );
+  }
+
+  return post(
+    "/offers",
+    data,
+  );
+}
+
+export async function updateAdminOffer(
+  id,
+  data,
+) {
+  if (!id) {
+    throw new Error(
+      "Offer ID is required.",
+    );
+  }
+
+  if (!data) {
+    throw new Error(
+      "Offer data is required.",
+    );
+  }
+
+  return put(
+    `/offers/${id}`,
+    data,
+  );
+}
+
+export async function patchAdminOffer(
+  id,
+  data,
+) {
+  if (!id) {
+    throw new Error(
+      "Offer ID is required.",
+    );
+  }
+
+  if (!data) {
+    throw new Error(
+      "Offer data is required.",
+    );
+  }
+
+  return patch(
+    `/offers/${id}`,
+    data,
+  );
+}
+
+export async function toggleAdminOffer(
+  id,
+  isActive,
+) {
+  if (!id) {
+    throw new Error(
+      "Offer ID is required.",
+    );
+  }
+
+  return patch(
+    `/offers/${id}/toggle`,
+    {
+      isActive: Boolean(
+        isActive,
+      ),
+    },
+  );
+}
+
+export async function deleteAdminOffer(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Offer ID is required.",
+    );
+  }
+
+  return remove(
+    `/offers/${id}`,
+  );
+}
+
+
+================================================================================
+FILE: adminOrderService.js
+================================================================================
+
+import {
+  get,
+  patch,
+} from "./api";
+
+function buildQuery(params = {}) {
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return query
+    ? `?${query}`
+    : "";
+}
+
+export async function getAdminOrders(
+  params = {},
+) {
+  return get(
+    `/admin/orders${buildQuery(params)}`,
+  );
+}
+
+export async function getAdminOrderById(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Order ID is required.",
+    );
+  }
+
+  return get(
+    `/admin/orders/${id}`,
+  );
+}
+
+export async function updateAdminOrderStatus(
+  id,
+  orderStatus,
+  reason = "",
+) {
+  if (!id) {
+    throw new Error(
+      "Order ID is required.",
+    );
+  }
+
+  if (!orderStatus) {
+    throw new Error(
+      "Order status is required.",
+    );
+  }
+
+  const body = {
+    orderStatus,
+  };
+
+  if (
+    reason &&
+    String(reason).trim()
+  ) {
+    body.reason =
+      String(reason).trim();
+  }
+
+  return patch(
+    `/admin/orders/${id}/status`,
+    body,
+  );
+}
+
+export async function updateAdminPaymentStatus(
+  id,
+  paymentStatus,
+  paymentId,
+) {
+  if (!id) {
+    throw new Error(
+      "Order ID is required.",
+    );
+  }
+
+  if (!paymentStatus) {
+    throw new Error(
+      "Payment status is required.",
+    );
+  }
+
+  const body = {
+    paymentStatus,
+  };
+
+  if (
+    paymentId !== undefined &&
+    paymentId !== null
+  ) {
+    body.paymentId =
+      String(paymentId).trim();
+  }
+
+  return patch(
+    `/admin/orders/${id}/payment-status`,
+    body,
+  );
+}
+
+export async function cancelAdminOrder(
+  id,
+  reason = "",
+) {
+  if (!id) {
+    throw new Error(
+      "Order ID is required.",
+    );
+  }
+
+  return patch(
+    `/admin/orders/${id}/cancel`,
+    {
+      reason: String(
+        reason || "",
+      ).trim(),
+    },
+  );
+}
+
+
+================================================================================
+FILE: adminProductService.js
+================================================================================
+
+
+
+import {
+  get,
+  post,
+  put,
+  patch,
+  remove,
+} from "./api";
+
+export async function getAdminProducts(
+  params = {},
+) {
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return get(
+    `/admin/products${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+export async function getAdminProductById(
+  id,
+) {
+  return get(
+    `/admin/products/${id}`,
+  );
+}
+
+export async function createAdminProduct(
+  data,
+) {
+  return post(
+    "/admin/products",
+    data,
+  );
+}
+
+export async function updateAdminProduct(
+  id,
+  data,
+) {
+  return put(
+    `/admin/products/${id}`,
+    data,
+  );
+}
+
+export async function updateAdminProductStock(
+  id,
+  stock,
+) {
+  return patch(
+    `/admin/products/${id}/stock`,
+    {
+      stock,
+    },
+  );
+}
+
+export async function deleteAdminProduct(
+  id,
+) {
+  return remove(
+    `/admin/products/${id}`,
+  );
+}
+
+
+================================================================================
+FILE: adminPromotionService.js
+================================================================================
+
+import {
+  get,
+} from "./api";
+
+export async function getCouponUsers(
+  id,
+  params = {},
+) {
+  if (!id) {
+    throw new Error(
+      "Coupon ID is required.",
+    );
+  }
+
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return get(
+    `/admin/promotions/coupons/${id}/users${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+export async function getOfferUsers(
+  id,
+  params = {},
+) {
+  if (!id) {
+    throw new Error(
+      "Offer ID is required.",
+    );
+  }
+
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return get(
+    `/admin/promotions/offers/${id}/users${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+export async function getPromotionUsageSummary(
+  type,
+  id,
+  params = {},
+) {
+  if (!type) {
+    throw new Error(
+      "Promotion type is required.",
+    );
+  }
+
+  if (!id) {
+    throw new Error(
+      "Promotion ID is required.",
+    );
+  }
+
+  if (
+    type !== "coupon" &&
+    type !== "offer"
+  ) {
+    throw new Error(
+      "Promotion type must be coupon or offer.",
+    );
+  }
+
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return get(
+    `/admin/promotions/${type}/${id}/summary${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+
+================================================================================
+FILE: adminReviewService.js
+================================================================================
+
+import {
+  get,
+  patch,
+  remove,
+} from "./api";
+
+function buildQuery(params = {}) {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return query ? `?${query}` : "";
+}
+
+export async function getAdminReviews(
+  params = {},
+) {
+  return get(
+    `/admin/reviews${buildQuery(params)}`,
+  );
+}
+
+export async function getAdminReviewById(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Review ID is required.",
+    );
+  }
+
+  return get(
+    `/admin/reviews/${id}`,
+  );
+}
+
+export async function updateAdminReviewStatus(
+  id,
+  isApproved,
+) {
+  if (!id) {
+    throw new Error(
+      "Review ID is required.",
+    );
+  }
+
+  if (typeof isApproved !== "boolean") {
+    throw new Error(
+      "Review approval status must be true or false.",
+    );
+  }
+
+  return patch(
+    `/admin/reviews/${id}/status`,
+    {
+      isApproved,
+    },
+  );
+}
+
+export async function deleteAdminReview(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Review ID is required.",
+    );
+  }
+
+  return remove(
+    `/admin/reviews/${id}`,
+  );
+}
+
+
+================================================================================
+FILE: adminService.js
+================================================================================
+
+import { get, post, put, patch, remove } from "./api";
+function buildQuery(params = {}) {
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      searchParams.set(key, value);
+    }
+  });
+  const query = searchParams.toString();
+  return query ? `?${query}` : "";
+}
+/* ================================ DASHBOARD ================================ */ export async function getAdminDashboard() {
+  return get("/admin/dashboard");
+}
+/* ================================ USERS ================================ */ export async function getAdminUsers(
+  params = {},
+) {
+  return get(`/admin/users${buildQuery(params)}`);
+}
+export async function getAdminUserById(id) {
+  if (!id) {
+    throw new Error("User ID is required.");
+  }
+  return get(`/admin/users/${id}`);
+}
+export async function updateAdminUserStatus(id, isActive) {
+  if (!id) {
+    throw new Error("User ID is required.");
+  }
+  return patch(`/admin/users/${id}/status`, { isActive: Boolean(isActive) });
+}
+export async function updateAdminUserRole(id, role) {
+  if (!id) {
+    throw new Error("User ID is required.");
+  }
+  if (role !== "customer" && role !== "admin") {
+    throw new Error("Invalid user role.");
+  }
+  return patch(`/admin/users/${id}/role`, { role });
+}
+/* ================================ PRODUCTS ================================ */ export async function getAdminProducts(
+  params = {},
+) {
+  return get(`/admin/products${buildQuery(params)}`);
+}
+export async function getAdminProductById(id) {
+  if (!id) {
+    throw new Error("Product ID is required.");
+  }
+  return get(`/admin/products/${id}`);
+}
+export async function createAdminProduct(data) {
+  if (!data) {
+    throw new Error("Product data is required.");
+  }
+  return post("/admin/products", data);
+}
+export async function updateAdminProduct(id, data) {
+  if (!id) {
+    throw new Error("Product ID is required.");
+  }
+  if (!data) {
+    throw new Error("Product data is required.");
+  }
+  return put(`/admin/products/${id}`, data);
+}
+export async function updateAdminProductStock(id, stock) {
+  if (!id) {
+    throw new Error("Product ID is required.");
+  }
+  const numericStock = Number(stock);
+  if (!Number.isFinite(numericStock) || numericStock < 0) {
+    throw new Error("Stock must be a valid non-negative number.");
+  }
+  return patch(`/admin/products/${id}/stock`, { stock: numericStock });
+}
+export async function deleteAdminProduct(id) {
+  if (!id) {
+    throw new Error("Product ID is required.");
+  }
+  return remove(`/admin/products/${id}`);
+}
+/* ================================ CATEGORIES ================================ */ export async function getAdminCategories(
+  params = {},
+) {
+  return get(`/admin/categories${buildQuery(params)}`);
+}
+export async function getAdminCategoryById(id) {
+  if (!id) {
+    throw new Error("Category ID is required.");
+  }
+  return get(`/admin/categories/${id}`);
+}
+export async function createAdminCategory(data) {
+  if (!data) {
+    throw new Error("Category data is required.");
+  }
+  return post("/admin/categories", data);
+}
+export async function updateAdminCategory(id, data) {
+  if (!id) {
+    throw new Error("Category ID is required.");
+  }
+  if (!data) {
+    throw new Error("Category data is required.");
+  }
+  return put(`/admin/categories/${id}`, data);
+}
+export async function deleteAdminCategory(id) {
+  if (!id) {
+    throw new Error("Category ID is required.");
+  }
+  return remove(`/admin/categories/${id}`);
+}
+/* ================================ ORDERS ================================ */ export async function getAdminOrders(
+  params = {},
+) {
+  return get(`/admin/orders${buildQuery(params)}`);
+}
+export async function getAdminOrderById(id) {
+  if (!id) {
+    throw new Error("Order ID is required.");
+  }
+  return get(`/admin/orders/${id}`);
+}
+export async function updateAdminOrderStatus(id, orderStatus) {
+  if (!id) {
+    throw new Error("Order ID is required.");
+  }
+  if (!orderStatus) {
+    throw new Error("Order status is required.");
+  }
+  return patch(`/admin/orders/${id}/status`, { orderStatus });
+}
+export async function updateAdminPaymentStatus(id, paymentStatus) {
+  if (!id) {
+    throw new Error("Order ID is required.");
+  }
+  if (!paymentStatus) {
+    throw new Error("Payment status is required.");
+  }
+  return patch(`/admin/orders/${id}/payment-status`, { paymentStatus });
+}
+export async function cancelAdminOrder(id) {
+  if (!id) {
+    throw new Error("Order ID is required.");
+  }
+  return patch(`/admin/orders/${id}/cancel`, {});
+}
+/* ================================ REVIEWS ================================ */ export async function getAdminReviews(
+  params = {},
+) {
+  return get(`/admin/reviews${buildQuery(params)}`);
+}
+export async function getAdminReviewById(id) {
+  if (!id) {
+    throw new Error("Review ID is required.");
+  }
+  return get(`/admin/reviews/${id}`);
+}
+export async function updateAdminReviewStatus(id, isApproved) {
+  if (!id) {
+    throw new Error("Review ID is required.");
+  }
+  return patch(`/admin/reviews/${id}/status`, {
+    isApproved: Boolean(isApproved),
+  });
+}
+export async function deleteAdminReview(id) {
+  if (!id) {
+    throw new Error("Review ID is required.");
+  }
+  return remove(`/admin/reviews/${id}`);
+}
+/* ================================ COUPONS ================================ */ export async function getAdminCoupons(
+  params = {},
+) {
+  return get(`/coupons${buildQuery(params)}`);
+}
+export async function getAdminCouponById(id) {
+  if (!id) {
+    throw new Error("Coupon ID is required.");
+  }
+  return get(`/coupons/${id}`);
+}
+export async function createAdminCoupon(data) {
+  if (!data) {
+    throw new Error("Coupon data is required.");
+  }
+  return post("/coupons", data);
+}
+export async function updateAdminCoupon(id, data) {
+  if (!id) {
+    throw new Error("Coupon ID is required.");
+  }
+  if (!data) {
+    throw new Error("Coupon data is required.");
+  }
+  return patch(`/coupons/${id}`, data);
+}
+export async function deleteAdminCoupon(id) {
+  if (!id) {
+    throw new Error("Coupon ID is required.");
+  }
+  return remove(`/coupons/${id}`);
+}
+/* ================================ OFFERS ================================ */ export async function getAdminOffers(
+  params = {},
+) {
+  return get(`/offers${buildQuery(params)}`);
+}
+export async function getAdminOfferById(id) {
+  if (!id) {
+    throw new Error("Offer ID is required.");
+  }
+  return get(`/offers/${id}`);
+}
+export async function createAdminOffer(data) {
+  if (!data) {
+    throw new Error("Offer data is required.");
+  }
+  return post("/offers", data);
+}
+export async function updateAdminOffer(id, data) {
+  if (!id) {
+    throw new Error("Offer ID is required.");
+  }
+  if (!data) {
+    throw new Error("Offer data is required.");
+  }
+  return put(`/offers/${id}`, data);
+}
+export async function patchAdminOffer(id, data) {
+  if (!id) {
+    throw new Error("Offer ID is required.");
+  }
+  if (!data) {
+    throw new Error("Offer data is required.");
+  }
+  return patch(`/offers/${id}`, data);
+}
+export async function toggleAdminOffer(id, isActive) {
+  if (!id) {
+    throw new Error("Offer ID is required.");
+  }
+  return patch(`/offers/${id}/toggle`, { isActive: Boolean(isActive) });
+}
+export async function deleteAdminOffer(id) {
+  if (!id) {
+    throw new Error("Offer ID is required.");
+  }
+  return remove(`/offers/${id}`);
+}
+
+
+
+================================================================================
+FILE: adminUserService.js
+================================================================================
+
+import {
+  get,
+} from "./api";
+
+export async function getAdminUserActivity(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "User ID is required.",
+    );
+  }
+
+  return get(
+    `/admin/users/${id}/activity`,
+  );
+}
+
+export async function getAdminUserActivityHistory(
+  id,
+  params = {},
+) {
+  if (!id) {
+    throw new Error(
+      "User ID is required.",
+    );
+  }
+
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return get(
+    `/admin/users/${id}/activity/history${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+export async function getAdminUserPromotionUsage(
+  id,
+  params = {},
+) {
+  if (!id) {
+    throw new Error(
+      "User ID is required.",
+    );
+  }
+
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return get(
+    `/admin/users/${id}/promotion-usage${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+
+================================================================================
+FILE: api.js
+================================================================================
+
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000/api";
+
+async function apiRequest(endpoint, options = {}) {
+  const token = localStorage.getItem("accessToken");
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(
+    `${API_URL}${endpoint}`,
+    {
+      ...options,
+      headers,
+    },
+  );
+
+  let result = null;
+
+  try {
+    result = await response.json();
+  } catch {
+    result = null;
+  }
+
+  if (response.status === 401) {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+
+    window.dispatchEvent(
+      new Event("auth:logout"),
+    );
+  }
+
+  if (!response.ok || result?.success === false) {
+    const error = new Error(
+      result?.message ||
+        "Something went wrong",
+    );
+
+    error.status = response.status;
+    error.data = result;
+
+    throw error;
+  }
+
+  return result;
+}
+
+export function get(endpoint, options = {}) {
+  return apiRequest(endpoint, {
+    ...options,
+    method: "GET",
+  });
+}
+
+export function post(
+  endpoint,
+  body,
+  options = {},
+) {
+  return apiRequest(endpoint, {
+    ...options,
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function patch(
+  endpoint,
+  body,
+  options = {},
+) {
+  return apiRequest(endpoint, {
+    ...options,
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export function put(
+  endpoint,
+  body,
+  options = {},
+) {
+  return apiRequest(endpoint, {
+    ...options,
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+export function remove(
+  endpoint,
+  options = {},
+) {
+  return apiRequest(endpoint, {
+    ...options,
+    method: "DELETE",
+  });
+}
+
+export { API_URL };
+
+
+================================================================================
+FILE: authService.js
+================================================================================
+
+import {
+  get,
+  post,
+} from "./api";
+
+export function register(data) {
+  return post(
+    "/auth/register",
+    data,
+  );
+}
+
+export function verifyRegistration(data) {
+  return post(
+    "/auth/register/verify",
+    data,
+  );
+}
+
+export function sendLoginOtp(data) {
+  return post(
+    "/auth/login/send-otp",
+    data,
+  );
+}
+
+export function verifyLoginOtp(data) {
+  return post(
+    "/auth/login/verify-otp",
+    data,
+  );
+}
+
+export function forgotPassword(data) {
+  return post(
+    "/auth/forgot-password",
+    data,
+  );
+}
+
+export function verifyPasswordResetOtp(data) {
+  return post(
+    "/auth/forgot-password/verify-otp",
+    data,
+  );
+}
+
+export function resetPassword(data) {
+  return post(
+    "/auth/reset-password",
+    data,
+  );
+}
+
+export function getCurrentUser() {
+  return get(
+    "/auth/me",
+  );
+}
+
+
+================================================================================
+FILE: cartService.js
+================================================================================
+
+import { get, post, patch, remove } from "./api";
+
+export async function getCart() {
+  return get("/cart");
+}
+
+export async function addToCart(productId, quantity = 1) {
+  return post("/cart", {
+    productId,
+    quantity,
+  });
+}
+
+export async function updateCartItem(productId, quantity) {
+  return patch(`/cart/${productId}`, {
+    quantity,
+  });
+}
+
+export async function removeFromCart(productId) {
+  return remove(`/cart/${productId}`);
+}
+
+export async function clearCart() {
+  return remove("/cart");
+}
+
+
+================================================================================
+FILE: categoryService.js
+================================================================================
+
+import {
+  get,
+} from "./api";
+
+export async function getCategories() {
+  return get(
+    "/categories",
+  );
+}
+
+export async function getCategoryBySlug(
+  slug,
+) {
+  if (!slug) {
+    throw new Error(
+      "Category slug is required",
+    );
+  }
+
+  return get(
+    `/categories/${encodeURIComponent(
+      slug,
+    )}`,
+  );
+}
+
+
+================================================================================
+FILE: couponService.js
+================================================================================
+
+import { post } from "./api";
+
+export async function validateCoupon(code, orderAmount) {
+  const couponCode = String(code || "")
+    .trim()
+    .toUpperCase();
+
+  if (!couponCode) {
+    throw new Error("Coupon code is required.");
+  }
+
+  const amount = Number(orderAmount);
+
+  if (!Number.isFinite(amount) || amount < 0) {
+    throw new Error("Valid order amount is required.");
+  }
+
+  return post("/coupons/validate", {
+    code: couponCode,
+    orderAmount: amount,
+  });
+}
+
+
+================================================================================
+FILE: offerService.js
+================================================================================
+
+import {
+  get,
+  post,
+  patch,
+  remove,
+} from "./api";
+
+export async function getOffers(params = {}) {
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return get(
+    `/offers${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+export async function getOfferById(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Offer ID is required.",
+    );
+  }
+
+  return get(
+    `/offers/${id}`,
+  );
+}
+
+export async function createOffer(
+  data,
+) {
+  if (!data) {
+    throw new Error(
+      "Offer data is required.",
+    );
+  }
+
+  return post(
+    "/offers",
+    data,
+  );
+}
+
+export async function updateOffer(
+  id,
+  data,
+) {
+  if (!id) {
+    throw new Error(
+      "Offer ID is required.",
+    );
+  }
+
+  if (!data) {
+    throw new Error(
+      "Offer data is required.",
+    );
+  }
+
+  return patch(
+    `/offers/${id}`,
+    data,
+  );
+}
+
+export async function deleteOffer(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Offer ID is required.",
+    );
+  }
+
+  return remove(
+    `/offers/${id}`,
+  );
+}
+
+export async function toggleOffer(
+  id,
+  isActive,
+) {
+  if (!id) {
+    throw new Error(
+      "Offer ID is required.",
+    );
+  }
+
+  return patch(
+    `/offers/${id}`,
+    {
+      isActive,
+    },
+  );
+}
+
+
+================================================================================
+FILE: orderService.js
+================================================================================
+
+import {
+  get,
+  post,
+  patch,
+} from "./api";
+
+export async function getOrders(
+  params = {},
+) {
+  const query =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        query.append(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const queryString =
+    query.toString();
+
+  const endpoint =
+    queryString
+      ? `/orders?${queryString}`
+      : "/orders";
+
+  return get(endpoint);
+}
+
+export async function getOrderById(
+  id,
+) {
+  if (!id) {
+    throw new Error(
+      "Order ID is required.",
+    );
+  }
+
+  return get(
+    `/orders/${id}`,
+  );
+}
+
+export async function createOrder(
+  data,
+) {
+  if (!data) {
+    throw new Error(
+      "Order data is required.",
+    );
+  }
+
+  return post(
+    "/orders",
+    data,
+  );
+}
+
+export async function cancelOrder(
+  id,
+  reason = "",
+) {
+  if (!id) {
+    throw new Error(
+      "Order ID is required.",
+    );
+  }
+
+  return patch(
+    `/orders/${id}/cancel`,
+    {
+      reason: String(
+        reason || "",
+      ).trim(),
+    },
+  );
+}
+
+
+================================================================================
+FILE: paymentService.js
+================================================================================
+
+import {
+  get,
+  post,
+} from "./api";
+
+export async function createPaymentOrder(
+  orderId,
+) {
+  if (!orderId) {
+    throw new Error(
+      "Order ID is required.",
+    );
+  }
+
+  return post(
+    "/payments/create-order",
+    {
+      orderId,
+    },
+  );
+}
+
+export async function verifyPayment(
+  data,
+) {
+  if (!data) {
+    throw new Error(
+      "Payment verification data is required.",
+    );
+  }
+
+  const requiredFields = [
+    "orderId",
+    "razorpayOrderId",
+    "razorpayPaymentId",
+    "razorpaySignature",
+  ];
+
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      throw new Error(
+        `Missing payment field: ${field}`,
+      );
+    }
+  }
+
+  return post(
+    "/payments/verify",
+    data,
+  );
+}
+
+export async function getPaymentStatus(
+  orderId,
+) {
+  if (!orderId) {
+    throw new Error(
+      "Order ID is required.",
+    );
+  }
+
+  return get(
+    `/payments/${orderId}`,
+  );
+}
+
+
+================================================================================
+FILE: productService.js
+================================================================================
+
+import { get } from "./api";
+
+export function getProducts(
+  params = {},
+) {
+  const searchParams =
+    new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        searchParams.set(
+          key,
+          value,
+        );
+      }
+    },
+  );
+
+  const query =
+    searchParams.toString();
+
+  return get(
+    `/products${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+export function getProductById(
+  id,
+) {
+  return get(
+    `/products/${id}`,
+  );
+}
+
+export function getProductBySlug(
+  slug,
+) {
+  return get(
+    `/products/slug/${slug}`,
+  );
+}
+
+
+================================================================================
+FILE: profileService.js
+================================================================================
+
+// import {
+//   get,
+//   patch,
+//   post,
+//   remove,
+// } from "./api";
+
+// export async function getProfile() {
+//   return get("/users/profile");
+// }
+
+// export async function updateProfile(data) {
+//   return patch(
+//     "/users/profile",
+//     data,
+//   );
+// }
+
+// export async function changePassword(data) {
+//   return post(
+//     "/users/change-password",
+//     data,
+//   );
+// }
+
+// export async function deleteAccount(data) {
+//   return remove(
+//     "/users/account",
+//     data,
+//   );
+// }
+
+// export async function addAddress(data) {
+//   return post(
+//     "/users/addresses",
+//     data,
+//   );
+// }
+
+// export async function updateAddress(
+//   addressId,
+//   data,
+// ) {
+//   return patch(
+//     `/users/addresses/${addressId}`,
+//     data,
+//   );
+// }
+
+// export async function deleteAddress(
+//   addressId,
+// ) {
+//   return remove(
+//     `/users/addresses/${addressId}`,
+//   );
+// }
+
+// export async function setDefaultAddress(
+//   addressId,
+// ) {
+//   return patch(
+//     `/users/addresses/${addressId}/default`,
+//     {},
+//   );
+// }
+
+import {
+  get,
+  patch,
+  post,
+  remove,
+} from "./api";
+
+export async function getProfile() {
+  return get("/users/profile");
+}
+
+export async function updateProfile(
+  data,
+) {
+  return patch(
+    "/users/profile",
+    data,
+  );
+}
+
+export async function changePassword(
+  data,
+) {
+  return post(
+    "/users/change-password",
+    data,
+  );
+}
+
+export async function deleteAccount(
+  data,
+) {
+  return remove(
+    "/users/account",
+    data,
+  );
+}
+
+export async function addAddress(
+  data,
+) {
+  return post(
+    "/users/addresses",
+    data,
+  );
+}
+
+export async function updateAddress(
+  addressId,
+  data,
+) {
+  return patch(
+    `/users/addresses/${addressId}`,
+    data,
+  );
+}
+
+export async function deleteAddress(
+  addressId,
+) {
+  return remove(
+    `/users/addresses/${addressId}`,
+  );
+}
+
+export async function setDefaultAddress(
+  addressId,
+) {
+  return patch(
+    `/users/addresses/${addressId}/default`,
+    {},
+  );
+}
+
+
+================================================================================
+FILE: reviewService.js
+================================================================================
+
+import { get, post, patch, remove } from "./api";
+
+export async function getProductReviews(productId) {
+  return get(`/reviews/product/${productId}`);
+}
+
+export async function getReviewById(id) {
+  return get(`/reviews/${id}`);
+}
+
+export async function createReview(data) {
+  return post("/reviews", data);
+}
+
+export async function updateReview(id, data) {
+  return patch(`/reviews/${id}`, data);
+}
+
+export async function deleteReview(id) {
+  return remove(`/reviews/${id}`);
+}
+
+
+================================================================================
+FILE: userService.js
+================================================================================
+
+import {
+  get,
+  patch,
+  post,
+  remove,
+} from "./api";
+
+export function getProfile() {
+  return get("/users/profile");
+}
+
+export function updateProfile(data) {
+  return patch(
+    "/users/profile",
+    data,
+  );
+}
+
+export function addAddress(data) {
+  return post(
+    "/users/addresses",
+    data,
+  );
+}
+
+export function updateAddress(
+  addressId,
+  data,
+) {
+  return patch(
+    `/users/addresses/${addressId}`,
+    data,
+  );
+}
+
+export function deleteAddress(
+  addressId,
+) {
+  return remove(
+    `/users/addresses/${addressId}`,
+  );
+}
+
+export function setDefaultAddress(
+  addressId,
+) {
+  return patch(
+    `/users/addresses/${addressId}/default`,
+    {},
+  );
+}
+
+
+================================================================================
+FILE: wishlistService.js
+================================================================================
+
+import {
+  get,
+  post,
+  remove,
+} from "./api";
+
+export async function getWishlist() {
+  return get("/wishlist");
+}
+
+export async function addToWishlist(productId) {
+  if (!productId) {
+    throw new Error("Product ID is required");
+  }
+
+  return post("/wishlist", {
+    productId,
+  });
+}
+
+export async function toggleWishlist(productId) {
+  if (!productId) {
+    throw new Error("Product ID is required");
+  }
+
+  return post("/wishlist/toggle", {
+    productId,
+  });
+}
+
+export async function removeFromWishlist(productId) {
+  if (!productId) {
+    throw new Error("Product ID is required");
+  }
+
+  return remove(`/wishlist/${productId}`);
+}
+
+

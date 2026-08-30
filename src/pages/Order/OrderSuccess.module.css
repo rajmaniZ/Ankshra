@@ -1,0 +1,273 @@
+.page {
+  min-height: 70vh;
+  padding: 70px 20px;
+  background: #fafafa;
+}
+
+.container {
+  width: min(720px, 100%);
+  margin: 0 auto;
+}
+
+.successCard {
+  padding: 55px 45px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  text-align: center;
+}
+
+.icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #222;
+  color: #fff;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 10px;
+  color: #777;
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.successCard h1 {
+  margin: 0;
+  color: #171717;
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.message {
+  max-width: 480px;
+  margin: 12px auto 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.orderNumber {
+  margin: 30px auto 0;
+  padding: 18px;
+  border: 1px solid #e5e5e5;
+  background: #fafafa;
+}
+
+.orderNumber span,
+.meta span {
+  display: block;
+  color: #777;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.orderNumber strong {
+  display: block;
+  margin-top: 7px;
+  color: #222;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin-top: 18px;
+  border: 1px solid #e5e5e5;
+  background: #e5e5e5;
+}
+
+.meta div {
+  min-width: 0;
+  padding: 17px 12px;
+  background: #fff;
+}
+
+.meta strong {
+  display: block;
+  margin-top: 7px;
+  color: #222;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.statusPending {
+  color: #8a6500 !important;
+}
+
+.statusSuccess {
+  color: #357a45 !important;
+}
+
+.orderInfo {
+  margin-top: 18px;
+  padding: 20px 0;
+  border-top: 1px solid #e5e5e5;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 34px;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.priceRow span {
+  text-align: left;
+}
+
+.priceRow strong {
+  flex: 0 0 auto;
+  color: #222;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: right;
+}
+
+.discount {
+  color: #9a4444 !important;
+}
+
+.totalRow {
+  margin-top: 10px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+  color: #222;
+}
+
+.totalRow span {
+  color: #222;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.totalRow strong {
+  color: #111;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.actions {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 44px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  font-size: 13px;
+  transition:
+    opacity 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.primaryButton {
+  border: 1px solid #222;
+  background: #222;
+  color: #fff;
+}
+
+.secondaryButton {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #222;
+}
+
+.primaryButton:hover,
+.secondaryButton:hover {
+  opacity: 0.8;
+}
+
+.state,
+.errorState {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.state {
+  color: #666;
+  font-size: 14px;
+}
+
+.errorState h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.errorState p {
+  margin: 10px 0 25px;
+  color: #666;
+  font-size: 14px;
+}
+
+@media (max-width: 760px) {
+  .meta {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 40px 15px;
+  }
+
+  .successCard {
+    padding: 40px 20px;
+  }
+
+  .successCard h1 {
+    font-size: 27px;
+  }
+
+  .meta {
+    grid-template-columns: 1fr;
+  }
+
+  .meta div {
+    padding: 15px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+
+  .priceRow {
+    min-height: 38px;
+  }
+}

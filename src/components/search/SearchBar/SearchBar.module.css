@@ -1,0 +1,70 @@
+.form {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+}
+
+.inputWrapper {
+  position: relative;
+  flex: 1;
+}
+
+.input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 42px 0 14px;
+  border: 1px solid #d8d8d8;
+  border-radius: 0;
+  outline: none;
+  background: #fff;
+  color: #222;
+  font-size: 14px;
+}
+
+.input:focus {
+  border-color: #222;
+}
+
+.input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.clear {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  transform: translateY(-50%);
+  color: #777;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.clear:hover {
+  color: #222;
+}
+
+.button {
+  min-width: 90px;
+  min-height: 46px;
+  padding: 0 18px;
+  background: #222;
+  color: #fff;
+  font-size: 13px;
+}
+
+.button:hover {
+  background: #000;
+}
+
+@media (max-width: 480px) {
+  .form {
+    gap: 6px;
+  }
+
+  .button {
+    min-width: 75px;
+    padding: 0 12px;
+  }
+}

@@ -1,0 +1,308 @@
+.page {
+  min-height: 100vh;
+  background: #fff;
+}
+
+.container {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.hero {
+  padding: 70px 0 65px;
+  background: #f8f6f3;
+  border-bottom: 1px solid #eeeae5;
+}
+
+.heroContent {
+  max-width: 720px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 10px;
+  color: #8a8178;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: #24211f;
+  font-size: 42px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.intro {
+  max-width: 650px;
+  margin: 18px auto 0;
+  color: #77716c;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.contactSection {
+  padding: 70px 0 90px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 80px;
+  align-items: start;
+}
+
+.sectionHeader {
+  margin-bottom: 30px;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  color: #24211f;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.sectionHeader p {
+  margin-top: 10px;
+  color: #77716c;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.contactDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.contactItem {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  font-style: normal;
+}
+
+.icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e4dfda;
+  color: #4b4642;
+}
+
+.icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.contactItem h3 {
+  margin: 0 0 5px;
+  color: #292522;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.contactItem p,
+.contactItem a {
+  margin: 0;
+  color: #77716c;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.contactItem a:hover {
+  color: #24211f;
+}
+
+.whatsappCard {
+  display: flex;
+  gap: 16px;
+  margin-top: 40px;
+  padding: 22px;
+  background: #f8f6f3;
+}
+
+.whatsappIcon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #24211f;
+  color: #fff;
+}
+
+.whatsappIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.whatsappCard h3 {
+  margin: 0;
+  color: #292522;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.whatsappCard p {
+  margin: 7px 0 14px;
+  color: #77716c;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.whatsappButton {
+  padding: 9px 14px;
+  background: #24211f;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.whatsappButton:hover {
+  background: #000;
+}
+
+.formSection {
+  min-width: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  color: #393532;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.field label span {
+  color: #9a5d55;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid #ddd8d3;
+  border-radius: 0;
+  outline: none;
+  background: #fff;
+  color: #292522;
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+}
+
+.field input {
+  height: 46px;
+  padding: 0 14px;
+}
+
+.field textarea {
+  min-height: 150px;
+  padding: 13px 14px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #aaa39d;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: #8d857e;
+}
+
+.submitButton {
+  width: fit-content;
+  min-width: 160px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 2px;
+  padding: 0 20px;
+  background: #24211f;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.submitButton:hover {
+  background: #000;
+}
+
+.submitButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 55px;
+  }
+
+  .sidebar {
+    max-width: 650px;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    width: min(100% - 30px, 1180px);
+  }
+
+  .hero {
+    padding: 50px 0;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .intro {
+    font-size: 14px;
+  }
+
+  .contactSection {
+    padding: 50px 0 65px;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .submitButton {
+    width: 100%;
+  }
+}

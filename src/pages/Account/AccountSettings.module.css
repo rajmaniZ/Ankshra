@@ -1,0 +1,260 @@
+.page {
+  width: 100%;
+}
+
+.heading {
+  padding-bottom: 25px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 7px;
+  color: #888;
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.heading h2 {
+  margin: 0;
+  color: #222;
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.heading p {
+  margin: 7px 0 0;
+  color: #777;
+  font-size: 13px;
+}
+
+.section,
+.dangerSection {
+  margin-top: 25px;
+  padding: 25px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+}
+
+.dangerSection {
+  border-color: #ead7d7;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  margin-bottom: 23px;
+}
+
+.sectionIcon,
+.dangerIcon {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  color: #444;
+}
+
+.dangerIcon {
+  background: #fdf1f1;
+  color: #a33;
+}
+
+.sectionHeader h3 {
+  margin: 1px 0 0;
+  color: #222;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.sectionHeader p {
+  margin: 6px 0 0;
+  color: #777;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.form {
+  max-width: 500px;
+}
+
+.field {
+  margin-bottom: 20px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 8px;
+  color: #222;
+  font-size: 12px;
+}
+
+.field input {
+  width: 100%;
+  height: 43px;
+  padding: 0 12px;
+  border: 1px solid #d9d9d9;
+  outline: none;
+  background: #fff;
+  color: #222;
+  font: inherit;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.field input:focus {
+  border-color: #999;
+}
+
+.field input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.helperText {
+  margin: 6px 0 0;
+  color: #888;
+  font-size: 11px;
+}
+
+.error,
+.success {
+  margin-bottom: 20px;
+  padding: 12px 13px;
+  border: 1px solid;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.error {
+  border-color: #edc5c5;
+  background: #fff7f7;
+  color: #a22;
+}
+
+.success {
+  border-color: #c9e4cf;
+  background: #f6fcf7;
+  color: #28723a;
+}
+
+.primaryButton,
+.secondaryButton,
+.deleteButton,
+.cancelButton,
+.confirmDelete {
+  min-height: 42px;
+  padding: 0 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: #222;
+  color: #fff;
+}
+
+.primaryButton:hover {
+  background: #111;
+}
+
+.secondaryButton {
+  background: #f2f2f2;
+  color: #222;
+}
+
+.secondaryButton:hover {
+  background: #e8e8e8;
+}
+
+.deleteButton {
+  background: #fff;
+  border: 1px solid #c99;
+  color: #a33;
+}
+
+.deleteButton:hover {
+  background: #fff7f7;
+}
+
+.deletePanel {
+  max-width: 500px;
+}
+
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #fff8f0;
+  color: #7b5a32;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.warning svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.deleteActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.cancelButton {
+  background: #f2f2f2;
+  color: #333;
+}
+
+.cancelButton:hover {
+  background: #e7e7e7;
+}
+
+.confirmDelete {
+  background: #a33;
+  color: #fff;
+}
+
+.confirmDelete:hover {
+  background: #8e2929;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.deleteButton:disabled,
+.confirmDelete:disabled,
+.cancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 500px) {
+  .section,
+  .dangerSection {
+    padding: 18px;
+  }
+
+  .deleteActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cancelButton,
+  .confirmDelete {
+    width: 100%;
+  }
+}

@@ -1,0 +1,38 @@
+.stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.stars button {
+  line-height: 1;
+  transition: opacity 0.2s ease;
+}
+
+.stars button:not(:disabled):hover {
+  opacity: 0.6;
+}
+
+.small button {
+  font-size: 14px;
+}
+
+.medium button {
+  font-size: 20px;
+}
+
+.large button {
+  font-size: 26px;
+}
+
+.filled {
+  color: #222;
+}
+
+.empty {
+  color: #d8d8d8;
+}
+
+.stars button:disabled {
+  cursor: default;
+}

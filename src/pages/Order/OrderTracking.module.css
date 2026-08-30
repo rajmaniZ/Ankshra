@@ -1,0 +1,389 @@
+.page {
+  min-height: 70vh;
+  padding: 55px 20px 80px;
+  background: #fafafa;
+}
+
+.container {
+  width: min(1000px, 100%);
+  margin: 0 auto;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.eyebrow,
+.cardEyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: #777;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  margin: 0;
+  color: #222;
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.header p {
+  margin: 8px 0 0;
+  color: #777;
+  font-size: 13px;
+}
+
+.status {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 14px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #333;
+  font-size: 12px;
+}
+
+.cancelled {
+  border-color: #e2caca;
+  color: #9b4141;
+}
+
+.trackingCard,
+.cancelledCard,
+.infoCard {
+  padding: 30px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #eee;
+}
+
+.cardHeader h2,
+.infoCard h2 {
+  margin: 0;
+  color: #222;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.timeline {
+  position: relative;
+  padding: 30px 0 10px 30px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 30px;
+  bottom: 25px;
+  width: 1px;
+  background: #ddd;
+}
+
+.timelineItem {
+  position: relative;
+  display: flex;
+  gap: 20px;
+  min-height: 75px;
+}
+
+.timelineMarker {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  margin-left: -31px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  background: #fff;
+  color: #999;
+}
+
+.timelineItem.completed
+  .timelineMarker {
+  border-color: #222;
+  background: #222;
+  color: #fff;
+}
+
+.timelineItem.current
+  .timelineMarker {
+  box-shadow: 0 0 0 5px #f2f2f2;
+}
+
+.timelineContent {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-bottom: 25px;
+}
+
+.timelineContent strong {
+  color: #222;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.timelineContent span {
+  color: #888;
+  font-size: 12px;
+}
+
+.timelineItem:not(.completed)
+  .timelineContent strong {
+  color: #999;
+}
+
+.deliveryNote {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 16px;
+  border: 1px solid #e2e2e2;
+  background: #fafafa;
+}
+
+.deliveryNote > svg {
+  flex: 0 0 auto;
+}
+
+.deliveryNote div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.deliveryNote strong {
+  color: #222;
+  font-size: 13px;
+}
+
+.deliveryNote span {
+  color: #777;
+  font-size: 12px;
+}
+
+.cancelledCard {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.cancelledIcon {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2caca;
+  color: #9b4141;
+}
+
+.cancelledCard h2 {
+  margin: 0;
+  color: #222;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.cancelledCard p {
+  margin: 7px 0 0;
+  color: #777;
+  font-size: 12px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-top: 25px;
+}
+
+.infoCard h2 {
+  margin-bottom: 20px;
+}
+
+.infoRows {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoRows > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 13px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.infoRows > div:last-child {
+  border-bottom: none;
+}
+
+.infoRows span {
+  color: #777;
+  font-size: 12px;
+}
+
+.infoRows strong {
+  color: #222;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: right;
+}
+
+.address {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.address strong {
+  color: #222;
+  font-weight: 500;
+}
+
+.bottomActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 43px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border: 1px solid #222;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.primaryButton {
+  background: #222;
+  color: #fff;
+}
+
+.secondaryButton {
+  background: #fff;
+  color: #222;
+}
+
+.state,
+.errorState {
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.state {
+  color: #777;
+  font-size: 14px;
+}
+
+.errorState h1 {
+  margin: 0;
+  color: #222;
+  font-size: 27px;
+  font-weight: 500;
+}
+
+.errorState p {
+  margin: 10px 0 22px;
+  color: #777;
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .bottomActions {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 40px 15px 60px;
+  }
+
+  .trackingCard,
+  .cancelledCard,
+  .infoCard {
+    padding: 22px 18px;
+  }
+
+  .header h1 {
+    font-size: 25px;
+  }
+
+  .cancelledCard {
+    align-items: flex-start;
+  }
+
+  .infoRows > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .infoRows strong {
+    text-align: left;
+  }
+}

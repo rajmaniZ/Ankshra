@@ -1,0 +1,462 @@
+.page {
+  padding: 30px;
+  background: #fafafa;
+}
+
+.container {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 24px;
+  color: #555;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: #111;
+}
+
+.header {
+  margin-bottom: 25px;
+}
+
+.eyebrow,
+.previewEyebrow {
+  display: block;
+  margin-bottom: 7px;
+  color: #777;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  color: #777;
+  font-size: 13px;
+}
+
+.error {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border: 1px solid #e7caca;
+  background: #fff7f7;
+  color: #a33;
+  font-size: 13px;
+}
+
+.loading {
+  padding: 70px 20px;
+  color: #777;
+  text-align: center;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 25px;
+  align-items: start;
+}
+
+.main {
+  display: grid;
+  gap: 18px;
+}
+
+.section {
+  padding: 25px;
+  border: 1px solid #e7e7e7;
+  background: #fff;
+}
+
+.sectionHeader {
+  margin-bottom: 22px;
+}
+
+.sectionHeader h2,
+.statusRow h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(
+    2,
+    minmax(0, 1fr)
+  );
+  gap: 17px;
+}
+
+.formGrid label,
+.selection label {
+  display: grid;
+  gap: 7px;
+  color: #555;
+  font-size: 12px;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.formGrid input,
+.formGrid textarea,
+.formGrid select,
+.selection select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  outline: 0;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.formGrid textarea {
+  resize: vertical;
+}
+
+.formGrid input:focus,
+.formGrid textarea:focus,
+.formGrid select:focus,
+.selection select:focus {
+  border-color: #111;
+}
+
+.valueInput {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+}
+
+.valueInput:focus-within {
+  border-color: #111;
+}
+
+.valueInput span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  color: #777;
+}
+
+.valueInput input {
+  min-width: 0;
+  border: 0;
+}
+
+.radioGrid {
+  display: grid;
+  grid-template-columns: repeat(
+    3,
+    minmax(0, 1fr)
+  );
+  gap: 12px;
+}
+
+.radioCard,
+.radioCardSelected {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  min-height: 100px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.radioCard:hover {
+  border-color: #aaa;
+}
+
+.radioCardSelected {
+  border-color: #111;
+}
+
+.radioCard input {
+  margin-top: 3px;
+}
+
+.radioCardSelected input {
+  margin-top: 3px;
+}
+
+.radioCard span,
+.radioCardSelected span {
+  display: grid;
+  gap: 6px;
+}
+
+.radioCard strong,
+.radioCardSelected strong {
+  color: #222;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.radioCard small,
+.radioCardSelected small {
+  color: #777;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.selection {
+  margin-top: 20px;
+}
+
+.productSelection {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.selectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 15px 0;
+  color: #333;
+  font-size: 13px;
+}
+
+.selectionHeader small {
+  color: #777;
+}
+
+.productList {
+  display: grid;
+  grid-template-columns: repeat(
+    2,
+    minmax(0, 1fr)
+  );
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+}
+
+.productItem,
+.productItemSelected {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.productItem:nth-child(odd),
+.productItemSelected:nth-child(odd) {
+  border-right: 1px solid #eee;
+}
+
+.productItemSelected {
+  background: #f7f7f7;
+}
+
+.productItem input,
+.productItemSelected input {
+  margin: 0;
+}
+
+.noItems {
+  padding: 20px;
+  border: 1px dashed #ddd;
+  color: #777;
+  font-size: 13px;
+  text-align: center;
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.statusRow p {
+  margin: 6px 0 0;
+  color: #777;
+  font-size: 12px;
+}
+
+.switch {
+  position: relative;
+  display: block;
+  width: 48px;
+  height: 26px;
+  flex: 0 0 48px;
+}
+
+.switch input {
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: #ccc;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.slider::before {
+  position: absolute;
+  bottom: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  content: "";
+  transition: 0.2s;
+}
+
+.switch input:checked + .slider {
+  background: #111;
+}
+
+.switch
+  input:checked
+  + .slider::before {
+  transform: translateX(22px);
+}
+
+.sidebar {
+  position: sticky;
+  top: 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.preview {
+  padding: 25px;
+  border: 1px solid #e7e7e7;
+  background: #fff;
+}
+
+.preview h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 500;
+}
+
+.previewDiscount {
+  margin: 25px 0 10px;
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.preview p {
+  margin: 0;
+  color: #777;
+  font-size: 12px;
+}
+
+.fixedPreview {
+  display: block;
+  margin-top: 14px;
+  color: #357a45;
+  font-size: 12px;
+}
+
+.saveButton,
+.cancelButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 45px;
+  font-family: inherit;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.saveButton {
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+}
+
+.saveButton:hover {
+  background: #333;
+}
+
+.saveButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #333;
+}
+
+.cancelButton:hover {
+  border-color: #111;
+}
+
+@media (max-width: 950px) {
+  .form {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .preview {
+    order: 0;
+  }
+
+  .saveButton {
+    order: 1;
+  }
+
+  .cancelButton {
+    order: 2;
+  }
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 20px;
+  }
+
+  .formGrid,
+  .radioGrid,
+  .productList {
+    grid-template-columns: 1fr;
+  }
+
+  .full {
+    grid-column: auto;
+  }
+
+  .section {
+    padding: 20px;
+  }
+}

@@ -1,0 +1,166 @@
+.card {
+  min-width: 0;
+}
+
+.imageLink {
+  display: block;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.15;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.imageLink:hover .image {
+  transform: scale(1.04);
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 13px;
+}
+
+.badge,
+.newBadge {
+  position: absolute;
+  top: 12px;
+  padding: 6px 9px;
+  background: #fff;
+  color: #222;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.badge {
+  left: 12px;
+}
+
+.newBadge {
+  right: 12px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 14px 2px 0;
+}
+
+.category {
+  color: #888;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.name {
+  color: #222;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.name:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding-top: 10px;
+  }
+
+  .name {
+    font-size: 13px;
+  }
+
+  .badge,
+  .newBadge {
+    top: 8px;
+    padding: 5px 7px;
+    font-size: 10px;
+  }
+
+  .badge {
+    left: 8px;
+  }
+
+  .newBadge {
+    right: 8px;
+  }
+}
+
+.widgets {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.imageWrapper:hover .widgets {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.widget {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #222;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.widget:hover:not(:disabled) {
+  background: #222;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.widget:disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.wishlisted {
+  color: #b00020;
+}
+
+@media (max-width: 768px) {
+  .widgets {
+    opacity: 1;
+    transform: none;
+  }
+}

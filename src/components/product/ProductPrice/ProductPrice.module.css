@@ -1,0 +1,52 @@
+.priceWrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prices {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.price {
+  color: #222;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.comparePrice {
+  color: #999;
+  font-size: 13px;
+  text-decoration: line-through;
+}
+
+.discount {
+  color: #2f6b3c;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.offer {
+  width: 100%;
+  color: #2f6b3c;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .price {
+    font-size: 14px;
+  }
+
+  .comparePrice {
+    font-size: 12px;
+  }
+
+  .discount,
+  .offer {
+    font-size: 11px;
+  }
+}

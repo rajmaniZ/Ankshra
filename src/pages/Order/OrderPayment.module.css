@@ -1,0 +1,191 @@
+.page {
+  min-height: 70vh;
+  padding: 70px 20px;
+  background: #fafafa;
+}
+
+.container {
+  width: min(600px, 100%);
+  margin: 0 auto;
+}
+
+.card {
+  padding: 45px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  text-align: center;
+}
+
+.icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #222;
+  color: #fff;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: #777;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.card h1 {
+  margin: 0;
+  color: #171717;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.card > p {
+  margin: 10px auto 0;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.orderInfo {
+  margin-top: 28px;
+  border: 1px solid #e5e5e5;
+}
+
+.orderInfo div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.orderInfo div:last-child {
+  border-bottom: 0;
+}
+
+.orderInfo span {
+  color: #777;
+  font-size: 11px;
+}
+
+.orderInfo strong {
+  color: #222;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.payButton {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 25px;
+  border: 0;
+  background: #222;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.payButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelLink {
+  display: inline-block;
+  margin-top: 18px;
+  color: #666;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.error {
+  margin-top: 18px;
+  padding: 12px;
+  border: 1px solid #e0caca;
+  background: #fff;
+  color: #9a4040;
+  font-size: 12px;
+  text-align: left;
+}
+
+.button {
+  display: inline-flex;
+  min-height: 43px;
+  margin-top: 25px;
+  padding: 0 18px;
+  align-items: center;
+  justify-content: center;
+  background: #222;
+  color: #fff;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+.state,
+.errorState {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.state {
+  color: #666;
+  font-size: 14px;
+}
+
+.errorState h1 {
+  margin: 0;
+  font-size: 27px;
+  font-weight: 500;
+}
+
+.errorState p {
+  margin: 10px 0;
+  color: #666;
+  font-size: 13px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 40px 15px;
+  }
+
+  .card {
+    padding: 35px 20px;
+  }
+
+  .card h1 {
+    font-size: 25px;
+  }
+
+  .orderInfo div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+}

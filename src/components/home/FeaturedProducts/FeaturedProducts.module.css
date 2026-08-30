@@ -1,0 +1,62 @@
+.section {
+  padding: 80px 0;
+}
+
+.container {
+  width: min(1200px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.heading {
+  max-width: 650px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: #777;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.title {
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.description {
+  margin-top: 12px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.message {
+  padding: 50px 20px;
+  border: 1px solid #e5e5e5;
+  color: #777;
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 60px 0;
+  }
+
+  .container {
+    width: min(100% - 30px, 1200px);
+  }
+
+  .heading {
+    margin-bottom: 30px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+}

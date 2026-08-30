@@ -1,0 +1,178 @@
+.page {
+  width: 100%;
+}
+
+.heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 7px;
+  color: #777;
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.subtitle {
+  margin-top: 7px;
+  color: #777;
+  font-size: 13px;
+}
+
+.refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 15px;
+  border: 1px solid #222;
+  background: #222;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.card {
+  border: 1px solid #e5e5e5;
+  background: #fff;
+}
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 1000px;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 15px 16px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 12px;
+}
+
+.table th {
+  color: #777;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.secondary {
+  display: block;
+  margin-top: 3px;
+  color: #777;
+  font-size: 11px;
+}
+
+.comment {
+  max-width: 280px;
+  overflow: hidden;
+  color: #555;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+}
+
+.rating {
+  font-weight: 500;
+}
+
+.approved,
+.pending {
+  padding: 6px 9px;
+  border: 1px solid #ddd;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.approved {
+  background: #f3f8f3;
+  color: #285b32;
+}
+
+.pending {
+  background: #faf7ef;
+  color: #80641f;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+.iconButton {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  background: #f7f7f7;
+}
+
+.iconButton.delete {
+  color: #9b3030;
+}
+
+.iconButton:disabled,
+.approved:disabled,
+.pending:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.state,
+.empty {
+  padding: 60px 20px;
+  color: #777;
+  text-align: center;
+  font-size: 13px;
+}
+
+.error {
+  margin-bottom: 20px;
+  padding: 13px 15px;
+  border: 1px solid #e5cccc;
+  background: #faf4f4;
+  color: #8a3030;
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

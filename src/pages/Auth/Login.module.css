@@ -1,0 +1,332 @@
+.page {
+  min-height: calc(100vh - 120px);
+  padding: 55px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  box-sizing: border-box;
+}
+
+.card {
+  width: min(410px, 100%);
+  padding: 42px 38px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.header {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e1e1e1;
+  border-radius: 50%;
+  background: #fafafa;
+  color: #222;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 9px;
+  color: #888;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 1.7px;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: #171717;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.subtitle {
+  max-width: 330px;
+  margin: 11px auto 0;
+  color: #777;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.error,
+.success {
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 11px 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  box-sizing: border-box;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.error {
+  border: 1px solid #e2bebe;
+  background: #fff8f8;
+  color: #9b2020;
+}
+
+.success {
+  border: 1px solid #cbdccc;
+  background: #f7fbf7;
+  color: #2d633b;
+}
+
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.field {
+  width: 100%;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.phoneInput {
+  width: 100%;
+  display: flex;
+}
+
+.countryCode {
+  width: 52px;
+  min-height: 47px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d7d7d7;
+  border-right: 0;
+  background: #f8f8f8;
+  color: #555;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.input {
+  width: 100%;
+  min-height: 47px;
+  padding: 0 13px;
+  border: 1px solid #d7d7d7;
+  border-radius: 0;
+  outline: none;
+  background: #fff;
+  color: #222;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.phoneInput .input {
+  border-left: 0;
+}
+
+.input::placeholder {
+  color: #aaa;
+}
+
+.input:hover:not(:disabled) {
+  border-color: #aaa;
+}
+
+.input:focus {
+  position: relative;
+  z-index: 1;
+  border-color: #222;
+  box-shadow: 0 0 0 1px #222;
+}
+
+.phoneInput .input:focus {
+  border-left: 1px solid #222;
+}
+
+.input:disabled {
+  background: #f6f6f6;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.button {
+  width: 100%;
+  min-height: 47px;
+  margin-top: 20px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid #222;
+  border-radius: 0;
+  background: #222;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.button:hover:not(:disabled) {
+  border-color: #000;
+  background: #000;
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  width: 100%;
+  min-height: 45px;
+  margin-top: 10px;
+  padding: 0 16px;
+  border: 1px solid #d8d8d8;
+  border-radius: 0;
+  background: #fff;
+  color: #333;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.secondaryButton:hover:not(:disabled) {
+  border-color: #222;
+  background: #fafafa;
+  color: #222;
+}
+
+.secondaryButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.forgotPassword {
+  align-self: flex-end;
+  margin-top: 13px;
+  color: #666;
+  font-size: 11px;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.forgotPassword:hover {
+  color: #222;
+}
+
+.footerText {
+  margin: 25px 0 0;
+  padding-top: 21px;
+  border-top: 1px solid #ededed;
+  color: #777;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.footerText a {
+  color: #222;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footerText a:hover {
+  color: #000;
+}
+
+@media (max-width: 600px) {
+  .page {
+    min-height: auto;
+    padding: 40px 16px;
+    align-items: flex-start;
+  }
+
+  .card {
+    width: min(410px, 100%);
+    padding: 36px 24px;
+  }
+
+  .header {
+    margin-bottom: 25px;
+  }
+
+  .icon {
+    width: 45px;
+    height: 45px;
+    margin-bottom: 18px;
+  }
+
+  .title {
+    font-size: 27px;
+  }
+
+  .subtitle {
+    max-width: 300px;
+    font-size: 12px;
+  }
+
+  .footerText {
+    margin-top: 22px;
+    padding-top: 19px;
+  }
+}
+
+@media (max-width: 380px) {
+  .page {
+    padding: 30px 12px;
+  }
+
+  .card {
+    padding: 30px 18px;
+  }
+
+  .title {
+    font-size: 25px;
+  }
+
+  .input,
+  .countryCode,
+  .button {
+    min-height: 45px;
+  }
+}
