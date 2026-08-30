@@ -1,51 +1,224 @@
+// const API_URL =
+//   import.meta.env.VITE_API_URL ||
+//   "http://localhost:5000/api";
+
+// async function apiRequest(endpoint, options = {}) {
+//   const token = localStorage.getItem("accessToken");
+
+//   const isFormData =
+//     typeof FormData !== "undefined" &&
+//     options.body instanceof FormData;
+
+//   const headers = {
+//     ...(isFormData
+//       ? {}
+//       : {
+//           "Content-Type": "application/json",
+//         }),
+//     ...options.headers,
+//   };
+
+//   if (isFormData) {
+//     delete headers["Content-Type"];
+//   }
+
+//   if (token) {
+//     headers.Authorization = `Bearer ${token}`;
+//   }
+
+//   const response = await fetch(
+//     `${API_URL}${endpoint}`,
+//     {
+//       ...options,
+//       headers,
+//     },
+//   );
+
+//   let result = null;
+
+//   try {
+//     result = await response.json();
+//   } catch {
+//     result = null;
+//   }
+
+//   if (response.status === 401) {
+//     localStorage.removeItem("accessToken");
+//     localStorage.removeItem("user");
+
+//     window.dispatchEvent(
+//       new Event("auth:logout"),
+//     );
+//   }
+
+//   if (!response.ok || result?.success === false) {
+//     const error = new Error(
+//       result?.message ||
+//         "Something went wrong.",
+//     );
+
+//     error.status = response.status;
+//     error.data = result;
+
+//     throw error;
+//   }
+
+//   return result;
+// }
+
+// export function get(endpoint, options = {}) {
+//   return apiRequest(endpoint, {
+//     ...options,
+//     method: "GET",
+//   });
+// }
+
+// export function post(
+//   endpoint,
+//   body,
+//   options = {},
+// ) {
+//   return apiRequest(endpoint, {
+//     ...options,
+//     method: "POST",
+//     body:
+//       body instanceof FormData
+//         ? body
+//         : JSON.stringify(body),
+//   });
+// }
+
+// export function patch(
+//   endpoint,
+//   body,
+//   options = {},
+// ) {
+//   return apiRequest(endpoint, {
+//     ...options,
+//     method: "PATCH",
+//     body:
+//       body instanceof FormData
+//         ? body
+//         : JSON.stringify(body),
+//   });
+// }
+
+// export function put(
+//   endpoint,
+//   body,
+//   options = {},
+// ) {
+//   return apiRequest(endpoint, {
+//     ...options,
+//     method: "PUT",
+//     body:
+//       body instanceof FormData
+//         ? body
+//         : JSON.stringify(body),
+//   });
+// }
+
+// export function remove(
+//   endpoint,
+//   options = {},
+// ) {
+//   return apiRequest(endpoint, {
+//     ...options,
+//     method: "DELETE",
+//   });
+// }
+
+// export { API_URL };
+
 const API_URL =
   import.meta.env.VITE_API_URL ||
   "http://localhost:5000/api";
 
-async function apiRequest(endpoint, options = {}) {
-  const token = localStorage.getItem("accessToken");
+async function apiRequest(
+  endpoint,
+  options = {},
+) {
+  const token =
+    localStorage.getItem(
+      "accessToken",
+    );
+
+  const isFormData =
+    typeof FormData !==
+      "undefined" &&
+    options.body instanceof
+      FormData;
 
   const headers = {
-    "Content-Type": "application/json",
+    ...(isFormData
+      ? {}
+      : {
+          "Content-Type":
+            "application/json",
+        }),
     ...options.headers,
   };
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
+  if (isFormData) {
+    delete headers[
+      "Content-Type"
+    ];
   }
 
-  const response = await fetch(
-    `${API_URL}${endpoint}`,
-    {
-      ...options,
-      headers,
-    },
-  );
+  if (token) {
+    headers.Authorization =
+      `Bearer ${token}`;
+  }
+
+  const response =
+    await fetch(
+      `${API_URL}${endpoint}`,
+      {
+        ...options,
+        headers,
+      },
+    );
 
   let result = null;
 
   try {
-    result = await response.json();
+    result =
+      await response.json();
   } catch {
     result = null;
   }
 
-  if (response.status === 401) {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("user");
+  if (
+    response.status === 401
+  ) {
+    localStorage.removeItem(
+      "accessToken",
+    );
+
+    localStorage.removeItem(
+      "user",
+    );
 
     window.dispatchEvent(
-      new Event("auth:logout"),
+      new Event(
+        "auth:logout",
+      ),
     );
   }
 
-  if (!response.ok || result?.success === false) {
-    const error = new Error(
-      result?.message ||
-        "Something went wrong",
-    );
+  if (
+    !response.ok ||
+    result?.success === false
+  ) {
+    const error =
+      new Error(
+        result?.message ||
+          "Something went wrong.",
+      );
 
-    error.status = response.status;
+    error.status =
+      response.status;
+
     error.data = result;
 
     throw error;
@@ -54,11 +227,17 @@ async function apiRequest(endpoint, options = {}) {
   return result;
 }
 
-export function get(endpoint, options = {}) {
-  return apiRequest(endpoint, {
-    ...options,
-    method: "GET",
-  });
+export function get(
+  endpoint,
+  options = {},
+) {
+  return apiRequest(
+    endpoint,
+    {
+      ...options,
+      method: "GET",
+    },
+  );
 }
 
 export function post(
@@ -66,11 +245,18 @@ export function post(
   body,
   options = {},
 ) {
-  return apiRequest(endpoint, {
-    ...options,
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  return apiRequest(
+    endpoint,
+    {
+      ...options,
+      method: "POST",
+      body:
+        body instanceof
+        FormData
+          ? body
+          : JSON.stringify(body),
+    },
+  );
 }
 
 export function patch(
@@ -78,11 +264,18 @@ export function patch(
   body,
   options = {},
 ) {
-  return apiRequest(endpoint, {
-    ...options,
-    method: "PATCH",
-    body: JSON.stringify(body),
-  });
+  return apiRequest(
+    endpoint,
+    {
+      ...options,
+      method: "PATCH",
+      body:
+        body instanceof
+        FormData
+          ? body
+          : JSON.stringify(body),
+    },
+  );
 }
 
 export function put(
@@ -90,21 +283,31 @@ export function put(
   body,
   options = {},
 ) {
-  return apiRequest(endpoint, {
-    ...options,
-    method: "PUT",
-    body: JSON.stringify(body),
-  });
+  return apiRequest(
+    endpoint,
+    {
+      ...options,
+      method: "PUT",
+      body:
+        body instanceof
+        FormData
+          ? body
+          : JSON.stringify(body),
+    },
+  );
 }
 
 export function remove(
   endpoint,
   options = {},
 ) {
-  return apiRequest(endpoint, {
-    ...options,
-    method: "DELETE",
-  });
+  return apiRequest(
+    endpoint,
+    {
+      ...options,
+      method: "DELETE",
+    },
+  );
 }
 
 export { API_URL };

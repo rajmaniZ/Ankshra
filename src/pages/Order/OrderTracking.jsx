@@ -21,6 +21,8 @@ import {
   getOrderById,
 } from "../../services/orderService";
 
+import OrderReview from "../../components/review/OrderReview/OrderReview";
+
 import styles from "./OrderTracking.module.css";
 
 const ORDER_STATUSES = [
@@ -32,9 +34,7 @@ const ORDER_STATUSES = [
   "delivered",
 ];
 
-function getResponseData(
-  response,
-) {
+function getResponseData(response) {
   return (
     response?.data ||
     response ||
@@ -42,9 +42,7 @@ function getResponseData(
   );
 }
 
-function formatStatus(
-  value,
-) {
+function formatStatus(value) {
   return String(
     value || "pending",
   )
@@ -59,15 +57,12 @@ function formatStatus(
     );
 }
 
-function formatDate(
-  value,
-) {
+function formatDate(value) {
   if (!value) {
     return "—";
   }
 
-  const date =
-    new Date(value);
+  const date = new Date(value);
 
   if (
     Number.isNaN(
@@ -87,15 +82,12 @@ function formatDate(
   );
 }
 
-function formatDateTime(
-  value,
-) {
+function formatDateTime(value) {
   if (!value) {
     return "—";
   }
 
-  const date =
-    new Date(value);
+  const date = new Date(value);
 
   if (
     Number.isNaN(
@@ -117,17 +109,13 @@ function formatDateTime(
   );
 }
 
-function getStatusIndex(
-  status,
-) {
+function getStatusIndex(status) {
   return ORDER_STATUSES.indexOf(
     status,
   );
 }
 
-function getStatusIcon(
-  status,
-) {
+function getStatusIcon(status) {
   if (
     status ===
     "delivered"
@@ -154,6 +142,17 @@ function getStatusIcon(
   return <FiClock />;
 }
 
+function isDeliveredStatus(order) {
+  return (
+    String(
+      order?.orderStatus ||
+        order?.status ||
+        "",
+    ).toLowerCase() ===
+    "delivered"
+  );
+}
+
 function OrderTracking() {
   const {
     orderId,
@@ -174,6 +173,11 @@ function OrderTracking() {
     setError,
   ] = useState("");
 
+  const [
+    reviewRefreshKey,
+    setReviewRefreshKey,
+  ] = useState(0);
+
   useEffect(() => {
     let active = true;
 
@@ -192,9 +196,7 @@ function OrderTracking() {
       }
 
       try {
-        if (
-          showLoading
-        ) {
+        if (showLoading) {
           setLoading(true);
         }
 
@@ -208,14 +210,19 @@ function OrderTracking() {
             response,
           );
 
-        if (
-          active &&
-          data?.order
-        ) {
+        if (!active) {
+          return;
+        }
+
+        if (data?.order) {
           setOrder(
             data.order,
           );
           setError("");
+        } else {
+          setError(
+            "We could not find this order.",
+          );
         }
       } catch (
         requestError
@@ -241,12 +248,6 @@ function OrderTracking() {
 
     loadOrder();
 
-    /*
-     * Order status can change from the admin
-     * panel after this page is opened.
-     *
-     * Refresh the canonical order periodically.
-     */
     const interval =
       window.setInterval(
         () => {
@@ -263,9 +264,20 @@ function OrderTracking() {
     };
   }, [orderId]);
 
+  const handleReviewSuccess = () => {
+    setReviewRefreshKey(
+      (current) =>
+        current + 1,
+    );
+  };
+
   if (loading) {
     return (
-      <main className={styles.page}>
+      <main
+        className={
+          styles.page
+        }
+      >
         <div
           className={
             styles.container
@@ -285,7 +297,11 @@ function OrderTracking() {
 
   if (error || !order) {
     return (
-      <main className={styles.page}>
+      <main
+        className={
+          styles.page
+        }
+      >
         <div
           className={
             styles.container
@@ -321,15 +337,24 @@ function OrderTracking() {
 
   const id =
     order._id ||
-    order.id;
+    order.id ||
+    orderId;
 
   const orderStatus =
-    order.orderStatus ||
-    "pending";
+    String(
+      order.orderStatus ||
+        order.status ||
+        "pending",
+    ).toLowerCase();
 
   const isCancelled =
     orderStatus ===
     "cancelled";
+
+  const delivered =
+    isDeliveredStatus(
+      order,
+    );
 
   const currentIndex =
     getStatusIndex(
@@ -337,7 +362,11 @@ function OrderTracking() {
     );
 
   return (
-    <main className={styles.page}>
+    <main
+      className={
+        styles.page
+      }
+    >
       <div
         className={
           styles.container
@@ -352,6 +381,7 @@ function OrderTracking() {
           <FiArrowLeft
             size={15}
           />
+
           Back to Order
         </Link>
 
@@ -477,7 +507,9 @@ function OrderTracking() {
                 </h2>
               </div>
 
-              <FiTruck size={21} />
+              <FiTruck
+                size={21}
+              />
             </div>
 
             <div
@@ -690,21 +722,29 @@ function OrderTracking() {
                 }
               </strong>
 
-              <span>
-                {
-                  order
-                    .shippingAddress
-                    ?.phone
-                }
-              </span>
+              {order
+                .shippingAddress
+                ?.phone && (
+                <span>
+                  {
+                    order
+                      .shippingAddress
+                      .phone
+                  }
+                </span>
+              )}
 
-              <span>
-                {
-                  order
-                    .shippingAddress
-                    ?.addressLine1
-                }
-              </span>
+              {order
+                .shippingAddress
+                ?.addressLine1 && (
+                <span>
+                  {
+                    order
+                      .shippingAddress
+                      .addressLine1
+                  }
+                </span>
+              )}
 
               {order
                 .shippingAddress
@@ -718,21 +758,33 @@ function OrderTracking() {
                 </span>
               )}
 
-              <span>
-                {[
-                  order
-                    .shippingAddress
-                    ?.city,
-                  order
-                    .shippingAddress
-                    ?.state,
-                  order
-                    .shippingAddress
-                    ?.postalCode,
-                ]
-                  .filter(Boolean)
-                  .join(", ")}
-              </span>
+              {(
+                order
+                  .shippingAddress
+                  ?.city ||
+                order
+                  .shippingAddress
+                  ?.state ||
+                order
+                  .shippingAddress
+                  ?.postalCode
+              ) && (
+                <span>
+                  {[
+                    order
+                      .shippingAddress
+                      ?.city,
+                    order
+                      .shippingAddress
+                      ?.state,
+                    order
+                      .shippingAddress
+                      ?.postalCode,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </span>
+              )}
 
               <span>
                 {order
@@ -743,6 +795,45 @@ function OrderTracking() {
             </div>
           </section>
         </div>
+
+        {delivered && (
+          <OrderReview
+            key={
+              reviewRefreshKey
+            }
+            order={order}
+            onReviewSuccess={
+              handleReviewSuccess
+            }
+          />
+        )}
+
+        {!delivered &&
+          !isCancelled && (
+            <section
+              className={
+                styles.reviewNotice
+              }
+            >
+              <span
+                className={
+                  styles.cardEyebrow
+                }
+              >
+                Product Reviews
+              </span>
+
+              <h2>
+                Review your purchase
+              </h2>
+
+              <p>
+                You can write a review
+                after your order has
+                been delivered.
+              </p>
+            </section>
+          )}
 
         <div
           className={

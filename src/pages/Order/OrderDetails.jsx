@@ -21,97 +21,166 @@ import {
   getOrderById,
 } from "../../services/orderService";
 
+import OrderReview from "../../components/review/OrderReview/OrderReview";
+
 import styles from "./OrderDetails.module.css";
 
-function getResponseData(
-  response,
-) {
-  return (
-    response?.data ||
-    response ||
-    {}
-  );
+function getResponseData(response) {
+  return response?.data || response || {};
 }
 
-function getProductImage(item) {
-  const image =
-    item?.image ||
-    item?.product?.images?.[0];
+function getProduct(item) {
+  if (item?.product && typeof item.product === "object") {
+    return item.product;
+  }
 
-  if (
-    image &&
-    typeof image === "object"
-  ) {
+  return {};
+}
+
+function getImageUrl(image) {
+  if (!image) {
+    return "";
+  }
+
+  if (typeof image === "string") {
+    return image;
+  }
+
+  if (typeof image === "object") {
     return (
       image.url ||
       image.secure_url ||
+      image.secureUrl ||
+      image.path ||
+      image.src ||
       ""
     );
   }
 
-  return image || "";
+  return "";
+}
+
+function getProductImage(item) {
+  const product = getProduct(item);
+
+  if (Array.isArray(item?.images) && item.images.length > 0) {
+    const image = getImageUrl(item.images[0]);
+
+    if (image) {
+      return image;
+    }
+  }
+
+  const itemImage = getImageUrl(item?.image);
+
+  if (itemImage) {
+    return itemImage;
+  }
+
+  const itemImageUrl = getImageUrl(item?.imageUrl);
+
+  if (itemImageUrl) {
+    return itemImageUrl;
+  }
+
+  if (Array.isArray(product?.images) && product.images.length > 0) {
+    const image = getImageUrl(product.images[0]);
+
+    if (image) {
+      return image;
+    }
+  }
+
+  const productImage = getImageUrl(product?.image);
+
+  if (productImage) {
+    return productImage;
+  }
+
+  const productImageUrl = getImageUrl(product?.imageUrl);
+
+  if (productImageUrl) {
+    return productImageUrl;
+  }
+
+  return "";
 }
 
 function getProductName(item) {
+  const product = getProduct(item);
+
   return (
     item?.name ||
-    item?.product?.name ||
+    item?.productName ||
+    product?.name ||
+    product?.title ||
     "Jewellery"
   );
 }
 
 function getProductSku(item) {
+  const product = getProduct(item);
+
   return (
     item?.sku ||
-    item?.product?.sku ||
+    item?.productSku ||
+    product?.sku ||
+    ""
+  );
+}
+
+function getProductId(item) {
+  const product = getProduct(item);
+
+  return (
+    item?.productId ||
+    product?._id ||
+    product?.id ||
     ""
   );
 }
 
 function getItemPrice(item) {
-  const price =
-    Number(item?.price);
+  const price = Number(
+    item?.price ??
+      item?.sellingPrice ??
+      item?.unitPrice ??
+      0,
+  );
 
-  return Number.isFinite(price)
-    ? price
-    : 0;
+  return Number.isFinite(price) ? price : 0;
 }
 
 function getItemOriginalPrice(item) {
-  const price =
-    Number(
-      item?.originalPrice,
-    );
+  const price = Number(
+    item?.originalPrice ??
+      item?.mrp ??
+      getItemPrice(item),
+  );
 
-  if (
-    Number.isFinite(price)
-  ) {
-    return price;
-  }
-
-  return getItemPrice(item);
+  return Number.isFinite(price) ? price : 0;
 }
 
 function getItemQuantity(item) {
-  const quantity =
-    Number(item?.quantity);
+  const quantity = Number(
+    item?.quantity ??
+      item?.qty ??
+      1,
+  );
 
-  return Number.isFinite(
-    quantity,
-  ) && quantity > 0
+  return Number.isFinite(quantity) && quantity > 0
     ? quantity
     : 1;
 }
 
 function getItemSubtotal(item) {
-  const storedSubtotal =
-    Number(item?.subtotal);
+  const storedSubtotal = Number(
+    item?.subtotal ??
+      item?.total ??
+      item?.lineTotal,
+  );
 
-  if (
-    Number.isFinite(
-      storedSubtotal,
-    )
-  ) {
+  if (Number.isFinite(storedSubtotal)) {
     return storedSubtotal;
   }
 
@@ -121,33 +190,192 @@ function getItemSubtotal(item) {
   );
 }
 
-function getItemOfferDiscount(
-  item,
-) {
-  const discount =
-    Number(
-      item?.offerDiscount,
-    );
+function getItemOfferDiscount(item) {
+  const discount = Number(
+    item?.offerDiscount ??
+      item?.discount ??
+      0,
+  );
 
-  if (
-    Number.isFinite(discount)
-  ) {
+  if (Number.isFinite(discount) && discount > 0) {
     return discount;
   }
 
   return Math.max(
-    getItemOriginalPrice(
-      item,
-    ) *
+    getItemOriginalPrice(item) *
       getItemQuantity(item) -
       getItemSubtotal(item),
     0,
   );
 }
 
-function formatCurrency(
-  value,
-) {
+function getItems(order) {
+  if (Array.isArray(order?.items)) {
+    return order.items;
+  }
+
+  if (Array.isArray(order?.orderItems)) {
+    return order.orderItems;
+  }
+
+  return [];
+}
+
+function getOrderTotal(order) {
+  const value = Number(
+    order?.total ??
+      order?.grandTotal ??
+      order?.totalAmount,
+  );
+
+  if (Number.isFinite(value)) {
+    return value;
+  }
+
+  const subtotal = getOrderSubtotal(order);
+  const discount = getOrderDiscount(order);
+  const shipping = getShippingFee(order);
+
+  return Math.max(
+    subtotal - discount + shipping,
+    0,
+  );
+}
+
+function getOrderSubtotal(order) {
+  const value = Number(order?.subtotal);
+
+  if (Number.isFinite(value)) {
+    return value;
+  }
+
+  return getItems(order).reduce(
+    (total, item) =>
+      total +
+      getItemOriginalPrice(item) *
+        getItemQuantity(item),
+    0,
+  );
+}
+
+function getOrderDiscount(order) {
+  const directDiscount = Number(
+    order?.totalDiscount ??
+      order?.discount,
+  );
+
+  if (
+    Number.isFinite(directDiscount) &&
+    directDiscount >= 0
+  ) {
+    return directDiscount;
+  }
+
+  const offerDiscount = Number(
+    order?.offerDiscount ?? 0,
+  );
+
+  const couponDiscount = Number(
+    order?.couponDiscount ?? 0,
+  );
+
+  return (
+    (Number.isFinite(offerDiscount)
+      ? offerDiscount
+      : 0) +
+    (Number.isFinite(couponDiscount)
+      ? couponDiscount
+      : 0)
+  );
+}
+
+function getOfferDiscount(order) {
+  const direct = Number(
+    order?.offerDiscount,
+  );
+
+  if (Number.isFinite(direct)) {
+    return direct;
+  }
+
+  return getItems(order).reduce(
+    (total, item) =>
+      total + getItemOfferDiscount(item),
+    0,
+  );
+}
+
+function getCouponDiscount(order) {
+  const value = Number(
+    order?.couponDiscount ?? 0,
+  );
+
+  return Number.isFinite(value) ? value : 0;
+}
+
+function getShippingFee(order) {
+  const value = Number(
+    order?.shippingFee ??
+      order?.shippingCost ??
+      order?.deliveryFee ??
+      0,
+  );
+
+  return Number.isFinite(value) ? value : 0;
+}
+
+function getOrderStatus(order) {
+  return (
+    order?.orderStatus ||
+    order?.status ||
+    "pending"
+  );
+}
+
+function getPaymentStatus(order) {
+  return order?.paymentStatus || "pending";
+}
+
+function getPaymentMethod(order) {
+  const method = String(
+    order?.paymentMethod || "",
+  ).toLowerCase();
+
+  if (
+    method === "cod" ||
+    method === "cash_on_delivery"
+  ) {
+    return "Cash on Delivery";
+  }
+
+  if (method === "online") {
+    return "Online Payment";
+  }
+
+  return order?.paymentMethod || "—";
+}
+
+function getOrderNumber(order) {
+  return (
+    order?.orderNumber ||
+    order?.orderNo ||
+    order?._id ||
+    order?.id ||
+    "—"
+  );
+}
+
+function getAddress(order) {
+  return (
+    order?.shippingAddress ||
+    order?.address ||
+    {}
+  );
+}
+
+function formatCurrency(value) {
+  const amount = Number(value);
+
   return new Intl.NumberFormat(
     "en-IN",
     {
@@ -157,25 +385,20 @@ function formatCurrency(
       maximumFractionDigits: 2,
     },
   ).format(
-    Number(value || 0),
+    Number.isFinite(amount)
+      ? amount
+      : 0,
   );
 }
 
-function formatDate(
-  value,
-) {
+function formatDate(value) {
   if (!value) {
     return "—";
   }
 
-  const date =
-    new Date(value);
+  const date = new Date(value);
 
-  if (
-    Number.isNaN(
-      date.getTime(),
-    )
-  ) {
+  if (Number.isNaN(date.getTime())) {
     return "—";
   }
 
@@ -189,21 +412,14 @@ function formatDate(
   );
 }
 
-function formatDateTime(
-  value,
-) {
+function formatDateTime(value) {
   if (!value) {
     return "—";
   }
 
-  const date =
-    new Date(value);
+  const date = new Date(value);
 
-  if (
-    Number.isNaN(
-      date.getTime(),
-    )
-  ) {
+  if (Number.isNaN(date.getTime())) {
     return "—";
   }
 
@@ -219,79 +435,63 @@ function formatDateTime(
   );
 }
 
-function formatStatus(
-  value,
-) {
+function formatStatus(value) {
   return String(
     value || "pending",
   )
-    .replaceAll(
-      "_",
-      " ",
-    )
-    .replace(
-      /\b\w/g,
-      (letter) =>
-        letter.toUpperCase(),
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) =>
+      letter.toUpperCase(),
     );
 }
 
+function isDelivered(order) {
+  return (
+    String(
+      getOrderStatus(order),
+    ).toLowerCase() === "delivered"
+  );
+}
+
 function OrderDetails() {
-  const {
-    orderId,
-  } = useParams();
+  const { orderId } = useParams();
 
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const [
-    order,
-    setOrder,
-  ] = useState(null);
+  const [order, setOrder] =
+    useState(null);
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [
-    error,
-    setError,
-  ] = useState("");
+  const [error, setError] =
+    useState("");
 
-  const [
-    cancelling,
-    setCancelling,
-  ] = useState(false);
+  const [cancelling, setCancelling] =
+    useState(false);
 
-  const loadOrder =
-    async (
-      showLoading = true,
-    ) => {
+  const [reviewRefreshKey, setReviewRefreshKey] =
+    useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadOrder = async () => {
       if (!orderId) {
-        setError(
-          "Order ID is missing.",
-        );
+        setError("Order ID is missing.");
         setLoading(false);
         return;
       }
 
       try {
-        if (showLoading) {
-          setLoading(true);
-        }
-
+        setLoading(true);
         setError("");
 
         const response =
-          await getOrderById(
-            orderId,
-          );
+          await getOrderById(orderId);
 
         const data =
-          getResponseData(
-            response,
-          );
+          getResponseData(response);
 
         if (!data?.order) {
           throw new Error(
@@ -299,268 +499,197 @@ function OrderDetails() {
           );
         }
 
-        setOrder(
-          data.order,
-        );
-      } catch (
-        requestError
-      ) {
-        setError(
-          requestError?.message ||
-            "Unable to load order.",
-        );
+        if (mounted) {
+          setOrder(data.order);
+        }
+      } catch (requestError) {
+        if (mounted) {
+          setError(
+            requestError?.message ||
+              "Unable to load order details.",
+          );
+        }
       } finally {
-        if (showLoading) {
+        if (mounted) {
           setLoading(false);
         }
       }
     };
 
-  useEffect(() => {
     loadOrder();
+
+    return () => {
+      mounted = false;
+    };
   }, [orderId]);
 
-  const handleCancel =
-    async () => {
-      const id =
-        order?._id ||
-        order?.id;
+  const handleCancel = async () => {
+    if (!orderId || cancelling) {
+      return;
+    }
 
-      if (!id) {
-        return;
-      }
+    const reason = window.prompt(
+      "Enter cancellation reason:",
+      "",
+    );
 
-      const confirmed =
-        window.confirm(
-          "Are you sure you want to cancel this order?",
+    if (reason === null) {
+      return;
+    }
+
+    try {
+      setCancelling(true);
+      setError("");
+
+      const response =
+        await cancelOrder(
+          orderId,
+          reason.trim(),
         );
 
-      if (!confirmed) {
-        return;
+      const data =
+        getResponseData(response);
+
+      if (data?.order) {
+        setOrder(data.order);
+      } else {
+        setOrder((current) => ({
+          ...current,
+          orderStatus: "cancelled",
+          status: "cancelled",
+        }));
       }
+    } catch (requestError) {
+      setError(
+        requestError?.message ||
+          "Unable to cancel this order.",
+      );
+    } finally {
+      setCancelling(false);
+    }
+  };
 
-      try {
-        setCancelling(true);
-        setError("");
-
-        await cancelOrder(id);
-
-        /*
-         * Do not rely on the cancellation
-         * response for the final UI state.
-         *
-         * Fetch the canonical order again.
-         */
-        await loadOrder(false);
-      } catch (
-        requestError
-      ) {
-        setError(
-          requestError?.message ||
-            "Unable to cancel the order.",
-        );
-      } finally {
-        setCancelling(false);
-      }
-    };
+  const handleReviewSuccess = () => {
+    setReviewRefreshKey(
+      (current) => current + 1,
+    );
+  };
 
   if (loading) {
     return (
-      <main className={styles.page}>
-        <div
-          className={
-            styles.container
-          }
-        >
-          <div
-            className={
-              styles.state
-            }
-          >
-            Loading order...
-          </div>
+      <section className={styles.page}>
+        <div className={styles.state}>
+          Loading order details...
         </div>
-      </main>
+      </section>
     );
   }
 
-  if (error || !order) {
+  if (!order) {
     return (
-      <main className={styles.page}>
-        <div
-          className={
-            styles.container
-          }
-        >
-          <div
-            className={
-              styles.errorState
-            }
+      <section className={styles.page}>
+        <div className={styles.errorState}>
+          <h1>Order not found</h1>
+
+          <p>
+            {error ||
+              "The requested order could not be found."}
+          </p>
+
+          <Link
+            to="/account/orders"
+            className={styles.button}
           >
-            <h1>
-              Order not found
-            </h1>
-
-            <p>
-              {error ||
-                "This order could not be found."}
-            </p>
-
-            <Link
-              to="/account/orders"
-              className={
-                styles.primaryButton
-              }
-            >
-              Back to Orders
-            </Link>
-          </div>
+            <FiArrowLeft size={15} />
+            Back to Orders
+          </Link>
         </div>
-      </main>
+      </section>
     );
   }
 
-  const id =
-    order._id ||
-    order.id;
-
-  const items =
-    Array.isArray(order.items)
-      ? order.items
-      : [];
-
-  const orderStatus =
-    order.orderStatus ||
-    "pending";
-
-  const paymentStatus =
-    order.paymentStatus ||
-    "pending";
-
-  const canCancel =
-    ![
-      "shipped",
-      "out_for_delivery",
-      "delivered",
-      "cancelled",
-    ].includes(
-      orderStatus,
-    );
-
-  const isOnlinePayment =
-    order.paymentMethod ===
-    "online";
+  const items = getItems(order);
 
   const subtotal =
-    Number(order.subtotal) || 0;
+    getOrderSubtotal(order);
 
   const offerDiscount =
-    Number(
-      order.offerDiscount,
-    ) || 0;
+    getOfferDiscount(order);
 
   const couponDiscount =
-    Number(
-      order.couponDiscount,
-    ) || 0;
+    getCouponDiscount(order);
 
   const totalDiscount =
-    Number(order.discount) ||
-    offerDiscount +
-      couponDiscount;
-
-  const offerSubtotal =
-    Math.max(
-      subtotal -
-        offerDiscount,
-      0,
-    );
+    getOrderDiscount(order);
 
   const shippingFee =
-    Number(
-      order.shippingFee,
-    ) || 0;
+    getShippingFee(order);
 
   const total =
-    Number(order.total) || 0;
+    getOrderTotal(order);
+
+  const orderStatus =
+    getOrderStatus(order);
+
+  const paymentStatus =
+    getPaymentStatus(order);
+
+  const address =
+    getAddress(order);
+
+  const delivered =
+    isDelivered(order);
 
   return (
-    <main className={styles.page}>
-      <div
-        className={
-          styles.container
-        }
-      >
+    <section className={styles.page}>
+      <div className={styles.container}>
         <Link
           to="/account/orders"
-          className={
-            styles.backLink
-          }
+          className={styles.backLink}
         >
-          <FiArrowLeft
-            size={15}
-          />
+          <FiArrowLeft size={15} />
           Back to Orders
         </Link>
 
-        <header
-          className={
-            styles.header
-          }
-        >
+        <div className={styles.header}>
           <div>
-            <span
-              className={
-                styles.eyebrow
-              }
-            >
-              Order Details
+            <span className={styles.eyebrow}>
+              Order
             </span>
 
             <h1>
-              {order.orderNumber ||
-                id}
+              #{getOrderNumber(order)}
             </h1>
 
             <p>
-              Placed on{" "}
-              {formatDate(
-                order.createdAt,
+              Placed{" "}
+              {formatDateTime(
+                order.createdAt ||
+                  order.date,
               )}
             </p>
           </div>
 
           <div
             className={`${styles.status} ${
-              orderStatus ===
-              "cancelled"
+              orderStatus === "cancelled"
                 ? styles.cancelled
                 : ""
             }`}
           >
-            {formatStatus(
-              orderStatus,
-            )}
+            {formatStatus(orderStatus)}
           </div>
-        </header>
+        </div>
 
         {error && (
-          <div
-            className={
-              styles.error
-            }
-          >
+          <div className={styles.error}>
             {error}
           </div>
         )}
 
         <div className={styles.grid}>
-          <div>
-            <section
-              className={
-                styles.card
-              }
-            >
+          <main>
+            <section className={styles.card}>
               <div
                 className={
                   styles.cardHeader
@@ -572,7 +701,7 @@ function OrderDetails() {
                       styles.cardEyebrow
                     }
                   >
-                    Items
+                    Products
                   </span>
 
                   <h2>
@@ -582,72 +711,52 @@ function OrderDetails() {
 
                 <span>
                   {items.length}{" "}
-                  {items.length ===
-                  1
+                  {items.length === 1
                     ? "item"
                     : "items"}
                 </span>
               </div>
 
-              <div
-                className={
-                  styles.items
-                }
-              >
-                {items.length ===
-                0 ? (
-                  <div
-                    className={
-                      styles.emptyItems
-                    }
-                  >
-                    No items found
-                  </div>
-                ) : (
-                  items.map(
-                    (
-                      item,
-                      index,
-                    ) => {
+              {items.length === 0 ? (
+                <div
+                  className={
+                    styles.emptyItems
+                  }
+                >
+                  No items found.
+                </div>
+              ) : (
+                <div className={styles.items}>
+                  {items.map(
+                    (item, index) => {
+                      const productImage =
+                        getProductImage(item);
+
+                      const productName =
+                        getProductName(item);
+
+                      const productSku =
+                        getProductSku(item);
+
+                      const productId =
+                        getProductId(item);
+
                       const quantity =
-                        getItemQuantity(
-                          item,
-                        );
-
-                      const price =
-                        getItemPrice(
-                          item,
-                        );
-
-                      const originalPrice =
-                        getItemOriginalPrice(
-                          item,
-                        );
+                        getItemQuantity(item);
 
                       const itemSubtotal =
-                        getItemSubtotal(
-                          item,
-                        );
-
-                      const itemOfferDiscount =
-                        getItemOfferDiscount(
-                          item,
-                        );
-
-                      const image =
-                        getProductImage(
-                          item,
-                        );
+                        getItemSubtotal(item);
 
                       return (
-                        <article
-                          className={
-                            styles.item
-                          }
+                        <div
                           key={
                             item?._id ||
-                            item?.id ||
+                            productId ||
+                            productSku ||
                             index
+                          }
+                          className={
+                            styles.item
                           }
                         >
                           <div
@@ -655,20 +764,24 @@ function OrderDetails() {
                               styles.image
                             }
                           >
-                            {image ? (
+                            {productImage ? (
                               <img
                                 src={
-                                  image
+                                  productImage
                                 }
-                                alt={getProductName(
-                                  item,
-                                )}
+                                alt={
+                                  productName
+                                }
+                                onError={(
+                                  event,
+                                ) => {
+                                  event.currentTarget.style.display =
+                                    "none";
+                                }}
                               />
                             ) : (
                               <FiPackage
-                                size={
-                                  20
-                                }
+                                size={25}
                               />
                             )}
                           </div>
@@ -679,64 +792,22 @@ function OrderDetails() {
                             }
                           >
                             <strong>
-                              {getProductName(
-                                item,
-                              )}
+                              {productName}
                             </strong>
 
-                            {getProductSku(
-                              item,
-                            ) && (
+                            {productSku && (
                               <span>
                                 SKU:{" "}
-                                {getProductSku(
-                                  item,
-                                )}
+                                {
+                                  productSku
+                                }
                               </span>
                             )}
 
                             <span>
                               Qty:{" "}
-                              {
-                                quantity
-                              }
+                              {quantity}
                             </span>
-
-                            <span>
-                              {formatCurrency(
-                                price,
-                              )}{" "}
-                              each
-                            </span>
-
-                            {originalPrice >
-                              price && (
-                              <span>
-                                Original:{" "}
-                                {formatCurrency(
-                                  originalPrice,
-                                )}
-                              </span>
-                            )}
-
-                            {itemOfferDiscount >
-                              0 && (
-                              <span>
-                                Offer
-                                saved:{" "}
-                                {formatCurrency(
-                                  itemOfferDiscount,
-                                )}
-                              </span>
-                            )}
-
-                            {item?.offerName && (
-                              <span>
-                                {
-                                  item.offerName
-                                }
-                              </span>
-                            )}
                           </div>
 
                           <strong>
@@ -744,19 +815,15 @@ function OrderDetails() {
                               itemSubtotal,
                             )}
                           </strong>
-                        </article>
+                        </div>
                       );
                     },
-                  )
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </section>
 
-            <section
-              className={
-                styles.card
-              }
-            >
+            <section className={styles.card}>
               <div
                 className={
                   styles.cardHeader
@@ -775,154 +842,117 @@ function OrderDetails() {
                     Shipping Address
                   </h2>
                 </div>
-
-                <FiMapPin
-                  size={18}
-                />
               </div>
 
               <div
-                className={
-                  styles.address
-                }
+                className={styles.address}
               >
-                <strong>
-                  {
-                    order
-                      .shippingAddress
-                      ?.fullName
-                  }
-                </strong>
+                <FiMapPin size={18} />
 
-                <span>
-                  {
-                    order
-                      .shippingAddress
-                      ?.phone
-                  }
-                </span>
+                <div>
+                  <strong>
+                    {address.fullName ||
+                      "—"}
+                  </strong>
 
-                {order
-                  .shippingAddress
-                  ?.email && (
-                  <span>
-                    {
-                      order
-                        .shippingAddress
-                        .email
-                    }
-                  </span>
-                )}
+                  {address.phone && (
+                    <span>
+                      Phone:{" "}
+                      {address.phone}
+                    </span>
+                  )}
 
-                <span>
-                  {
-                    order
-                      .shippingAddress
-                      ?.addressLine1
-                  }
-                </span>
+                  {address.email && (
+                    <span>
+                      Email:{" "}
+                      {address.email}
+                    </span>
+                  )}
 
-                {order
-                  .shippingAddress
-                  ?.addressLine2 && (
-                  <span>
-                    {
-                      order
-                        .shippingAddress
-                        .addressLine2
-                    }
-                  </span>
-                )}
+                  {address.addressLine1 && (
+                    <span>
+                      {
+                        address.addressLine1
+                      }
+                    </span>
+                  )}
 
-                <span>
-                  {[
-                    order
-                      .shippingAddress
-                      ?.city,
-                    order
-                      .shippingAddress
-                      ?.state,
-                    order
-                      .shippingAddress
-                      ?.postalCode,
-                  ]
-                    .filter(Boolean)
-                    .join(", ")}
-                </span>
+                  {address.addressLine2 && (
+                    <span>
+                      {
+                        address.addressLine2
+                      }
+                    </span>
+                  )}
 
-                <span>
-                  {order
-                    .shippingAddress
-                    ?.country ||
-                    "India"}
-                </span>
+                  {(address.city ||
+                    address.state ||
+                    address.postalCode) && (
+                    <span>
+                      {address.city ||
+                        "—"}
+                      ,{" "}
+                      {address.state ||
+                        "—"}{" "}
+                      {
+                        address.postalCode
+                      }
+                    </span>
+                  )}
+
+                  {address.country && (
+                    <span>
+                      {
+                        address.country
+                      }
+                    </span>
+                  )}
+                </div>
               </div>
             </section>
 
-            <div
-              className={
-                styles.actions
-              }
-            >
-              <Link
-                to={`/order/${id}/tracking`}
-                className={
-                  styles.primaryButton
+            {delivered && (
+              <OrderReview
+                key={reviewRefreshKey}
+                order={order}
+                onReviewSuccess={
+                  handleReviewSuccess
                 }
-              >
-                Track Order
-              </Link>
+              />
+            )}
 
-              {isOnlinePayment &&
-                paymentStatus !==
-                  "paid" &&
-                orderStatus !==
-                  "cancelled" && (
-                  <button
-                    type="button"
-                    className={
-                      styles.secondaryButton
-                    }
-                    onClick={() =>
-                      navigate(
-                        `/order/${id}/payment`,
-                      )
-                    }
-                  >
-                    Complete Payment
-                  </button>
-                )}
-
-              {canCancel && (
-                <button
-                  type="button"
+            {!delivered &&
+              orderStatus !==
+                "cancelled" && (
+                <section
                   className={
-                    styles.cancelButton
-                  }
-                  onClick={
-                    handleCancel
-                  }
-                  disabled={
-                    cancelling
+                    styles.reviewNotice
                   }
                 >
-                  <FiX
-                    size={15}
-                  />
+                  <span
+                    className={
+                      styles.cardEyebrow
+                    }
+                  >
+                    Product Reviews
+                  </span>
 
-                  {cancelling
-                    ? "Cancelling..."
-                    : "Cancel Order"}
-                </button>
+                  <h2>
+                    Review your purchase
+                  </h2>
+
+                  <p>
+                    You can write a review
+                    after your order has
+                    been delivered.
+                  </p>
+                </section>
               )}
-            </div>
-          </div>
+          </main>
 
           <aside>
             <section
-              className={
-                styles.summary
-              }
+              className={styles.summary}
             >
               <span
                 className={
@@ -953,15 +983,14 @@ function OrderDetails() {
                   </strong>
                 </div>
 
-                {offerDiscount >
-                  0 && (
+                {offerDiscount > 0 && (
                   <div>
                     <span>
                       Offer Discount
                     </span>
 
                     <strong>
-                      -
+                      -{" "}
                       {formatCurrency(
                         offerDiscount,
                       )}
@@ -969,23 +998,7 @@ function OrderDetails() {
                   </div>
                 )}
 
-                {offerDiscount >
-                  0 && (
-                  <div>
-                    <span>
-                      Offer Price
-                    </span>
-
-                    <strong>
-                      {formatCurrency(
-                        offerSubtotal,
-                      )}
-                    </strong>
-                  </div>
-                )}
-
-                {couponDiscount >
-                  0 && (
+                {couponDiscount > 0 && (
                   <div>
                     <span>
                       Coupon
@@ -995,7 +1008,7 @@ function OrderDetails() {
                     </span>
 
                     <strong>
-                      -
+                      -{" "}
                       {formatCurrency(
                         couponDiscount,
                       )}
@@ -1003,15 +1016,14 @@ function OrderDetails() {
                   </div>
                 )}
 
-                {totalDiscount >
-                  0 && (
+                {totalDiscount > 0 && (
                   <div>
                     <span>
                       Total Discount
                     </span>
 
                     <strong>
-                      -
+                      -{" "}
                       {formatCurrency(
                         totalDiscount,
                       )}
@@ -1025,8 +1037,7 @@ function OrderDetails() {
                   </span>
 
                   <strong>
-                    {shippingFee ===
-                    0
+                    {shippingFee === 0
                       ? "Free"
                       : formatCurrency(
                           shippingFee,
@@ -1044,9 +1055,7 @@ function OrderDetails() {
                   </span>
 
                   <strong>
-                    {formatCurrency(
-                      total,
-                    )}
+                    {formatCurrency(total)}
                   </strong>
                 </div>
               </div>
@@ -1061,9 +1070,9 @@ function OrderDetails() {
                 </span>
 
                 <strong>
-                  {isOnlinePayment
-                    ? "Online Payment"
-                    : "Cash on Delivery"}
+                  {getPaymentMethod(
+                    order,
+                  )}
                 </strong>
 
                 <span>
@@ -1093,60 +1102,74 @@ function OrderDetails() {
                     </strong>
                   </>
                 )}
-              </div>
-            </section>
 
-            {(order.deliveredAt ||
-              order.cancelledAt) && (
-              <section
-                className={
-                  styles.card
-                }
-              >
-                <div
-                  className={
-                    styles.cardHeader
-                  }
-                >
-                  <div>
-                    <span
-                      className={
-                        styles.cardEyebrow
-                      }
-                    >
-                      Order Activity
-                    </span>
-
-                    <h2>
-                      Status Information
-                    </h2>
-                  </div>
-                </div>
-
-                {order.deliveredAt && (
-                  <div
-                    className={
-                      styles.activityRow
-                    }
-                  >
+                {order.couponCode && (
+                  <>
                     <span>
-                      Delivered
+                      Coupon
                     </span>
 
                     <strong>
-                      {formatDateTime(
-                        order.deliveredAt,
-                      )}
+                      {
+                        order.couponCode
+                      }
                     </strong>
-                  </div>
+                  </>
                 )}
+              </div>
+            </section>
+
+            <section
+              className={styles.summary}
+            >
+              <span
+                className={
+                  styles.cardEyebrow
+                }
+              >
+                Order
+              </span>
+
+              <h2>
+                Order Information
+              </h2>
+
+              <div
+                className={
+                  styles.paymentInfo
+                }
+              >
+                <span>
+                  Order Number
+                </span>
+
+                <strong>
+                  #{getOrderNumber(order)}
+                </strong>
+
+                <span>
+                  Order Date
+                </span>
+
+                <strong>
+                  {formatDate(
+                    order.createdAt ||
+                      order.date,
+                  )}
+                </strong>
+
+                <span>
+                  Order Status
+                </span>
+
+                <strong>
+                  {formatStatus(
+                    orderStatus,
+                  )}
+                </strong>
 
                 {order.cancelledAt && (
-                  <div
-                    className={
-                      styles.activityRow
-                    }
-                  >
+                  <>
                     <span>
                       Cancelled
                     </span>
@@ -1156,14 +1179,58 @@ function OrderDetails() {
                         order.cancelledAt,
                       )}
                     </strong>
-                  </div>
+                  </>
                 )}
-              </section>
-            )}
+
+                {order.cancellationReason && (
+                  <>
+                    <span>
+                      Cancellation Reason
+                    </span>
+
+                    <strong>
+                      {
+                        order.cancellationReason
+                      }
+                    </strong>
+                  </>
+                )}
+              </div>
+            </section>
+
+            {orderStatus !==
+              "cancelled" &&
+              orderStatus !==
+                "delivered" && (
+                <button
+                  type="button"
+                  className={
+                    styles.cancelButton
+                  }
+                  onClick={
+                    handleCancel
+                  }
+                  disabled={cancelling}
+                >
+                  {cancelling
+                    ? "Cancelling..."
+                    : "Cancel Order"}
+                </button>
+              )}
+
+            <Link
+              to={`/order/${orderId}/tracking`}
+              className={
+                styles.trackButton
+              }
+            >
+              <FiPackage size={16} />
+              Track Order
+            </Link>
           </aside>
         </div>
       </div>
-    </main>
+    </section>
   );
 }
 

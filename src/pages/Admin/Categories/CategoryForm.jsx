@@ -19,6 +19,8 @@ import {
   updateAdminCategory,
 } from "../../../services/adminCategoryService";
 
+import CategoryImageManager from "../../../components/Admin/CategoryImageManager";
+
 import styles from "./CategoryForm.module.css";
 
 const initialForm = {
@@ -36,6 +38,16 @@ function getCategory(response) {
     response?.category ||
     response?.data ||
     null
+  );
+}
+
+function getCategoryId(
+  category,
+) {
+  return (
+    category?._id ||
+    category?.id ||
+    ""
   );
 }
 
@@ -101,7 +113,9 @@ function CategoryForm() {
           setError("");
 
           const response =
-            await getAdminCategoryById(id);
+            await getAdminCategoryById(
+              id,
+            );
 
           const category =
             getCategory(response);
@@ -214,6 +228,17 @@ function CategoryForm() {
     setError("");
   };
 
+  const handleImageChange = (
+    image,
+  ) => {
+    setFormData(
+      (current) => ({
+        ...current,
+        image: image || "",
+      }),
+    );
+  };
+
   const handleSubmit = async (
     event,
   ) => {
@@ -227,9 +252,6 @@ function CategoryForm() {
 
     const description =
       formData.description.trim();
-
-    const image =
-      formData.image.trim();
 
     const sortOrder =
       Number(formData.sortOrder);
@@ -262,7 +284,6 @@ function CategoryForm() {
       name,
       slug,
       description,
-      image,
       sortOrder,
       isActive:
         Boolean(formData.isActive),
@@ -273,14 +294,52 @@ function CategoryForm() {
       setError("");
 
       if (editing) {
-        await updateAdminCategory(
-          id,
-          payload,
-        );
-      } else {
+        const response =
+          await updateAdminCategory(
+            id,
+            payload,
+          );
+
+        const updatedCategory =
+          getCategory(response);
+
+        if (
+          updatedCategory?.image
+        ) {
+          setFormData(
+            (current) => ({
+              ...current,
+              image:
+                updatedCategory.image,
+            }),
+          );
+        }
+
+        return;
+      }
+
+      const response =
         await createAdminCategory(
           payload,
         );
+
+      const createdCategory =
+        getCategory(response);
+
+      const createdCategoryId =
+        getCategoryId(
+          createdCategory,
+        );
+
+      if (createdCategoryId) {
+        navigate(
+          `/admin/categories/${createdCategoryId}/edit`,
+          {
+            replace: true,
+          },
+        );
+
+        return;
       }
 
       navigate(
@@ -307,8 +366,16 @@ function CategoryForm() {
 
   if (loading) {
     return (
-      <section className={styles.page}>
-        <div className={styles.state}>
+      <section
+        className={
+          styles.page
+        }
+      >
+        <div
+          className={
+            styles.state
+          }
+        >
           Loading category...
         </div>
       </section>
@@ -316,11 +383,17 @@ function CategoryForm() {
   }
 
   return (
-    <section className={styles.page}>
-      <div className={styles.header}>
+    <section
+      className={styles.page}
+    >
+      <div
+        className={styles.header}
+      >
         <Link
           to="/admin/categories"
-          className={styles.backLink}
+          className={
+            styles.backLink
+          }
         >
           <FiArrowLeft
             size={15}
@@ -331,25 +404,41 @@ function CategoryForm() {
           </span>
         </Link>
 
-        <span className={styles.eyebrow}>
+        <span
+          className={
+            styles.eyebrow
+          }
+        >
           Store Management
         </span>
 
-        <h1 className={styles.title}>
+        <h1
+          className={
+            styles.title
+          }
+        >
           {editing
             ? "Edit Category"
             : "Add Category"}
         </h1>
 
-        <p className={styles.description}>
+        <p
+          className={
+            styles.description
+          }
+        >
           {editing
-            ? "Update the category information and visibility."
+            ? "Update category information, image and visibility."
             : "Create a new jewellery category for your store."}
         </p>
       </div>
 
       {error && (
-        <div className={styles.error}>
+        <div
+          className={
+            styles.error
+          }
+        >
           <strong>
             Unable to save category
           </strong>
@@ -360,43 +449,86 @@ function CategoryForm() {
 
       <form
         className={styles.form}
-        onSubmit={handleSubmit}
+        onSubmit={
+          handleSubmit
+        }
       >
-        <div className={styles.card}>
-          <div className={styles.formGrid}>
-            <div className={styles.field}>
+        <div
+          className={styles.card}
+        >
+          <div
+            className={
+              styles.cardHeader
+            }
+          >
+            <div>
+              <h2>
+                Basic Information
+              </h2>
+
+              <p>
+                Category name, URL and
+                store display settings.
+              </p>
+            </div>
+          </div>
+
+          <div
+            className={
+              styles.formGrid
+            }
+          >
+            <div
+              className={
+                styles.field
+              }
+            >
               <label htmlFor="category-name">
-                Category Name
+                Category Name *
               </label>
 
               <input
                 id="category-name"
                 name="name"
                 type="text"
-                value={formData.name}
-                onChange={handleChange}
+                value={
+                  formData.name
+                }
+                onChange={
+                  handleChange
+                }
                 placeholder="e.g. Rings"
                 maxLength={100}
                 autoComplete="off"
                 disabled={saving}
+                required
               />
             </div>
 
-            <div className={styles.field}>
+            <div
+              className={
+                styles.field
+              }
+            >
               <label htmlFor="category-slug">
-                Slug
+                Slug *
               </label>
 
               <input
                 id="category-slug"
                 name="slug"
                 type="text"
-                value={formData.slug}
-                onChange={handleSlugChange}
+                value={
+                  formData.slug
+                }
+                onChange={
+                  handleSlugChange
+                }
                 placeholder="rings"
                 maxLength={120}
                 autoComplete="off"
                 disabled={saving}
+                required
               />
 
               <small>
@@ -417,7 +549,9 @@ function CategoryForm() {
                 value={
                   formData.description
                 }
-                onChange={handleChange}
+                onChange={
+                  handleChange
+                }
                 placeholder="Describe this jewellery category..."
                 rows={5}
                 maxLength={500}
@@ -425,41 +559,20 @@ function CategoryForm() {
               />
 
               <small>
-                {formData.description.length}
+                {
+                  formData
+                    .description
+                    .length
+                }
                 /500 characters
               </small>
             </div>
 
-            <div className={styles.field}>
-              <label htmlFor="category-image">
-                Image URL
-              </label>
-
-              <input
-                id="category-image"
-                name="image"
-                type="url"
-                value={formData.image}
-                onChange={handleChange}
-                placeholder="https://..."
-                disabled={saving}
-              />
-
-              {formData.image && (
-                <div className={styles.imagePreview}>
-                  <img
-                    src={formData.image}
-                    alt="Category preview"
-                    onError={(event) => {
-                      event.currentTarget.style.display =
-                        "none";
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className={styles.field}>
+            <div
+              className={
+                styles.field
+              }
+            >
               <label htmlFor="category-sort">
                 Sort Order
               </label>
@@ -470,27 +583,44 @@ function CategoryForm() {
                 type="number"
                 min="0"
                 step="1"
-                value={formData.sortOrder}
-                onChange={handleChange}
+                value={
+                  formData.sortOrder
+                }
+                onChange={
+                  handleChange
+                }
                 disabled={saving}
               />
 
               <small>
-                Lower numbers appear first.
+                Lower numbers appear
+                first.
               </small>
             </div>
 
             <div
-              className={`${styles.field} ${styles.fullWidth}`}
+              className={
+                styles.field
+              }
             >
-              <label className={styles.checkboxLabel}>
+              <label>
+                Visibility
+              </label>
+
+              <label
+                className={
+                  styles.checkboxLabel
+                }
+              >
                 <input
                   name="isActive"
                   type="checkbox"
                   checked={
                     formData.isActive
                   }
-                  onChange={handleChange}
+                  onChange={
+                    handleChange
+                  }
                   disabled={saving}
                 />
 
@@ -500,24 +630,62 @@ function CategoryForm() {
               </label>
 
               <small>
-                Inactive categories are hidden
-                from the customer catalogue.
+                Inactive categories are
+                hidden from the customer
+                catalogue.
               </small>
             </div>
           </div>
         </div>
 
-        <div className={styles.actions}>
+        <div
+          className={styles.card}
+        >
+          <div
+            className={
+              styles.cardHeader
+            }
+          >
+            <div>
+              <h2>
+                Category Image
+              </h2>
+
+              <p>
+                Upload and manage the
+                image displayed for this
+                category.
+              </p>
+            </div>
+          </div>
+
+          <CategoryImageManager
+            categoryId={id}
+            image={formData.image}
+            onChange={
+              handleImageChange
+            }
+            disabled={saving}
+          />
+        </div>
+
+        <div
+          className={styles.actions}
+        >
           <Link
             to="/admin/categories"
-            className={styles.cancel}
+            className={
+              styles.cancel
+            }
           >
             Cancel
           </Link>
 
           <button
             type="submit"
-            className={styles.save}
+            className={
+              styles.save
+            }
             disabled={saving}
           >
             {saving

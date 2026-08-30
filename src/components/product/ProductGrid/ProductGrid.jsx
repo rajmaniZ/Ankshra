@@ -1,19 +1,46 @@
 import ProductCard from "../ProductCard/ProductCard";
+
 import styles from "./ProductGrid.module.css";
 
-function ProductGrid({ products = [] }) {
-  if (!products.length) {
+function getProductId(product) {
+  return (
+    product?._id ||
+    product?.id ||
+    ""
+  );
+}
+
+function ProductGrid({
+  products = [],
+}) {
+  if (!Array.isArray(products)) {
+    return null;
+  }
+
+  const validProducts =
+    products.filter(
+      (product) =>
+        Boolean(
+          getProductId(product),
+        ),
+    );
+
+  if (!validProducts.length) {
     return null;
   }
 
   return (
     <div className={styles.grid}>
-      {products.map((product) => (
-        <ProductCard
-          key={product.id || product._id}
-          product={product}
-        />
-      ))}
+      {validProducts.map(
+        (product) => (
+          <ProductCard
+            key={getProductId(
+              product,
+            )}
+            product={product}
+          />
+        ),
+      )}
     </div>
   );
 }

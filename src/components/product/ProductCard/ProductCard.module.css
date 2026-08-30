@@ -1,28 +1,39 @@
 .card {
   min-width: 0;
+  cursor: pointer;
+  outline: none;
+}
+
+.card:focus-visible {
+  outline: 1px solid #222;
+  outline-offset: 5px;
 }
 
 .imageLink {
   display: block;
+  height: 100%;
 }
 
 .imageWrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1.15;
+  aspect-ratio: 1 / 1.12;
   overflow: hidden;
   background: #f5f5f5;
 }
 
 .image {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition:
+    transform 0.35s ease,
+    opacity 0.2s ease;
 }
 
 .imageLink:hover .image {
-  transform: scale(1.04);
+  transform: scale(1.035);
 }
 
 .placeholder {
@@ -31,136 +42,255 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #f5f5f5;
   color: #888;
   font-size: 13px;
 }
 
-.badge,
-.newBadge {
+.badges {
   position: absolute;
   top: 12px;
-  padding: 6px 9px;
-  background: #fff;
-  color: #222;
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
-.badge {
   left: 12px;
-}
+  z-index: 2;
 
-.newBadge {
-  right: 12px;
-}
-
-.content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 7px;
-  padding: 14px 2px 0;
+  gap: 6px;
+}
+
+.badge,
+.newBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 5px 8px;
+
+  background: #fff;
+  color: #222;
+
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.45px;
+  text-transform: uppercase;
+}
+
+.newBadge {
+  background: #222;
+  color: #fff;
+}
+
+.offerBadge {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 2;
+
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 24px;
+  padding: 5px 8px;
+
+  background: #fff;
+  color: #222;
+
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.45px;
+}
+
+.widgets {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.widget {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #ddd;
+  background: rgba(255, 255, 255, 0.96);
+  color: #222;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.widget:hover:not(:disabled) {
+  border-color: #222;
+  background: #222;
+  color: #fff;
+}
+
+.widget:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.wishlisted {
+  border-color: #222;
+  color: #222;
+}
+
+.outOfStock {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 4;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 28px;
+  padding: 6px 10px;
+
+  background: rgba(255, 255, 255, 0.95);
+  color: #8a1f1f;
+
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+}
+
+.content {
+  min-width: 0;
+  padding-top: 13px;
 }
 
 .category {
+  display: block;
+  margin-bottom: 5px;
+
   color: #888;
-  font-size: 11px;
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.9px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .name {
+  display: block;
+
+  overflow: hidden;
+
   color: #222;
+
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.4;
+
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .name:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  color: #555;
 }
 
-@media (max-width: 480px) {
+.offerName {
+  display: block;
+  margin-top: 5px;
+
+  color: #777;
+  font-size: 9px;
+  line-height: 1.3;
+}
+
+@media (max-width: 768px) {
+  .imageWrapper {
+    aspect-ratio: 1 / 1.15;
+  }
+
   .content {
-    padding-top: 10px;
+    padding-top: 11px;
   }
 
   .name {
     font-size: 13px;
   }
 
-  .badge,
-  .newBadge {
-    top: 8px;
-    padding: 5px 7px;
-    font-size: 10px;
+  .widget {
+    width: 31px;
+    height: 31px;
   }
 
-  .badge {
-    left: 8px;
-  }
-
-  .newBadge {
-    right: 8px;
-  }
-}
-
-.widgets {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  opacity: 0;
-  transform: translateY(8px);
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-
-.imageWrapper:hover .widgets {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.widget {
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  color: #222;
-  border: 1px solid #e5e5e5;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.widget:hover:not(:disabled) {
-  background: #222;
-  color: #fff;
-  transform: translateY(-1px);
-}
-
-.widget:disabled {
-  color: #aaa;
-  cursor: not-allowed;
-}
-
-.wishlisted {
-  color: #b00020;
-}
-
-@media (max-width: 768px) {
   .widgets {
-    opacity: 1;
-    transform: none;
+    top: 9px;
+    right: 9px;
+  }
+
+  .badges {
+    top: 9px;
+    left: 9px;
+  }
+
+  .offerBadge {
+    left: 9px;
+    bottom: 9px;
+  }
+}
+
+@media (max-width: 480px) {
+  .imageWrapper {
+    aspect-ratio: 1 / 1.14;
+  }
+
+  .content {
+    padding-top: 9px;
+  }
+
+  .category {
+    font-size: 8px;
+  }
+
+  .name {
+    font-size: 12px;
+  }
+
+  .widgets {
+    top: 7px;
+    right: 7px;
+    gap: 5px;
+  }
+
+  .widget {
+    width: 29px;
+    height: 29px;
+  }
+
+  .badges {
+    top: 7px;
+    left: 7px;
+    gap: 4px;
+  }
+
+  .badge,
+  .newBadge,
+  .offerBadge {
+    min-height: 21px;
+    padding: 4px 6px;
+    font-size: 8px;
   }
 }

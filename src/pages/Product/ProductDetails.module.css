@@ -1,9 +1,11 @@
 .page {
-  padding: 50px 0 80px;
+  width: 100%;
+  padding: 34px 0 100px;
+  background: #fff;
 }
 
 .container {
-  width: min(1200px, calc(100% - 40px));
+  width: min(1240px, calc(100% - 48px));
   margin: 0 auto;
 }
 
@@ -12,65 +14,248 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 40px;
-  color: #777;
-  font-size: 12px;
+  margin-bottom: 34px;
+  color: #888;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.breadcrumb a {
+  color: #666;
+  transition: color 0.2s ease;
 }
 
 .breadcrumb a:hover {
   color: #222;
 }
 
+.breadcrumb span {
+  color: #aaa;
+}
+
+.breadcrumb .current {
+  max-width: 300px;
+  overflow: hidden;
+  color: #333;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .product {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
-  gap: 70px;
+  grid-template-columns:
+    minmax(0, 1.08fr)
+    minmax(390px, 0.92fr);
+  gap: 76px;
   align-items: start;
 }
 
+.galleryColumn {
+  min-width: 0;
+}
+
+.infoColumn {
+  min-width: 0;
+  position: sticky;
+  top: 30px;
+}
+
+.reviewSection {
+  margin-top: 110px;
+  padding-top: 70px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.reviewHeader {
+  max-width: 650px;
+  margin-bottom: 38px;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 9px;
+  color: #8a8a8a;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+
+.reviewTitle {
+  margin: 0;
+  color: #222;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.reviewIntro {
+  max-width: 550px;
+  margin-top: 12px;
+  color: #777;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.reviewError {
+  margin-top: 80px;
+  padding: 16px 18px;
+  border: 1px solid #e7dddd;
+  background: #fcf8f8;
+  color: #8a5050;
+  font-size: 12px;
+}
+
+.loading {
+  min-height: 650px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+.loadingLine {
+  display: block;
+  width: 100%;
+  height: 16px;
+  background: #f4f4f4;
+}
+
+.loadingLine:nth-child(1) {
+  width: 42%;
+  height: 12px;
+}
+
+.loadingLine:nth-child(2) {
+  width: 78%;
+  height: 42px;
+}
+
+.loadingLine:nth-child(3) {
+  width: 58%;
+  height: 18px;
+}
+
 .notFound {
-  width: min(600px, calc(100% - 40px));
-  margin: 100px auto;
+  width: min(600px, calc(100% - 48px));
+  min-height: 60vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
 .notFound h1 {
-  font-size: 30px;
+  margin: 0;
+  color: #222;
+  font-size: 32px;
   font-weight: 500;
 }
 
 .notFound p {
-  margin-top: 12px;
-  color: #666;
+  max-width: 480px;
+  margin-top: 13px;
+  color: #777;
   font-size: 14px;
+  line-height: 1.7;
 }
 
 .backButton {
   display: inline-flex;
-  margin-top: 24px;
-  padding: 13px 20px;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 26px;
+  padding: 0 22px;
   background: #222;
   color: #fff;
-  font-size: 13px;
+  font-size: 12px;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.backButton:hover {
+  background: #111;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 1050px) {
+  .product {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(340px, 0.85fr);
+    gap: 48px;
+  }
 }
 
 @media (max-width: 900px) {
-  .product {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-}
-
-@media (max-width: 768px) {
   .page {
-    padding: 30px 0 60px;
+    padding-top: 26px;
   }
 
   .container {
-    width: min(100% - 30px, 1200px);
+    width: min(100% - 32px, 1240px);
+  }
+
+  .product {
+    grid-template-columns: 1fr;
+    gap: 45px;
+  }
+
+  .infoColumn {
+    position: static;
+  }
+
+  .reviewSection {
+    margin-top: 80px;
+    padding-top: 55px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 22px 0 70px;
+  }
+
+  .container {
+    width: min(100% - 24px, 1240px);
   }
 
   .breadcrumb {
-    margin-bottom: 25px;
+    margin-bottom: 24px;
+    font-size: 10px;
+  }
+
+  .breadcrumb .current {
+    max-width: 180px;
+  }
+
+  .product {
+    gap: 34px;
+  }
+
+  .reviewSection {
+    margin-top: 65px;
+    padding-top: 45px;
+  }
+
+  .reviewTitle {
+    font-size: 26px;
+  }
+
+  .reviewIntro {
+    font-size: 12px;
+  }
+
+  .notFound {
+    width: min(100% - 30px, 600px);
+  }
+
+  .notFound h1 {
+    font-size: 27px;
   }
 }

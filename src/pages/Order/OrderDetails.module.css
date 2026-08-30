@@ -1,6 +1,7 @@
 .page {
-  min-height: 70vh;
-  padding: 55px 20px 80px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 50px 20px 80px;
   background: #fafafa;
 }
 
@@ -13,7 +14,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
   color: #333;
   font-size: 13px;
   text-decoration: none;
@@ -46,15 +47,18 @@
   color: #222;
   font-size: 30px;
   font-weight: 500;
+  line-height: 1.25;
 }
 
 .header p {
   margin: 8px 0 0;
   color: #777;
   font-size: 13px;
+  line-height: 1.5;
 }
 
 .status {
+  flex-shrink: 0;
   padding: 9px 14px;
   border: 1px solid #ddd;
   background: #fff;
@@ -75,16 +79,35 @@
   background: #fff;
   color: #9b4141;
   font-size: 13px;
+  line-height: 1.5;
 }
 
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
+  align-items: start;
   gap: 25px;
 }
 
+.grid main {
+  min-width: 0;
+}
+
+.grid aside {
+  min-width: 0;
+}
+
+.sidebarInner {
+  position: sticky;
+  top: 20px;
+  z-index: 1;
+}
+
 .card,
-.summary {
+.summary,
+.reviewNotice {
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 25px;
   padding: 28px;
   border: 1px solid #e5e5e5;
@@ -101,14 +124,17 @@
 }
 
 .cardHeader h2,
-.summary h2 {
+.summary h2,
+.reviewNotice h2 {
   margin: 0;
   color: #222;
   font-size: 20px;
   font-weight: 500;
+  line-height: 1.3;
 }
 
 .cardHeader > span {
+  flex-shrink: 0;
   color: #777;
   font-size: 12px;
 }
@@ -138,37 +164,46 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border: 1px solid #eee;
   background: #f5f5f5;
-  color: #777;
+  color: #999;
 }
 
 .image img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
 .itemInfo {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
 .itemInfo strong {
+  overflow: hidden;
   color: #222;
   font-size: 14px;
   font-weight: 500;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .itemInfo span {
   color: #777;
   font-size: 12px;
+  line-height: 1.4;
 }
 
 .item > strong {
   color: #222;
   font-size: 13px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .emptyItems {
@@ -179,12 +214,25 @@
 
 .address {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 12px;
   padding-top: 20px;
   color: #555;
   font-size: 13px;
   line-height: 1.6;
+}
+
+.address > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #777;
+}
+
+.address div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .address strong {
@@ -192,52 +240,8 @@
   font-weight: 500;
 }
 
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 25px;
-}
-
-.primaryButton,
-.secondaryButton,
-.cancelButton {
-  min-height: 43px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 0 18px;
-  border: 1px solid #222;
-  font-size: 12px;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.primaryButton {
-  background: #222;
-  color: #fff;
-}
-
-.secondaryButton {
-  background: #fff;
-  color: #222;
-}
-
-.cancelButton {
-  border-color: #d4bcbc;
-  background: #fff;
-  color: #a04444;
-}
-
-.cancelButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .summary {
-  position: sticky;
-  top: 25px;
+  margin-bottom: 18px;
 }
 
 .summary h2 {
@@ -257,11 +261,18 @@
   gap: 15px;
   color: #666;
   font-size: 13px;
+  line-height: 1.5;
+}
+
+.summaryRows > div span {
+  min-width: 0;
 }
 
 .summaryRows strong {
+  flex-shrink: 0;
   color: #222;
   font-weight: 500;
+  text-align: right;
 }
 
 .summaryRows .total {
@@ -297,33 +308,84 @@
   color: #222;
   font-size: 13px;
   font-weight: 500;
+  line-height: 1.5;
 }
 
 .paymentId {
   overflow-wrap: anywhere;
 }
 
-.activityRow {
+.reviewNotice {
+  margin-top: 0;
+}
+
+.reviewNotice p {
+  margin: 8px 0 0;
+  color: #777;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.sidebarActions {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 15px 0;
-  border-bottom: 1px solid #eee;
+  gap: 10px;
 }
 
-.activityRow:last-child {
-  border-bottom: none;
-}
-
-.activityRow span {
-  color: #777;
+.cancelButton,
+.trackButton {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  font-family: inherit;
   font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-.activityRow strong {
-  color: #222;
-  font-size: 13px;
-  font-weight: 500;
+.cancelButton {
+  border: 1px solid #d4bcbc;
+  background: #fff;
+  color: #a04444;
+}
+
+.cancelButton:hover {
+  border-color: #a04444;
+}
+
+.cancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.trackButton {
+  border: 1px solid #222;
+  background: #222;
+  color: #fff;
+}
+
+.trackButton:hover {
+  background: #111;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 43px;
+  padding: 0 18px;
+  border: 1px solid #222;
+  background: #222;
+  color: #fff;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .state,
@@ -352,38 +414,92 @@
   margin: 10px 0 22px;
   color: #777;
   font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns:
+      minmax(0, 1fr)
+      300px;
+    gap: 20px;
+  }
+
+  .card,
+  .summary,
+  .reviewNotice {
+    padding: 24px;
+  }
 }
 
 @media (max-width: 850px) {
-  .grid {
-    grid-template-columns: 1fr;
+  .page {
+    padding: 45px 18px 70px;
   }
 
-  .summary {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .sidebarInner {
     position: static;
+    top: auto;
+  }
+
+  .grid main,
+  .grid aside {
+    width: 100%;
   }
 }
 
 @media (max-width: 600px) {
   .page {
-    padding: 40px 15px 60px;
+    padding: 35px 14px 60px;
+  }
+
+  .backLink {
+    margin-bottom: 22px;
   }
 
   .header {
     flex-direction: column;
+    gap: 15px;
+    margin-bottom: 24px;
   }
 
   .header h1 {
     font-size: 25px;
   }
 
+  .status {
+    align-self: flex-start;
+  }
+
   .card,
-  .summary {
-    padding: 22px 18px;
+  .summary,
+  .reviewNotice {
+    padding: 20px 17px;
+    margin-bottom: 18px;
+  }
+
+  .cardHeader {
+    gap: 12px;
+    padding-bottom: 16px;
+  }
+
+  .cardHeader h2,
+  .summary h2,
+  .reviewNotice h2 {
+    font-size: 18px;
   }
 
   .item {
-    grid-template-columns: 60px minmax(0, 1fr);
+    grid-template-columns:
+      60px
+      minmax(0, 1fr);
+    gap: 14px;
+    padding: 16px 0;
   }
 
   .image {
@@ -393,15 +509,18 @@
 
   .item > strong {
     grid-column: 2;
+    font-size: 13px;
   }
 
-  .actions {
-    flex-direction: column;
+  .summaryRows > div {
+    gap: 10px;
   }
 
-  .primaryButton,
-  .secondaryButton,
-  .cancelButton {
-    width: 100%;
+  .summaryRows > div span {
+    max-width: 65%;
+  }
+
+  .sidebarActions {
+    gap: 9px;
   }
 }

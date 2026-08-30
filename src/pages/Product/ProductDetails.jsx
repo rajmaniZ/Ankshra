@@ -1,543 +1,3 @@
-// import {
-//   useEffect,
-//   useState,
-// } from "react";
-
-// import {
-//   Link,
-//   useParams,
-// } from "react-router-dom";
-
-// import ProductGallery from "../../components/product/ProductGallery/ProductGallery";
-// import ProductInfo from "../../components/product/ProductInfo/ProductInfo";
-// import RelatedProducts from "../../components/product/RelatedProducts/RelatedProducts";
-
-// import useCart from "../../hooks/useCart";
-// import useWishlist from "../../hooks/useWishlist";
-
-// import {
-//   getProductById,
-//   getProductBySlug,
-//   getProducts,
-// } from "../../services/productService";
-
-// import styles from "./ProductDetails.module.css";
-
-// function getProductId(product) {
-//   return (
-//     product?._id ||
-//     product?.id ||
-//     ""
-//   );
-// }
-
-// function getProductImage(product) {
-//   const firstImage =
-//     product?.images?.[0];
-
-//   if (
-//     firstImage &&
-//     typeof firstImage === "object"
-//   ) {
-//     return (
-//       firstImage.url ||
-//       firstImage.secure_url ||
-//       ""
-//     );
-//   }
-
-//   return (
-//     firstImage ||
-//     product?.image ||
-//     ""
-//   );
-// }
-
-// function getProductImages(product) {
-//   if (
-//     Array.isArray(product?.images) &&
-//     product.images.length > 0
-//   ) {
-//     return product.images.map(
-//       (image) => {
-//         if (
-//           typeof image === "object"
-//         ) {
-//           return (
-//             image.url ||
-//             image.secure_url ||
-//             ""
-//           );
-//         }
-
-//         return image;
-//       },
-//     ).filter(Boolean);
-//   }
-
-//   const image =
-//     getProductImage(product);
-
-//   return image ? [image] : [];
-// }
-
-// function getCategoryName(product) {
-//   if (
-//     product?.category &&
-//     typeof product.category ===
-//       "object"
-//   ) {
-//     return (
-//       product.category.name ||
-//       ""
-//     );
-//   }
-
-//   return product?.category || "";
-// }
-
-// function getCategoryId(product) {
-//   if (
-//     product?.category &&
-//     typeof product.category ===
-//       "object"
-//   ) {
-//     return (
-//       product.category._id ||
-//       product.category.id ||
-//       ""
-//     );
-//   }
-
-//   return "";
-// }
-
-// function normalizeProduct(product) {
-//   if (!product) {
-//     return null;
-//   }
-
-//   return {
-//     ...product,
-
-//     id: getProductId(product),
-
-//     image:
-//       getProductImage(product),
-
-//     images:
-//       getProductImages(product),
-
-//     category:
-//       getCategoryName(product),
-
-//     rating:
-//       product.rating?.average ??
-//       product.rating ??
-//       0,
-
-//     reviewCount:
-//       product.reviewCount ??
-//       product.rating?.count ??
-//       0,
-//   };
-// }
-
-// async function loadProduct(id) {
-//   try {
-//     const response =
-//       await getProductBySlug(id);
-
-//     const product =
-//       response?.data?.product ||
-//       response?.product ||
-//       response?.data ||
-//       null;
-
-//     if (product) {
-//       return product;
-//     }
-//   } catch (error) {
-//     if (
-//       error?.status !== 404
-//     ) {
-//       throw error;
-//     }
-//   }
-
-//   const response =
-//     await getProductById(id);
-
-//   return (
-//     response?.data?.product ||
-//     response?.product ||
-//     response?.data ||
-//     null
-//   );
-// }
-
-// function ProductDetails() {
-//   const { id } = useParams();
-
-//   const {
-//     addToCart,
-//   } = useCart();
-
-//   const {
-//     isWishlisted,
-//     toggleWishlist,
-//   } = useWishlist();
-
-//   const [product, setProduct] =
-//     useState(null);
-
-//   const [
-//     relatedProducts,
-//     setRelatedProducts,
-//   ] = useState([]);
-
-//   const [loading, setLoading] =
-//     useState(true);
-
-//   const [error, setError] =
-//     useState(null);
-
-//   const [
-//     selectedVariants,
-//     setSelectedVariants,
-//   ] = useState({});
-
-//   useEffect(() => {
-//     let active = true;
-
-//     async function fetchProduct() {
-//       if (!id) {
-//         setError(
-//           new Error(
-//             "Product identifier is missing",
-//           ),
-//         );
-//         setLoading(false);
-//         return;
-//       }
-
-//       setLoading(true);
-//       setError(null);
-
-//       try {
-//         const productData =
-//           await loadProduct(id);
-
-//         if (!active) {
-//           return;
-//         }
-
-//         if (!productData) {
-//           setProduct(null);
-//           setError(
-//             new Error(
-//               "Product not found",
-//             ),
-//           );
-//           return;
-//         }
-
-//         setProduct(productData);
-
-//         const categoryId =
-//           getCategoryId(
-//             productData,
-//           );
-
-//         if (!categoryId) {
-//           setRelatedProducts([]);
-//           return;
-//         }
-
-//         try {
-//           const relatedResponse =
-//             await getProducts({
-//               category:
-//                 categoryId,
-//               limit: 5,
-//             });
-
-//           const products =
-//             relatedResponse?.data
-//               ?.products ||
-//             [];
-
-//           if (!active) {
-//             return;
-//           }
-
-//           const currentProductId =
-//             getProductId(
-//               productData,
-//             );
-
-//           const related =
-//             Array.isArray(products)
-//               ? products
-//                   .filter(
-//                     (item) =>
-//                       String(
-//                         getProductId(
-//                           item,
-//                         ),
-//                       ) !==
-//                       String(
-//                         currentProductId,
-//                       ),
-//                   )
-//                   .slice(0, 4)
-//                   .map(
-//                     normalizeProduct,
-//                   )
-//               : [];
-
-//           setRelatedProducts(
-//             related,
-//           );
-//         } catch (
-//           relatedError
-//         ) {
-//           console.error(
-//             "Failed to load related products:",
-//             relatedError,
-//           );
-
-//           if (active) {
-//             setRelatedProducts(
-//               [],
-//             );
-//           }
-//         }
-//       } catch (loadError) {
-//         console.error(
-//           "Failed to load product:",
-//           loadError,
-//         );
-
-//         if (!active) {
-//           return;
-//         }
-
-//         setProduct(null);
-//         setRelatedProducts([]);
-//         setError(loadError);
-//       } finally {
-//         if (active) {
-//           setLoading(false);
-//         }
-//       }
-//     }
-
-//     fetchProduct();
-
-//     return () => {
-//       active = false;
-//     };
-//   }, [id]);
-
-//   const handleVariantChange = (
-//     name,
-//     value,
-//   ) => {
-//     setSelectedVariants(
-//       (current) => ({
-//         ...current,
-//         [name]: value,
-//       }),
-//     );
-//   };
-
-//   const handleAddToCart = async (
-//     quantity = 1,
-//   ) => {
-//     if (!product) {
-//       return;
-//     }
-
-//     try {
-//       await addToCart(
-//         product,
-//         quantity,
-//       );
-//     } catch (error) {
-//       console.error(
-//         "Failed to add product to cart:",
-//         error,
-//       );
-//     }
-//   };
-
-//   const handleBuyNow = async (
-//     quantity = 1,
-//   ) => {
-//     if (!product) {
-//       return;
-//     }
-
-//     try {
-//       await addToCart(
-//         product,
-//         quantity,
-//       );
-//     } catch (error) {
-//       console.error(
-//         "Failed to buy product:",
-//         error,
-//       );
-//     }
-//   };
-
-//   const handleWishlist = async () => {
-//     if (!product) {
-//       return;
-//     }
-
-//     try {
-//       await toggleWishlist(
-//         product,
-//       );
-//     } catch (error) {
-//       console.error(
-//         "Failed to update wishlist:",
-//         error,
-//       );
-//     }
-//   };
-
-//   if (loading) {
-//     return (
-//       <div
-//         className={styles.notFound}
-//       >
-//         <p>
-//           Loading product...
-//         </p>
-//       </div>
-//     );
-//   }
-
-//   if (error || !product) {
-//     return (
-//       <div
-//         className={styles.notFound}
-//       >
-//         <h1>
-//           Product not found
-//         </h1>
-
-//         <p>
-//           The product you are
-//           looking for is no
-//           longer available.
-//         </p>
-
-//         <Link
-//           to="/shop"
-//           className={
-//             styles.backButton
-//           }
-//         >
-//           Continue Shopping
-//         </Link>
-//       </div>
-//     );
-//   }
-
-//   const productId =
-//     getProductId(product);
-
-//   const normalizedProduct =
-//     normalizeProduct(product);
-
-//   const images =
-//     getProductImages(product);
-
-//   return (
-//     <div
-//       className={styles.page}
-//     >
-//       <div
-//         className={styles.container}
-//       >
-//         <nav
-//           className={
-//             styles.breadcrumb
-//           }
-//         >
-//           <Link to="/">
-//             Home
-//           </Link>
-
-//           <span>/</span>
-
-//           <Link to="/shop">
-//             Shop
-//           </Link>
-
-//           <span>/</span>
-
-//           <span>
-//             {product.name}
-//           </span>
-//         </nav>
-
-//         <div
-//           className={styles.product}
-//         >
-//           <ProductGallery
-//             images={images}
-//             productName={
-//               product.name
-//             }
-//           />
-
-//           <ProductInfo
-//             product={
-//               normalizedProduct
-//             }
-//             selectedVariants={
-//               selectedVariants
-//             }
-//             onVariantChange={
-//               handleVariantChange
-//             }
-//             onAddToCart={
-//               handleAddToCart
-//             }
-//             onBuyNow={
-//               handleBuyNow
-//             }
-//             onWishlist={
-//               handleWishlist
-//             }
-//             isWishlisted={
-//               isWishlisted(
-//                 productId,
-//               )
-//             }
-//           />
-//         </div>
-
-//         {relatedProducts.length >
-//           0 && (
-//           <RelatedProducts
-//             products={
-//               relatedProducts
-//             }
-//           />
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default ProductDetails;
-
 import {
   useEffect,
   useState,
@@ -546,13 +6,13 @@ import {
 import {
   Link,
   useParams,
-  useNavigate,
 } from "react-router-dom";
 
 import { toast } from "react-toastify";
 
 import ProductGallery from "../../components/product/ProductGallery/ProductGallery";
 import ProductInfo from "../../components/product/ProductInfo/ProductInfo";
+import ProductReviewSummary from "../../components/product/ProductReviewSummary/ProductReviewSummary";
 import RelatedProducts from "../../components/product/RelatedProducts/RelatedProducts";
 
 import useCart from "../../hooks/useCart";
@@ -564,6 +24,10 @@ import {
   getProducts,
 } from "../../services/productService";
 
+import {
+  getProductReviews,
+} from "../../services/reviewService";
+
 import styles from "./ProductDetails.module.css";
 
 function getProductId(product) {
@@ -574,69 +38,50 @@ function getProductId(product) {
   );
 }
 
-function getProductImage(product) {
-  const firstImage =
-    product?.images?.[0];
+function getImageUrl(image) {
+  if (!image) {
+    return "";
+  }
 
-  if (
-    firstImage &&
-    typeof firstImage ===
-      "object"
-  ) {
-    return (
-      firstImage.url ||
-      firstImage.secure_url ||
-      ""
-    );
+  if (typeof image === "string") {
+    return image;
   }
 
   return (
-    firstImage ||
-    product?.image ||
-    product?.thumbnail ||
+    image.url ||
+    image.secure_url ||
+    image.src ||
     ""
   );
 }
 
 function getProductImages(product) {
   if (
-    Array.isArray(
-      product?.images,
-    ) &&
+    Array.isArray(product?.images) &&
     product.images.length > 0
   ) {
     return product.images
-      .map((image) => {
-        if (
-          typeof image ===
-          "object"
-        ) {
-          return (
-            image.url ||
-            image.secure_url ||
-            ""
-          );
-        }
-
-        return image;
-      })
+      .map(getImageUrl)
       .filter(Boolean);
   }
 
-  const image =
-    getProductImage(product);
+  const fallbackImage =
+    getImageUrl(product?.image) ||
+    getImageUrl(product?.thumbnail);
 
-  return image ? [image] : [];
+  return fallbackImage
+    ? [fallbackImage]
+    : [];
 }
 
 function getCategoryName(product) {
   if (
     product?.category &&
-    typeof product.category ===
-      "object"
+    typeof product.category === "object"
   ) {
     return (
       product.category.name ||
+      product.category.title ||
       ""
     );
   }
@@ -647,8 +92,7 @@ function getCategoryName(product) {
 function getCategoryId(product) {
   if (
     product?.category &&
-    typeof product.category ===
-      "object"
+    typeof product.category === "object"
   ) {
     return (
       product.category._id ||
@@ -660,81 +104,171 @@ function getCategoryId(product) {
   return "";
 }
 
+function getCategorySlug(product) {
+  if (
+    product?.category &&
+    typeof product.category === "object"
+  ) {
+    return product.category.slug || "";
+  }
+
+  return "";
+}
+
+function getReviewList(response) {
+  if (Array.isArray(response)) {
+    return response;
+  }
+
+  if (Array.isArray(response?.reviews)) {
+    return response.reviews;
+  }
+
+  if (Array.isArray(response?.data?.reviews)) {
+    return response.data.reviews;
+  }
+
+  if (Array.isArray(response?.data)) {
+    return response.data;
+  }
+
+  return [];
+}
+
+function getPublicReviews(reviews) {
+  if (!Array.isArray(reviews)) {
+    return [];
+  }
+
+  return reviews.filter((review) => {
+    if (!review) {
+      return false;
+    }
+
+    if (
+      review.reviewType &&
+      review.reviewType !== "product"
+    ) {
+      return false;
+    }
+
+    if (review.isApproved === false) {
+      return false;
+    }
+
+    if (review.isPublic === false) {
+      return false;
+    }
+
+    return Number(review.rating) > 0;
+  });
+}
+
+function getProductResponse(response) {
+  return (
+    response?.data?.product ||
+    response?.product ||
+    response?.data ||
+    null
+  );
+}
+
+function getProductsResponse(response) {
+  if (Array.isArray(response)) {
+    return response;
+  }
+
+  if (Array.isArray(response?.products)) {
+    return response.products;
+  }
+
+  if (Array.isArray(response?.data?.products)) {
+    return response.data.products;
+  }
+
+  if (Array.isArray(response?.data)) {
+    return response.data;
+  }
+
+  return [];
+}
+
 function normalizeProduct(product) {
   if (!product) {
     return null;
   }
 
+  const productId =
+    getProductId(product);
+
+  const images =
+    getProductImages(product);
+
+  const category =
+    getCategoryName(product);
+
+  const ratingAverage = Number(
+    product?.rating?.average ??
+      product?.averageRating ??
+      product?.rating ??
+      0,
+  );
+
+  const ratingCount = Number(
+    product?.rating?.count ??
+      product?.reviewCount ??
+      product?.reviewsCount ??
+      0,
+  );
+
   return {
     ...product,
 
-    id: getProductId(product),
+    id: productId,
 
     image:
-      getProductImage(product),
+      images[0] ||
+      "",
 
-    images:
-      getProductImages(product),
+    images,
 
-    category:
-      getCategoryName(product),
+    category,
 
-    rating:
-      product.rating?.average ??
-      product.rating ??
-      0,
+    rating: {
+      ...(product.rating &&
+      typeof product.rating === "object"
+        ? product.rating
+        : {}),
 
-    reviewCount:
-      product.reviewCount ??
-      product.rating?.count ??
-      0,
+      average:
+        Number.isFinite(ratingAverage) &&
+        ratingAverage > 0
+          ? Math.min(5, ratingAverage)
+          : 0,
+
+      count:
+        Number.isFinite(ratingCount) &&
+        ratingCount > 0
+          ? Math.floor(ratingCount)
+          : 0,
+    },
   };
 }
 
-async function loadProduct(id) {
-  try {
-    const response =
-      await getProductById(id);
-
-    return (
-      response?.data?.product ||
-      response?.product ||
-      response?.data ||
-      null
-    );
-  } catch (error) {
-    if (
-      error?.status !== 404
-    ) {
-      throw error;
-    }
-  }
-
-  try {
-    const response =
-      await getProductBySlug(id);
-
-    return (
-      response?.data?.product ||
-      response?.product ||
-      response?.data ||
-      null
-    );
-  } catch (error) {
-    if (
-      error?.status === 404
-    ) {
-      return null;
-    }
-
-    throw error;
-  }
+function getErrorMessage(error) {
+  return (
+    error?.response?.data?.message ||
+    error?.data?.message ||
+    error?.message ||
+    "Unable to load this product."
+  );
 }
 
 function ProductDetails() {
-  const { id } = useParams();
-  const navigate =
-    useNavigate();
+  const {
+    id,
+    slug,
+  } = useParams();
 
   const {
     addToCart,
@@ -748,151 +282,145 @@ function ProductDetails() {
   const [product, setProduct] =
     useState(null);
 
-  const [
-    relatedProducts,
-    setRelatedProducts,
-  ] = useState([]);
+  const [relatedProducts, setRelatedProducts] =
+    useState([]);
+
+  const [reviews, setReviews] =
+    useState([]);
 
   const [loading, setLoading] =
     useState(true);
 
+  const [reviewsLoading, setReviewsLoading] =
+    useState(true);
+
   const [error, setError] =
-    useState(null);
+    useState("");
+
+  const [reviewsError, setReviewsError] =
+    useState("");
 
   const [
     selectedVariants,
     setSelectedVariants,
   ] = useState({});
 
-  const [
-    actionLoading,
-    setActionLoading,
-  ] = useState(false);
-
   useEffect(() => {
     let active = true;
 
-    async function fetchProduct() {
-      if (!id) {
-        setError(
-          new Error(
-            "Product identifier is missing",
-          ),
-        );
-
-        setLoading(false);
-        return;
-      }
-
+    async function loadProduct() {
       setLoading(true);
-      setError(null);
+      setError("");
+      setProduct(null);
+      setRelatedProducts([]);
+      setSelectedVariants({});
 
       try {
+        let response;
+
+        if (slug) {
+          response =
+            await getProductBySlug(slug);
+        } else if (id) {
+          response =
+            await getProductById(id);
+        } else {
+          throw new Error(
+            "Product identifier is missing.",
+          );
+        }
+
         const productData =
-          await loadProduct(id);
+          getProductResponse(response);
 
         if (!active) {
           return;
         }
 
         if (!productData) {
-          setProduct(null);
-
           setError(
-            new Error(
-              "Product not found",
-            ),
+            "The product you are looking for is no longer available.",
           );
-
-          setRelatedProducts([]);
 
           return;
         }
 
-        setProduct(productData);
+        const normalized =
+          normalizeProduct(productData);
+
+        setProduct(normalized);
 
         const categoryId =
-          getCategoryId(
-            productData,
-          );
+          getCategoryId(productData);
 
-        if (!categoryId) {
-          setRelatedProducts([]);
-          return;
-        }
+        const categorySlug =
+          getCategorySlug(productData);
+
+        const categoryQuery =
+          categoryId
+            ? {
+                category: categoryId,
+              }
+            : categorySlug
+              ? {
+                  category: categorySlug,
+                }
+              : {};
 
         try {
           const relatedResponse =
             await getProducts({
-              category:
-                categoryId,
+              ...categoryQuery,
               limit: 5,
             });
-
-          const products =
-            relatedResponse?.data
-              ?.products ||
-            [];
 
           if (!active) {
             return;
           }
 
-          const currentProductId =
-            getProductId(
-              productData,
-            );
+          const currentId =
+            getProductId(productData);
 
           const related =
-            Array.isArray(products)
-              ? products
-                  .filter(
-                    (item) =>
-                      String(
-                        getProductId(
-                          item,
-                        ),
-                      ) !==
-                      String(
-                        currentProductId,
-                      ),
-                  )
-                  .slice(0, 4)
-                  .map(
-                    normalizeProduct,
-                  )
-              : [];
+            getProductsResponse(
+              relatedResponse,
+            )
+              .filter(
+                (item) =>
+                  getProductId(item) !==
+                  currentId,
+              )
+              .slice(0, 4)
+              .map(normalizeProduct)
+              .filter(Boolean);
 
           setRelatedProducts(
             related,
           );
-        } catch (
-          relatedError
-        ) {
-          console.error(
-            "Failed to load related products:",
-            relatedError,
-          );
-
+        } catch (relatedError) {
           if (active) {
-            setRelatedProducts(
-              [],
+            console.error(
+              "Failed to load related products:",
+              relatedError,
             );
+
+            setRelatedProducts([]);
           }
         }
       } catch (loadError) {
+        if (!active) {
+          return;
+        }
+
         console.error(
           "Failed to load product:",
           loadError,
         );
 
-        if (!active) {
-          return;
-        }
-
         setProduct(null);
-        setRelatedProducts([]);
-        setError(loadError);
+        setError(
+          getErrorMessage(loadError),
+        );
       } finally {
         if (active) {
           setLoading(false);
@@ -900,12 +428,73 @@ function ProductDetails() {
       }
     }
 
-    fetchProduct();
+    loadProduct();
 
     return () => {
       active = false;
     };
-  }, [id]);
+  }, [id, slug]);
+
+  useEffect(() => {
+    if (!product?.id) {
+      setReviews([]);
+      setReviewsLoading(false);
+      return undefined;
+    }
+
+    let active = true;
+
+    async function loadReviews() {
+      setReviewsLoading(true);
+      setReviewsError("");
+
+      try {
+        const response =
+          await getProductReviews(
+            product.id,
+          );
+
+        if (!active) {
+          return;
+        }
+
+        const reviewList =
+          getReviewList(response);
+
+        setReviews(
+          getPublicReviews(
+            reviewList,
+          ),
+        );
+      } catch (reviewLoadError) {
+        if (!active) {
+          return;
+        }
+
+        console.error(
+          "Failed to load product reviews:",
+          reviewLoadError,
+        );
+
+        setReviews([]);
+        setReviewsError(
+          getErrorMessage(
+            reviewLoadError,
+          ),
+        );
+      } finally {
+        if (active) {
+          setReviewsLoading(false);
+        }
+      }
+    }
+
+    loadReviews();
+
+    return () => {
+      active = false;
+    };
+  }, [product?.id]);
 
   const handleVariantChange = (
     name,
@@ -919,221 +508,163 @@ function ProductDetails() {
     );
   };
 
-  const handleAddToCart =
-    async (quantity = 1) => {
-      if (!product) {
-        return;
-      }
+  const handleAddToCart = async (
+    quantity,
+  ) => {
+    if (!product?.id) {
+      return;
+    }
 
-      if (
-        Number(product.stock) <= 0
-      ) {
-        toast.error(
-          "This product is out of stock.",
-        );
-        return;
-      }
+    try {
+      await addToCart(
+        product.id,
+        quantity,
+      );
 
-      if (actionLoading) {
-        return;
-      }
+      toast.success(
+        quantity > 1
+          ? `${product.name} (${quantity}) added to cart.`
+          : `${product.name} added to cart.`,
+      );
+    } catch (addError) {
+      console.error(
+        "Failed to add product to cart:",
+        addError,
+      );
 
-      setActionLoading(true);
+      toast.error(
+        addError?.response?.data?.message ||
+          addError?.message ||
+          "Unable to add product to cart.",
+      );
+    }
+  };
 
-      try {
-        await addToCart(
-          product,
-          quantity,
-        );
+  const handleBuyNow = async (
+    quantity,
+  ) => {
+    if (!product?.id) {
+      return;
+    }
 
-        toast.success(
-          `${product.name} added to cart.`,
-        );
-      } catch (error) {
-        console.error(
-          "Failed to add product to cart:",
-          error,
-        );
+    try {
+      await addToCart(
+        product.id,
+        quantity,
+      );
 
-        toast.error(
-          error?.message ||
-            "Unable to add product to cart.",
-        );
-      } finally {
-        setActionLoading(false);
-      }
-    };
+      toast.success(
+        "Product added to cart.",
+      );
+    } catch (addError) {
+      console.error(
+        "Failed to add product for checkout:",
+        addError,
+      );
 
-  const handleBuyNow =
-    async (quantity = 1) => {
-      if (!product) {
-        return;
-      }
+      toast.error(
+        addError?.response?.data?.message ||
+          addError?.message ||
+          "Unable to continue to checkout.",
+      );
 
-      if (
-        Number(product.stock) <= 0
-      ) {
-        toast.error(
-          "This product is out of stock.",
-        );
-        return;
-      }
+      return;
+    }
 
-      if (actionLoading) {
-        return;
-      }
+    window.location.assign(
+      "/checkout",
+    );
+  };
 
-      setActionLoading(true);
+  const handleWishlist = async () => {
+    if (!product) {
+      return;
+    }
 
-      try {
-        await addToCart(
-          product,
-          quantity,
-        );
+    try {
+      await toggleWishlist(
+        product,
+      );
 
-        toast.success(
-          "Product added to cart.",
-        );
+      toast.success(
+        isWishlisted(product.id)
+          ? `${product.name} removed from wishlist.`
+          : `${product.name} added to wishlist.`,
+      );
+    } catch (wishlistError) {
+      console.error(
+        "Failed to update wishlist:",
+        wishlistError,
+      );
 
-        navigate("/checkout");
-      } catch (error) {
-        console.error(
-          "Failed to buy product:",
-          error,
-        );
-
-        toast.error(
-          error?.message ||
-            "Unable to continue to checkout.",
-        );
-      } finally {
-        setActionLoading(false);
-      }
-    };
-
-  const handleWishlist =
-    async () => {
-      if (!product) {
-        return;
-      }
-
-      if (actionLoading) {
-        return;
-      }
-
-      const productId =
-        getProductId(product);
-
-      const wasWishlisted =
-        Boolean(
-          isWishlisted(
-            productId,
-          ),
-        );
-
-      setActionLoading(true);
-
-      try {
-        await toggleWishlist(
-          product,
-        );
-
-        if (wasWishlisted) {
-          toast.success(
-            `${product.name} removed from wishlist.`,
-          );
-        } else {
-          toast.success(
-            `${product.name} added to wishlist.`,
-          );
-        }
-      } catch (error) {
-        console.error(
-          "Failed to update wishlist:",
-          error,
-        );
-
-        toast.error(
-          error?.message ||
-            "Unable to update wishlist.",
-        );
-      } finally {
-        setActionLoading(false);
-      }
-    };
+      toast.error(
+        wishlistError?.response?.data
+          ?.message ||
+          wishlistError?.message ||
+          "Unable to update wishlist.",
+      );
+    }
+  };
 
   if (loading) {
     return (
-      <div
-        className={
-          styles.loading
-        }
-      >
-        Loading product...
-      </div>
+      <main className={styles.page}>
+        <div className={styles.container}>
+          <div className={styles.loading}>
+            <span className={styles.loadingLine} />
+            <span className={styles.loadingLine} />
+            <span className={styles.loadingLine} />
+          </div>
+        </div>
+      </main>
     );
   }
 
-  if (
-    !product ||
-    error
-  ) {
+  if (!product) {
     return (
-      <div
-        className={
-          styles.notFound
-        }
-      >
-        <h1>
-          Product not found
-        </h1>
+      <main className={styles.page}>
+        <div className={styles.notFound}>
+          <span className={styles.eyebrow}>
+            Product
+          </span>
 
-        <p>
-          The product you are
-          looking for is no longer
-          available.
-        </p>
+          <h1>
+            Product not found
+          </h1>
 
-        <Link
-          to="/shop"
-          className={
-            styles.backButton
-          }
-        >
-          Continue Shopping
-        </Link>
-      </div>
+          <p>
+            {error ||
+              "The product you are looking for is no longer available."}
+          </p>
+
+          <Link
+            to="/shop"
+            className={styles.backButton}
+          >
+            Continue Shopping
+          </Link>
+        </div>
+      </main>
     );
   }
 
-  const productId =
-    getProductId(product);
-
-  const images =
+  const productImages =
     getProductImages(product);
+
+  const category =
+    getCategoryName(product);
 
   const wishlisted =
     Boolean(
-      isWishlisted(
-        productId,
-      ),
+      isWishlisted(product.id),
     );
 
   return (
-    <div
-      className={
-        styles.page
-      }
-    >
-      <div
-        className={
-          styles.container
-        }
-      >
+    <main className={styles.page}>
+      <div className={styles.container}>
         <nav
-          className={
-            styles.breadcrumb
-          }
+          className={styles.breadcrumb}
+          aria-label="Breadcrumb"
         >
           <Link to="/">
             Home
@@ -1145,77 +676,144 @@ function ProductDetails() {
             Shop
           </Link>
 
+          {category && (
+            <>
+              <span>/</span>
+
+              <span>
+                {category}
+              </span>
+            </>
+          )}
+
           <span>/</span>
 
-          <span>
+          <span
+            className={
+              styles.current
+            }
+          >
             {product.name}
           </span>
         </nav>
 
-        <div
-          className={
-            styles.product
-          }
+        <section
+          className={styles.product}
         >
-          <ProductGallery
-            images={images}
-            productName={
-              product.name
+          <div
+            className={
+              styles.galleryColumn
+            }
+          >
+            <ProductGallery
+              images={productImages}
+              productName={
+                product.name
+              }
+            />
+          </div>
+
+          <div
+            className={
+              styles.infoColumn
+            }
+          >
+            <ProductInfo
+              product={product}
+              selectedVariants={
+                selectedVariants
+              }
+              onVariantChange={
+                handleVariantChange
+              }
+              onAddToCart={
+                handleAddToCart
+              }
+              onBuyNow={
+                handleBuyNow
+              }
+              onWishlist={
+                handleWishlist
+              }
+              isWishlisted={
+                wishlisted
+              }
+            />
+          </div>
+        </section>
+
+        {!reviewsLoading &&
+          reviews.length > 0 && (
+            <section
+              className={
+                styles.reviewSection
+              }
+              aria-labelledby="product-reviews-title"
+            >
+              <div
+                className={
+                  styles.reviewHeader
+                }
+              >
+                <span
+                  className={
+                    styles.eyebrow
+                  }
+                >
+                  Customer feedback
+                </span>
+
+                <h2
+                  id="product-reviews-title"
+                  className={
+                    styles.reviewTitle
+                  }
+                >
+                  Reviews
+                </h2>
+
+                <p
+                  className={
+                    styles.reviewIntro
+                  }
+                >
+                  See what customers who
+                  purchased this product
+                  think about it.
+                </p>
+              </div>
+
+              <ProductReviewSummary
+                reviews={reviews}
+              />
+            </section>
+          )}
+
+        {!reviewsLoading &&
+          reviews.length === 0 &&
+          reviewsError && (
+            <section
+              className={
+                styles.reviewError
+              }
+            >
+              <span>
+                Reviews are temporarily
+                unavailable.
+              </span>
+            </section>
+          )}
+
+        {relatedProducts.length >
+          0 && (
+          <RelatedProducts
+            products={
+              relatedProducts
             }
           />
-
-          <ProductInfo
-            product={{
-              ...product,
-              id: productId,
-              image:
-                getProductImage(
-                  product,
-                ),
-              images,
-              category:
-                getCategoryName(
-                  product,
-                ),
-              rating:
-                product.rating
-                  ?.average ??
-                product.rating ??
-                0,
-              reviewCount:
-                product.reviewCount ??
-                product.rating
-                  ?.count ??
-                0,
-            }}
-            selectedVariants={
-              selectedVariants
-            }
-            onVariantChange={
-              handleVariantChange
-            }
-            onAddToCart={
-              handleAddToCart
-            }
-            onBuyNow={
-              handleBuyNow
-            }
-            onWishlist={
-              handleWishlist
-            }
-            isWishlisted={
-              wishlisted
-            }
-          />
-        </div>
-
-        <RelatedProducts
-          products={
-            relatedProducts
-          }
-        />
+        )}
       </div>
-    </div>
+    </main>
   );
 }
 

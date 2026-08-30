@@ -11,14 +11,17 @@
   display: block;
   margin-bottom: 8px;
   color: #777;
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1.5px;
 }
 
 .title {
+  margin: 0;
+  color: #222;
   font-size: 30px;
   font-weight: 500;
+  line-height: 1.25;
 }
 
 @media (max-width: 768px) {
@@ -32,5 +35,19 @@
 
   .title {
     font-size: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    margin-top: 55px;
+  }
+
+  .heading {
+    margin-bottom: 24px;
+  }
+
+  .title {
+    font-size: 23px;
   }
 }

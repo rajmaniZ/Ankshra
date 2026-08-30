@@ -10,114 +10,56 @@ function getCategoryName(category) {
     return "";
   }
 
-  if (typeof category === "object") {
-    return category.name || "";
+  if (
+    typeof category === "object"
+  ) {
+    return (
+      category.name ||
+      ""
+    );
   }
 
-  return category;
+  return String(category);
 }
 
 function getRating(product) {
-  return (
+  const value =
     product?.rating?.average ??
-    product?.rating ??
-    0
-  );
-}
-
-function getReviewCount(product) {
-  return (
-    product?.rating?.count ??
-    product?.reviewCount ??
-    0
-  );
-}
-
-function getOfferPrice(product) {
-  const value =
-    product?.offerPrice ??
-    product?.discountedPrice ??
-    product?.finalPrice ??
-    null;
-
-  if (
-    value === null ||
-    value === undefined ||
-    value === ""
-  ) {
-    return null;
-  }
-
-  const number = Number(value);
-
-  return Number.isFinite(number)
-    ? number
-    : null;
-}
-
-function getOfferDiscount(product) {
-  const value =
-    product?.offerDiscount ??
-    product?.offer?.discount ??
+    product?.averageRating ??
     0;
 
   const number = Number(value);
 
   return Number.isFinite(number)
-    ? Math.max(number, 0)
+    ? Math.min(
+        5,
+        Math.max(0, number),
+      )
     : 0;
 }
 
-function getOfferName(product) {
-  return (
-    product?.offerName ||
-    product?.appliedOffer?.name ||
-    product?.offer?.name ||
-    ""
-  );
+function getReviewCount(product) {
+  const value =
+    product?.rating?.count ??
+    product?.reviewCount ??
+    0;
+
+  const number = Number(value);
+
+  return Number.isFinite(number)
+    ? Math.max(
+        0,
+        Math.floor(number),
+      )
+    : 0;
 }
 
-function getOfferDiscountPercentage(product) {
-  const value =
-    product?.offerDiscountPercentage ??
-    product?.offer?.discountPercentage ??
-    null;
+function getNumber(value) {
+  const number = Number(value);
 
-  if (
-    value !== null &&
-    value !== undefined &&
-    value !== ""
-  ) {
-    const number = Number(value);
-
-    if (Number.isFinite(number)) {
-      return Math.max(
-        0,
-        Math.round(number),
-      );
-    }
-  }
-
-  const basePrice =
-    Number(product?.price);
-
-  const offerPrice =
-    getOfferPrice(product);
-
-  if (
-    !Number.isFinite(basePrice) ||
-    !Number.isFinite(offerPrice) ||
-    basePrice <= 0 ||
-    offerPrice >= basePrice
-  ) {
-    return 0;
-  }
-
-  return Math.round(
-    ((basePrice - offerPrice) /
-      basePrice) *
-      100,
-  );
+  return Number.isFinite(number)
+    ? number
+    : null;
 }
 
 function ProductInfo({
@@ -145,31 +87,27 @@ function ProductInfo({
     getReviewCount(product);
 
   const basePrice =
-    Number(product.price);
+    getNumber(product.price);
 
   const offerPrice =
-    getOfferPrice(product);
+    getNumber(product.offerPrice);
 
   const offerDiscount =
-    getOfferDiscount(product);
+    getNumber(
+      product.offerDiscount,
+    ) || 0;
 
-  const offerName =
-    getOfferName(product);
-
-  const offerDiscountPercentage =
-    getOfferDiscountPercentage(
-      product,
-    );
-
-  const compareAtPrice =
-    product.compareAtPrice ??
-    product.comparePrice ??
-    null;
+  const discountPercentage =
+    getNumber(
+      product.offerDiscountPercentage,
+    ) || 0;
 
   const hasOffer =
-    Number.isFinite(basePrice) &&
-    Number.isFinite(offerPrice) &&
-    offerPrice < basePrice;
+    basePrice !== null &&
+    offerPrice !== null &&
+    offerPrice >= 0 &&
+    offerPrice < basePrice &&
+    Boolean(product.appliedOffer);
 
   const displayPrice =
     hasOffer
@@ -179,10 +117,16 @@ function ProductInfo({
   const stock =
     Number(product.stock ?? 0);
 
+  const hasRating =
+    rating > 0 &&
+    reviewCount > 0;
+
   return (
     <div className={styles.container}>
       {category && (
-        <span className={styles.category}>
+        <span
+          className={styles.category}
+        >
           {category}
         </span>
       )}
@@ -191,46 +135,64 @@ function ProductInfo({
         {product.name}
       </h1>
 
-      {Number(rating) > 0 && (
+      {hasRating && (
         <ProductRating
-          rating={Number(rating)}
-          reviewCount={Number(
-            reviewCount,
-          )}
+          rating={rating}
+          reviewCount={
+            reviewCount
+          }
         />
       )}
 
-      <div className={styles.price}>
-        <ProductPrice
-          price={displayPrice}
-          originalPrice={
-            hasOffer
-              ? basePrice
-              : undefined
+      {displayPrice !== null && (
+        <div className={styles.price}>
+          <ProductPrice
+            price={displayPrice}
+            originalPrice={
+              hasOffer
+                ? basePrice
+                : undefined
+            }
+            compareAtPrice={
+              product.compareAtPrice
+            }
+            offerDiscount={
+              hasOffer
+                ? offerDiscount
+                : 0
+            }
+            offerName={
+              hasOffer
+                ? product
+                    .appliedOffer
+                    ?.name || ""
+                : ""
+            }
+            discountPercentage={
+              hasOffer
+                ? discountPercentage
+                : undefined
+            }
+          />
+        </div>
+      )}
+
+      {product.shortDescription && (
+        <p
+          className={
+            styles.shortDescription
           }
-          compareAtPrice={
-            compareAtPrice
-          }
-          offerDiscount={
-            hasOffer
-              ? offerDiscount
-              : 0
-          }
-          offerName={
-            hasOffer
-              ? offerName
-              : ""
-          }
-          discountPercentage={
-            hasOffer
-              ? offerDiscountPercentage
-              : undefined
-          }
-        />
-      </div>
+        >
+          {product.shortDescription}
+        </p>
+      )}
 
       {product.description && (
-        <p className={styles.description}>
+        <p
+          className={
+            styles.description
+          }
+        >
           {product.description}
         </p>
       )}
@@ -239,33 +201,40 @@ function ProductInfo({
         product.variants,
       ) &&
         product.variants.map(
-          (variant) => (
+          (variant, index) => (
             <div
               className={styles.variant}
               key={
-                variant.id ||
-                variant._id ||
-                variant.name
+                variant?._id ||
+                variant?.id ||
+                variant?.name ||
+                `variant-${index}`
               }
             >
               <ProductVariant
-                label={variant.name}
+                label={
+                  variant?.name
+                }
                 options={
-                  variant.options || []
+                  Array.isArray(
+                    variant?.options,
+                  )
+                    ? variant.options
+                    : []
                 }
                 value={
                   selectedVariants[
-                    variant.name
+                    variant?.name
                   ]
                 }
                 onChange={(value) =>
                   onVariantChange?.(
-                    variant.name,
+                    variant?.name,
                     value,
                   )
                 }
                 type={
-                  variant.type
+                  variant?.type
                 }
               />
             </div>
@@ -287,6 +256,11 @@ function ProductInfo({
           disabled={
             stock <= 0
           }
+          maxQuantity={
+            stock > 0
+              ? stock
+              : undefined
+          }
         />
       </div>
 
@@ -303,11 +277,13 @@ function ProductInfo({
       {stock > 0 &&
         stock <= 5 && (
           <p
-            className={
-              styles.stock
-            }
+            className={styles.stock}
           >
-            Only {stock} left in stock
+            Only {stock}{" "}
+            {stock === 1
+              ? "item"
+              : "items"}{" "}
+            left in stock
           </p>
         )}
     </div>

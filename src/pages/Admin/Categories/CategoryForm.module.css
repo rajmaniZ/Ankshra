@@ -1,35 +1,36 @@
 .page {
   width: 100%;
-  max-width: 900px;
+  max-width: 950px;
 }
 
 .header {
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .backLink {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-bottom: 25px;
-  color: #222;
-  font-size: 12px;
+  margin-bottom: 22px;
+  color: #777;
+  font-size: 11px;
 }
 
 .backLink:hover {
-  text-decoration: underline;
+  color: #222;
 }
 
 .eyebrow {
   display: block;
   margin-bottom: 7px;
-  color: #777;
+  color: #999;
   font-size: 10px;
-  letter-spacing: 1.4px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
 }
 
 .title {
+  color: #222;
   font-size: 30px;
   font-weight: 500;
 }
@@ -38,7 +39,13 @@
   margin-top: 7px;
   color: #777;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 .card {
@@ -46,8 +53,26 @@
   background: #fff;
 }
 
-.form {
-  width: 100%;
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 25px 17px;
+  border-bottom: 1px solid #eee;
+}
+
+.cardHeader h2 {
+  color: #222;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.cardHeader p {
+  margin-top: 5px;
+  color: #888;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .formGrid {
@@ -56,7 +81,7 @@
     2,
     minmax(0, 1fr)
   );
-  gap: 24px;
+  gap: 20px;
   padding: 25px;
 }
 
@@ -72,7 +97,7 @@
 
 .field label {
   margin-bottom: 8px;
-  color: #333;
+  color: #444;
   font-size: 11px;
   font-weight: 500;
 }
@@ -80,31 +105,30 @@
 .field input,
 .field textarea {
   width: 100%;
-  border: 1px solid #dcdcdc;
+  border: 1px solid #ddd;
   border-radius: 0;
-  outline: none;
+  outline: 0;
   background: #fff;
   color: #222;
   font-family: inherit;
-  font-size: 13px;
-  transition: border-color 0.15s ease;
+  font-size: 12px;
 }
 
 .field input {
-  height: 44px;
-  padding: 0 12px;
+  height: 40px;
+  padding: 0 11px;
 }
 
 .field textarea {
-  min-height: 120px;
-  padding: 12px;
+  min-height: 110px;
+  padding: 11px;
   resize: vertical;
   line-height: 1.5;
 }
 
 .field input:focus,
 .field textarea:focus {
-  border-color: #222;
+  border-color: #999;
 }
 
 .field input:disabled,
@@ -114,8 +138,8 @@
 }
 
 .field small {
-  margin-top: 7px;
-  color: #888;
+  margin-top: 6px;
+  color: #999;
   font-size: 10px;
   line-height: 1.5;
 }
@@ -123,37 +147,36 @@
 .checkboxLabel {
   display: flex !important;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
+  min-height: 40px;
   margin: 0 !important;
+  padding: 0 11px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #444;
   cursor: pointer;
 }
 
 .checkboxLabel input {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   margin: 0;
+  accent-color: #222;
   cursor: pointer;
 }
 
-.imagePreview {
-  width: 100%;
-  height: 150px;
-  margin-top: 12px;
-  overflow: hidden;
-  border: 1px solid #eee;
-  background: #f7f7f7;
+.checkboxLabel span {
+  color: #444;
+  font-size: 11px;
+  font-weight: 400;
 }
 
-.imagePreview img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
+/* Error */
 
 .error {
-  margin-bottom: 20px;
-  padding: 14px 16px;
-  border: 1px solid #e6cccc;
+  margin-bottom: 18px;
+  padding: 13px 15px;
+  border: 1px solid #e5cccc;
   background: #faf4f4;
   color: #8a3030;
 }
@@ -161,38 +184,32 @@
 .error strong {
   display: block;
   margin-bottom: 5px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
 }
 
 .error p {
   margin: 0;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
-.state {
-  min-height: 300px;
-  display: grid;
-  place-items: center;
-  color: #777;
-  font-size: 13px;
-}
+/* Form actions */
 
 .actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 18px;
+  padding-bottom: 10px;
 }
 
 .cancel,
 .save {
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
   padding: 0 18px;
   font-size: 12px;
   cursor: pointer;
@@ -201,11 +218,12 @@
 .cancel {
   border: 1px solid #ddd;
   background: #fff;
-  color: #333;
+  color: #444;
 }
 
 .cancel:hover {
-  border-color: #222;
+  border-color: #aaa;
+  color: #222;
 }
 
 .save {
@@ -215,12 +233,22 @@
 }
 
 .save:hover {
-  background: #333;
+  background: #111;
 }
 
 .save:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+/* Loading */
+
+.state {
+  min-height: 350px;
+  display: grid;
+  place-items: center;
+  color: #777;
+  font-size: 13px;
 }
 
 @media (max-width: 700px) {
@@ -237,6 +265,10 @@
     grid-column: auto;
   }
 
+  .cardHeader {
+    padding: 20px;
+  }
+
   .actions {
     flex-direction: column-reverse;
     align-items: stretch;
@@ -245,5 +277,19 @@
   .cancel,
   .save {
     width: 100%;
+  }
+}
+
+@media (max-width: 500px) {
+  .title {
+    font-size: 26px;
+  }
+
+  .description {
+    font-size: 12px;
+  }
+
+  .header {
+    margin-bottom: 22px;
   }
 }

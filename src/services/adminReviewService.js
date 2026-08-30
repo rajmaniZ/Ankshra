@@ -4,8 +4,25 @@ import {
   remove,
 } from "./api";
 
+function getReviewId(id) {
+  if (!id) {
+    return "";
+  }
+
+  if (typeof id === "object") {
+    return String(
+      id._id ||
+        id.id ||
+        "",
+    );
+  }
+
+  return String(id);
+}
+
 function buildQuery(params = {}) {
-  const searchParams = new URLSearchParams();
+  const searchParams =
+    new URLSearchParams();
 
   Object.entries(params).forEach(
     ([key, value]) => {
@@ -16,7 +33,7 @@ function buildQuery(params = {}) {
       ) {
         searchParams.set(
           key,
-          value,
+          String(value),
         );
       }
     },
@@ -25,7 +42,9 @@ function buildQuery(params = {}) {
   const query =
     searchParams.toString();
 
-  return query ? `?${query}` : "";
+  return query
+    ? `?${query}`
+    : "";
 }
 
 export async function getAdminReviews(
@@ -39,14 +58,17 @@ export async function getAdminReviews(
 export async function getAdminReviewById(
   id,
 ) {
-  if (!id) {
+  const reviewId =
+    getReviewId(id);
+
+  if (!reviewId) {
     throw new Error(
       "Review ID is required.",
     );
   }
 
   return get(
-    `/admin/reviews/${id}`,
+    `/admin/reviews/${reviewId}`,
   );
 }
 
@@ -54,22 +76,100 @@ export async function updateAdminReviewStatus(
   id,
   isApproved,
 ) {
-  if (!id) {
+  const reviewId =
+    getReviewId(id);
+
+  if (!reviewId) {
     throw new Error(
       "Review ID is required.",
     );
   }
 
-  if (typeof isApproved !== "boolean") {
+  if (
+    typeof isApproved !==
+    "boolean"
+  ) {
     throw new Error(
       "Review approval status must be true or false.",
     );
   }
 
   return patch(
-    `/admin/reviews/${id}/status`,
+    `/admin/reviews/${reviewId}/status`,
     {
       isApproved,
+    },
+  );
+}
+
+export async function updateAdminReviewVisibility(
+  id,
+  isPublic,
+) {
+  const reviewId =
+    getReviewId(id);
+
+  if (!reviewId) {
+    throw new Error(
+      "Review ID is required.",
+    );
+  }
+
+  if (
+    typeof isPublic !==
+    "boolean"
+  ) {
+    throw new Error(
+      "Review visibility must be true or false.",
+    );
+  }
+
+  return patch(
+    `/admin/reviews/${reviewId}/visibility`,
+    {
+      isPublic,
+    },
+  );
+}
+
+export async function updateAdminReviewReply(
+  id,
+  message,
+  isPublic = true,
+) {
+  const reviewId =
+    getReviewId(id);
+
+  if (!reviewId) {
+    throw new Error(
+      "Review ID is required.",
+    );
+  }
+
+  if (
+    typeof message !==
+      "string" ||
+    !message.trim()
+  ) {
+    throw new Error(
+      "Reply message is required.",
+    );
+  }
+
+  if (
+    typeof isPublic !==
+    "boolean"
+  ) {
+    throw new Error(
+      "Reply visibility must be true or false.",
+    );
+  }
+
+  return patch(
+    `/admin/reviews/${reviewId}/reply`,
+    {
+      message: message.trim(),
+      isPublic,
     },
   );
 }
@@ -77,13 +177,16 @@ export async function updateAdminReviewStatus(
 export async function deleteAdminReview(
   id,
 ) {
-  if (!id) {
+  const reviewId =
+    getReviewId(id);
+
+  if (!reviewId) {
     throw new Error(
       "Review ID is required.",
     );
   }
 
   return remove(
-    `/admin/reviews/${id}`,
+    `/admin/reviews/${reviewId}`,
   );
 }

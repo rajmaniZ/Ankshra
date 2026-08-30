@@ -4,17 +4,26 @@ import FeaturedProducts from "../../components/home/FeaturedProducts/FeaturedPro
 import NewArrivals from "../../components/home/NewArrivals/NewArrivals";
 import BestSellers from "../../components/home/BestSellers/BestSellers";
 import OfferSection from "../../components/home/OfferSection/OfferSection";
+import AppReviews from "../../components/home/AppReviews/AppReviews";
+
 import styles from "./Home.module.css";
 
 function Home() {
   return (
     <div className={styles.page}>
       <HeroSection />
+
       <CategorySection />
+
       <FeaturedProducts />
+
       <NewArrivals />
+
       <BestSellers />
+
       <OfferSection />
+
+      <AppReviews />
     </div>
   );
 }

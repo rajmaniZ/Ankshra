@@ -8,17 +8,32 @@ import {
 } from "react-router-dom";
 
 import {
+  FiCreditCard,
+  FiEye,
   FiPackage,
+  FiStar,
+  FiTruck,
+  FiX,
 } from "react-icons/fi";
 
 import {
   getOrders,
 } from "../../services/orderService";
 
+import {
+  getProductById,
+} from "../../services/productService";
+
+import OrderReview from "../../components/review/OrderReview/OrderReview";
+
 import styles from "./Orders.module.css";
 
 function getResponseData(response) {
-  return response?.data || response || {};
+  return (
+    response?.data ||
+    response ||
+    {}
+  );
 }
 
 function getOrderList(response) {
@@ -43,10 +58,27 @@ function getOrderList(response) {
   return [];
 }
 
+function getId(value) {
+  if (!value) {
+    return "";
+  }
+
+  if (typeof value === "object") {
+    return (
+      value._id ||
+      value.id ||
+      ""
+    );
+  }
+
+  return String(value);
+}
+
 function getOrderId(order) {
   return (
     order?._id ||
     order?.id ||
+    order?.orderId ||
     ""
   );
 }
@@ -60,68 +92,100 @@ function getOrderNumber(order) {
 }
 
 function getProduct(item) {
-  return (
-    item?.product ||
-    item ||
-    {}
-  );
-}
-
-function getProductName(item) {
-  const product =
-    getProduct(item);
-
-  return (
-    item?.name ||
-    product?.name ||
-    "Product"
-  );
-}
-
-function getProductImage(item) {
-  const product =
-    getProduct(item);
-
-  const images =
-    product?.images;
-
   if (
-    Array.isArray(images) &&
-    images.length > 0
+    item?.product &&
+    typeof item.product === "object"
   ) {
-    const image =
-      images[0];
-
-    if (
-      image &&
-      typeof image === "object"
-    ) {
-      return (
-        image.url ||
-        image.secure_url ||
-        ""
-      );
-    }
-
-    return image || "";
+    return item.product;
   }
 
-  if (
-    product?.image &&
-    typeof product.image ===
-      "object"
-  ) {
+  return null;
+}
+
+function getProductId(item) {
+  const product =
+    getProduct(item);
+
+  return (
+    getId(product) ||
+    getId(item?.productId) ||
+    getId(item?.productID) ||
+    ""
+  );
+}
+
+function getImageUrl(image) {
+  if (!image) {
+    return "";
+  }
+
+  if (typeof image === "string") {
+    return image;
+  }
+
+  if (typeof image === "object") {
     return (
-      product.image.url ||
-      product.image.secure_url ||
+      image.url ||
+      image.secure_url ||
+      image.secureUrl ||
+      image.path ||
+      image.src ||
       ""
     );
   }
 
+  return "";
+}
+
+function getProductImage(
+  item,
+  product = null,
+) {
+  const itemImages =
+    Array.isArray(item?.images)
+      ? item.images
+      : [];
+
+  const productImages =
+    Array.isArray(product?.images)
+      ? product.images
+      : [];
+
+  const imageSources = [
+    item?.image,
+    item?.imageUrl,
+    item?.productImage,
+    itemImages[0],
+
+    product?.image,
+    product?.imageUrl,
+    productImages[0],
+  ];
+
+  for (
+    const image of imageSources
+  ) {
+    const imageUrl =
+      getImageUrl(image);
+
+    if (imageUrl) {
+      return imageUrl;
+    }
+  }
+
+  return "";
+}
+
+function getProductName(
+  item,
+  product = null,
+) {
   return (
-    product?.image ||
-    item?.image ||
-    ""
+    item?.name ||
+    item?.productName ||
+    product?.name ||
+    product?.title ||
+    "Product"
   );
 }
 
@@ -134,64 +198,6 @@ function getQuantity(item) {
   ) && quantity > 0
     ? quantity
     : 1;
-}
-
-function getOrderTotal(order) {
-  const value =
-    Number(order?.total);
-
-  return Number.isFinite(value)
-    ? value
-    : 0;
-}
-
-function getOrderSubtotal(order) {
-  const value =
-    Number(order?.subtotal);
-
-  return Number.isFinite(value)
-    ? value
-    : 0;
-}
-
-function getShippingFee(order) {
-  const value =
-    Number(order?.shippingFee);
-
-  return Number.isFinite(value)
-    ? value
-    : 0;
-}
-
-function getOrderDiscount(order) {
-  const value =
-    Number(order?.discount);
-
-  return Number.isFinite(value)
-    ? value
-    : 0;
-}
-
-function getOfferDiscount(order) {
-  const value =
-    Number(
-      order?.offerDiscount,
-    );
-
-  return Number.isFinite(value)
-    ? value
-    : 0;
-}
-
-function getCouponDiscount(order) {
-  const value =
-    Number(
-      order?.couponDiscount,
-    );
-
-  return Number.isFinite(value)
-    ? value
-    : 0;
 }
 
 function getItemPrice(item) {
@@ -209,12 +215,6 @@ function getItemPrice(item) {
 }
 
 function getItemSubtotal(item) {
-  const price =
-    getItemPrice(item);
-
-  const quantity =
-    getQuantity(item);
-
   const storedSubtotal =
     Number(
       item?.subtotal ??
@@ -230,13 +230,24 @@ function getItemSubtotal(item) {
     return storedSubtotal;
   }
 
-  return price * quantity;
+  return (
+    getItemPrice(item) *
+    getQuantity(item)
+  );
+}
+
+function getNumber(
+  value,
+) {
+  const number =
+    Number(value);
+
+  return Number.isFinite(number)
+    ? number
+    : 0;
 }
 
 function formatCurrency(value) {
-  const amount =
-    Number(value);
-
   return new Intl.NumberFormat(
     "en-IN",
     {
@@ -246,9 +257,7 @@ function formatCurrency(value) {
       maximumFractionDigits: 2,
     },
   ).format(
-    Number.isFinite(amount)
-      ? amount
-      : 0,
+    getNumber(value),
   );
 }
 
@@ -301,8 +310,9 @@ function formatStatus(value) {
 
 function getStatusClass(status) {
   const value =
-    String(status || "")
-      .toLowerCase();
+    String(
+      status || "",
+    ).toLowerCase();
 
   if (
     value === "delivered"
@@ -317,12 +327,7 @@ function getStatusClass(status) {
   }
 
   if (
-    value === "shipped"
-  ) {
-    return styles.shipped;
-  }
-
-  if (
+    value === "shipped" ||
     value === "out_for_delivery"
   ) {
     return styles.shipped;
@@ -343,11 +348,48 @@ function getStatusClass(status) {
   return styles.pending;
 }
 
+function isDelivered(order) {
+  return (
+    String(
+      order?.orderStatus ||
+        order?.status ||
+        "",
+    ).toLowerCase() ===
+    "delivered"
+  );
+}
+
+function getPaymentMethod(order) {
+  const method =
+    String(
+      order?.paymentMethod ||
+        "",
+    ).toLowerCase();
+
+  if (method === "online") {
+    return "Online Payment";
+  }
+
+  if (method === "cod") {
+    return "Cash on Delivery";
+  }
+
+  return formatStatus(
+    order?.paymentMethod ||
+      "—",
+  );
+}
+
 function Orders() {
   const [
     orders,
     setOrders,
   ] = useState([]);
+
+  const [
+    productData,
+    setProductData,
+  ] = useState({});
 
   const [
     loading,
@@ -357,6 +399,11 @@ function Orders() {
   const [
     error,
     setError,
+  ] = useState("");
+
+  const [
+    activeReviewOrderId,
+    setActiveReviewOrderId,
   ] = useState("");
 
   useEffect(() => {
@@ -405,6 +452,139 @@ function Orders() {
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    async function loadMissingProducts() {
+      const missingIds = [];
+
+      orders.forEach(
+        (order) => {
+          const items =
+            Array.isArray(
+              order?.items,
+            )
+              ? order.items
+              : [];
+
+          items.forEach(
+            (item) => {
+              const productId =
+                getProductId(item);
+
+              const image =
+                getProductImage(
+                  item,
+                );
+
+              if (
+                productId &&
+                !image &&
+                !productData[
+                  productId
+                ]
+              ) {
+                missingIds.push(
+                  productId,
+                );
+              }
+            },
+          );
+        },
+      );
+
+      const uniqueIds = [
+        ...new Set(
+          missingIds,
+        ),
+      ];
+
+      if (
+        uniqueIds.length === 0
+      ) {
+        return;
+      }
+
+      const results =
+        await Promise.all(
+          uniqueIds.map(
+            async (
+              productId,
+            ) => {
+              try {
+                const response =
+                  await getProductById(
+                    productId,
+                  );
+
+                const product =
+                  response?.data
+                    ?.product ||
+                  response?.product ||
+                  response?.data ||
+                  null;
+
+                return [
+                  productId,
+                  product,
+                ];
+              } catch {
+                return [
+                  productId,
+                  null,
+                ];
+              }
+            },
+          ),
+        );
+
+      if (!active) {
+        return;
+      }
+
+      setProductData(
+        (current) => {
+          const next = {
+            ...current,
+          };
+
+          results.forEach(
+            ([
+              productId,
+              product,
+            ]) => {
+              if (product) {
+                next[
+                  productId
+                ] = product;
+              }
+            },
+          );
+
+          return next;
+        },
+      );
+    }
+
+    loadMissingProducts();
+
+    return () => {
+      active = false;
+    };
+  }, [orders, productData]);
+
+  const toggleReviews = (
+    orderId,
+  ) => {
+    setActiveReviewOrderId(
+      (current) =>
+        String(current) ===
+        String(orderId)
+          ? ""
+          : orderId,
+    );
+  };
+
   if (loading) {
     return (
       <section
@@ -437,8 +617,9 @@ function Orders() {
         </h2>
 
         <p>
-          View and track your
-          recent jewellery orders.
+          View, track and review
+          your recent jewellery
+          orders.
         </p>
       </div>
 
@@ -480,7 +661,7 @@ function Orders() {
           {orders.map(
             (
               order,
-              index,
+              orderIndex,
             ) => {
               const orderId =
                 getOrderId(order);
@@ -502,39 +683,44 @@ function Orders() {
                 order?.status ||
                 "pending";
 
+              const delivered =
+                isDelivered(
+                  order,
+                );
+
               const status =
                 formatStatus(
                   rawStatus,
                 );
 
               const subtotal =
-                getOrderSubtotal(
-                  order,
+                getNumber(
+                  order?.subtotal,
                 );
 
               const shipping =
-                getShippingFee(
-                  order,
+                getNumber(
+                  order?.shippingFee,
                 );
 
               const discount =
-                getOrderDiscount(
-                  order,
+                getNumber(
+                  order?.discount,
                 );
 
               const offerDiscount =
-                getOfferDiscount(
-                  order,
+                getNumber(
+                  order?.offerDiscount,
                 );
 
               const couponDiscount =
-                getCouponDiscount(
-                  order,
+                getNumber(
+                  order?.couponDiscount,
                 );
 
               const total =
-                getOrderTotal(
-                  order,
+                getNumber(
+                  order?.total,
                 );
 
               const paymentStatus =
@@ -543,19 +729,23 @@ function Orders() {
                     "pending",
                 );
 
-              const paymentMethod =
-                order?.paymentMethod ===
-                "online"
-                  ? "Online Payment"
-                  : "Cash on Delivery";
+              const reviewOpen =
+                String(
+                  activeReviewOrderId,
+                ) ===
+                String(orderId);
 
               return (
                 <article
-                  className={styles.card}
+                  className={`${styles.card} ${
+                    reviewOpen
+                      ? styles.cardExpanded
+                      : ""
+                  }`}
                   key={
                     orderId ||
                     orderNumber ||
-                    index
+                    orderIndex
                   }
                 >
                   <div
@@ -584,7 +774,9 @@ function Orders() {
                   </div>
 
                   <div
-                    className={styles.meta}
+                    className={
+                      styles.meta
+                    }
                   >
                     <span>
                       {formatDate(
@@ -608,8 +800,7 @@ function Orders() {
                     </strong>
                   </div>
 
-                  {items.length >
-                    0 && (
+                  {items.length > 0 && (
                     <div
                       className={
                         styles.products
@@ -622,14 +813,28 @@ function Orders() {
                             item,
                             itemIndex,
                           ) => {
+                            const productId =
+                              getProductId(
+                                item,
+                              );
+
+                            const product =
+                              productId
+                                ? productData[
+                                    productId
+                                  ]
+                                : null;
+
                             const image =
                               getProductImage(
                                 item,
+                                product,
                               );
 
                             const name =
                               getProductName(
                                 item,
+                                product,
                               );
 
                             const quantity =
@@ -650,6 +855,7 @@ function Orders() {
                                 key={
                                   item?._id ||
                                   item?.id ||
+                                  productId ||
                                   itemIndex
                                 }
                               >
@@ -676,11 +882,13 @@ function Orders() {
                                   )}
                                 </div>
 
-                                <div>
+                                <div
+                                  className={
+                                    styles.productInfo
+                                  }
+                                >
                                   <strong>
-                                    {
-                                      name
-                                    }
+                                    {name}
                                   </strong>
 
                                   <span>
@@ -703,8 +911,7 @@ function Orders() {
                     </div>
                   )}
 
-                  {items.length >
-                    3 && (
+                  {items.length > 3 && (
                     <div
                       className={
                         styles.moreItems
@@ -759,7 +966,9 @@ function Orders() {
                       0 && (
                       <div>
                         <span>
-                          Coupon Discount
+                          {order?.couponCode
+                            ? `Coupon (${order.couponCode})`
+                            : "Coupon Discount"}
                         </span>
 
                         <strong>
@@ -771,8 +980,7 @@ function Orders() {
                       </div>
                     )}
 
-                    {discount >
-                      0 &&
+                    {discount > 0 &&
                       offerDiscount ===
                         0 &&
                       couponDiscount ===
@@ -829,7 +1037,9 @@ function Orders() {
                     }
                   >
                     <span>
-                      {paymentMethod}
+                      {getPaymentMethod(
+                        order,
+                      )}
                     </span>
 
                     <span>
@@ -848,39 +1058,107 @@ function Orders() {
                         <Link
                           to={`/account/orders/${orderId}`}
                           className={
-                            styles.viewButton
+                            styles.actionButton
                           }
                         >
+                          <FiEye
+                            size={14}
+                          />
+
                           View Order
                         </Link>
 
                         <Link
                           to={`/account/orders/${orderId}/tracking`}
                           className={
-                            styles.viewButton
+                            styles.actionButton
                           }
                         >
+                          <FiTruck
+                            size={14}
+                          />
+
                           Track Order
                         </Link>
 
-                        {order?.paymentMethod ===
+                        {delivered && (
+                          <button
+                            type="button"
+                            className={`${styles.actionButton} ${styles.reviewButton} ${
+                              reviewOpen
+                                ? styles.reviewButtonActive
+                                : ""
+                            }`}
+                            onClick={() =>
+                              toggleReviews(
+                                orderId,
+                              )
+                            }
+                            aria-expanded={
+                              reviewOpen
+                            }
+                          >
+                            {reviewOpen ? (
+                              <FiX
+                                size={14}
+                              />
+                            ) : (
+                              <FiStar
+                                size={14}
+                              />
+                            )}
+
+                            {reviewOpen
+                              ? "Close Reviews"
+                              : "Review Products"}
+                          </button>
+                        )}
+
+                        {String(
+                          order?.paymentMethod ||
+                            "",
+                        ).toLowerCase() ===
                           "online" &&
-                          order?.paymentStatus !==
+                          String(
+                            order?.paymentStatus ||
+                              "",
+                          ).toLowerCase() !==
                             "paid" &&
-                          rawStatus !==
+                          String(
+                            rawStatus,
+                          ).toLowerCase() !==
                             "cancelled" && (
                             <Link
                               to={`/account/orders/${orderId}/payment`}
-                              className={
-                                styles.viewButton
-                              }
+                              className={`${styles.actionButton} ${styles.payButton}`}
                             >
+                              <FiCreditCard
+                                size={
+                                  14
+                                }
+                              />
+
                               Pay Now
                             </Link>
                           )}
                       </>
                     )}
                   </div>
+
+                  {delivered &&
+                    reviewOpen && (
+                      <div
+                        className={
+                          styles.reviewPanel
+                        }
+                      >
+                        <OrderReview
+                          order={
+                            order
+                          }
+                        />
+                      </div>
+                    )}
                 </article>
               );
             },

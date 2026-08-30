@@ -1,0 +1,442 @@
+.section {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 30px;
+  padding: 28px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 7px;
+  color: #777;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: #222;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.description {
+  margin: 7px 0 0;
+  color: #777;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.items {
+  border-top: 1px solid #eee;
+}
+
+.item {
+  border-bottom: 1px solid #eee;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.product {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  min-height: 74px;
+  padding: 16px 0;
+}
+
+.image {
+  width: 64px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+  background: #f7f7f7;
+  color: #999;
+}
+
+.image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+.productInfo {
+  min-width: 0;
+}
+
+.productInfo h3 {
+  margin: 0;
+  overflow: hidden;
+  color: #222;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.productInfo p {
+  margin: 5px 0 0;
+  color: #888;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.reviewStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  color: #35613b;
+  font-size: 11px;
+}
+
+.action {
+  flex-shrink: 0;
+}
+
+.reviewButton,
+.editButton {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  border: 1px solid #222;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.reviewButton {
+  background: #222;
+  color: #fff;
+}
+
+.reviewButton:hover {
+  background: #111;
+}
+
+.editButton {
+  background: #fff;
+  color: #222;
+}
+
+.editButton:hover {
+  background: #f7f7f7;
+}
+
+.formWrapper {
+  padding: 24px 0 28px;
+  border-top: 1px solid #eee;
+}
+
+.state {
+  padding: 24px 0;
+  color: #777;
+  font-size: 12px;
+}
+
+.error {
+  padding: 13px 15px;
+  border: 1px solid #e5cccc;
+  background: #faf4f4;
+  color: #8a3030;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 650px) {
+  .section {
+    margin-top: 22px;
+    padding: 22px 18px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .product {
+    grid-template-columns: 60px minmax(0, 1fr);
+    align-items: start;
+    gap: 13px;
+  }
+
+  .image {
+    width: 60px;
+    height: 68px;
+  }
+
+  .productInfo {
+    padding-top: 2px;
+  }
+
+  .action {
+    grid-column: 2;
+    width: 100%;
+  }
+
+  .reviewButton,
+  .editButton {
+    width: 100%;
+  }
+
+  .formWrapper {
+    padding-top: 20px;
+  }
+}
+
+.section {
+  width: 100%;
+  margin-top: 35px;
+  padding-top: 30px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.header {
+  margin-bottom: 25px;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 7px;
+  color: #888;
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: #222;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.description {
+  margin: 7px 0 0;
+  color: #777;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.state {
+  padding: 20px 0;
+  color: #777;
+  font-size: 12px;
+}
+
+.error {
+  padding: 13px 15px;
+  border: 1px solid #ead4d4;
+  background: #fff8f8;
+  color: #a33;
+  font-size: 12px;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.item {
+  border: 1px solid #e5e5e5;
+  background: #fff;
+}
+
+.product {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 17px;
+}
+
+.image {
+  width: 62px;
+  height: 62px;
+  flex: 0 0 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #f6f6f6;
+}
+
+.image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+}
+
+.productInfo {
+  min-width: 0;
+  flex: 1;
+}
+
+.productInfo h3 {
+  margin: 0;
+  color: #222;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.productInfo p {
+  margin: 5px 0 0;
+  color: #888;
+  font-size: 11px;
+}
+
+.reviewStatus {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  color: #4c735d;
+  font-size: 11px;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.reviewButton,
+.viewButton,
+.editButton {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border: 1px solid #222;
+  background: #222;
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.reviewButton:hover,
+.editButton:hover {
+  background: #444;
+  border-color: #444;
+}
+
+.viewButton {
+  background: #fff;
+  color: #222;
+  border-color: #d8d8d8;
+}
+
+.viewButton:hover {
+  background: #f7f7f7;
+  border-color: #bbb;
+}
+
+.reviewWrapper {
+  padding: 20px;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+}
+
+.formWrapper {
+  padding: 25px;
+  border-top: 1px solid #eee;
+  background: #fff;
+}
+
+.reviewWrapper article {
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+@media (max-width: 640px) {
+  .product {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .productInfo {
+    width: calc(100% - 77px);
+  }
+
+  .action {
+    width: 100%;
+    justify-content: flex-start;
+    padding-left: 77px;
+  }
+
+  .reviewButton,
+  .viewButton,
+  .editButton {
+    font-size: 10px;
+  }
+
+  .reviewWrapper,
+  .formWrapper {
+    padding: 17px;
+  }
+}
+
+@media (max-width: 420px) {
+  .product {
+    padding: 14px;
+  }
+
+  .action {
+    padding-left: 0;
+  }
+
+  .action button {
+    flex: 1;
+  }
+}

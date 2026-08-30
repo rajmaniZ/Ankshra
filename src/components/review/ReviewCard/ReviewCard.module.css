@@ -1,0 +1,234 @@
+.card {
+  width: 100%;
+  padding: 24px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f1f1f1;
+  color: #222;
+  font-size: 13px;
+}
+
+.userInfo {
+  min-width: 0;
+}
+
+.userInfo strong {
+  display: block;
+  color: #222;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 4px;
+}
+
+.date {
+  color: #888;
+  font-size: 10px;
+}
+
+.verified {
+  padding: 3px 6px;
+  background: #f4f7f4;
+  color: #35613b;
+  font-size: 9px;
+}
+
+.title {
+  margin-top: 14px;
+  color: #222;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.comment {
+  max-width: 750px;
+  margin-top: 7px;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.imageButton {
+  width: 82px;
+  height: 82px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  background: #f7f7f7;
+  cursor: pointer;
+}
+
+.imageButton:hover {
+  border-color: #222;
+}
+
+.imageButton img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reply {
+  max-width: 750px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-left: 2px solid #222;
+  background: #f7f7f7;
+}
+
+.reply strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.reply p {
+  margin-top: 7px;
+  color: #555;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.reply span {
+  display: block;
+  margin-top: 7px;
+  color: #999;
+  font-size: 10px;
+}
+
+.lightbox {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background: rgba(0, 0, 0, 0.82);
+}
+
+.lightboxImage {
+  display: block;
+  max-width: 85vw;
+  max-height: 85vh;
+  object-fit: contain;
+}
+
+.close {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.navigation {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin-top: -21px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.9);
+  color: #222;
+  cursor: pointer;
+}
+
+.navigation:hover {
+  background: #fff;
+}
+
+.previous {
+  left: 25px;
+}
+
+.next {
+  right: 25px;
+}
+
+.imageCounter {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 11px;
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .imageButton {
+    width: 70px;
+    height: 70px;
+  }
+
+  .lightbox {
+    padding: 15px;
+  }
+
+  .lightboxImage {
+    max-width: 92vw;
+    max-height: 80vh;
+  }
+
+  .previous {
+    left: 8px;
+  }
+
+  .next {
+    right: 8px;
+  }
+}

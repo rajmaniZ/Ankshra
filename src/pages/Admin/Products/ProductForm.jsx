@@ -4,14 +4,16 @@ import {
 } from "react";
 
 import {
+  FiArrowLeft,
+  FiPlus,
+  FiTrash2,
+} from "react-icons/fi";
+
+import {
   Link,
   useNavigate,
   useParams,
 } from "react-router-dom";
-
-import {
-  FiArrowLeft,
-} from "react-icons/fi";
 
 import {
   createAdminProduct,
@@ -19,6 +21,8 @@ import {
   getAdminProductById,
   updateAdminProduct,
 } from "../../../services/adminService";
+
+import ProductImageManager from "../../../components/Admin/ProductImageManager";
 
 import styles from "./ProductForm.module.css";
 
@@ -29,15 +33,23 @@ const initialForm = {
   description: "",
   shortDescription: "",
   category: "",
-  image: "",
   price: "",
   compareAtPrice: "",
   stock: "0",
   lowStockThreshold: "5",
+  material: "",
+  occasion: "",
   tags: "",
   isFeatured: false,
   isNewArrival: false,
   isBestSeller: false,
+  isActive: true,
+};
+
+const emptyVariant = {
+  name: "",
+  type: "select",
+  options: "",
 };
 
 function getProduct(response) {
@@ -50,33 +62,115 @@ function getProduct(response) {
 }
 
 function getCategories(response) {
-  return (
+  const categories =
     response?.data?.categories ||
     response?.categories ||
     response?.data ||
-    []
-  );
+    [];
+
+  return Array.isArray(categories)
+    ? categories
+    : [];
 }
 
-function getImage(product) {
-  const first =
-    product?.images?.[0];
-
+function getCategoryId(product) {
   if (
-    first &&
-    typeof first === "object"
+    product?.category &&
+    typeof product.category === "object"
   ) {
     return (
-      first.url ||
-      first.secure_url ||
+      product.category._id ||
+      product.category.id ||
       ""
     );
   }
 
+  return product?.category || "";
+}
+
+function getImages(product) {
+  if (!Array.isArray(product?.images)) {
+    return [];
+  }
+
+  return product.images
+    .map((image) => {
+      if (typeof image === "string") {
+        return {
+          url: image,
+          publicId: "",
+        };
+      }
+
+      if (
+        image &&
+        typeof image === "object"
+      ) {
+        return {
+          url:
+            image.url ||
+            image.secure_url ||
+            "",
+          publicId:
+            image.publicId ||
+            image.public_id ||
+            "",
+        };
+      }
+
+      return {
+        url: "",
+        publicId: "",
+      };
+    })
+    .filter(
+      (image) => Boolean(image.url),
+    );
+}
+
+function getImageUrls(images) {
+  if (!Array.isArray(images)) {
+    return [];
+  }
+
+  return images
+    .map((image) => {
+      if (typeof image === "string") {
+        return image;
+      }
+
+      return (
+        image?.url ||
+        image?.secure_url ||
+        ""
+      );
+    })
+    .filter(Boolean);
+}
+
+function getVariants(product) {
+  if (!Array.isArray(product?.variants)) {
+    return [];
+  }
+
+  return product.variants.map(
+    (variant) => ({
+      name: variant?.name || "",
+      type:
+        variant?.type || "select",
+      options: Array.isArray(
+        variant?.options,
+      )
+        ? variant.options.join(", ")
+        : "",
+    }),
+  );
+}
+
+function getErrorMessage(error) {
   return (
-    first ||
-    product?.image ||
-    ""
+    error?.message ||
+    "Unable to save product."
   );
 }
 
@@ -84,15 +178,12 @@ function ProductForm() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const editing =
-    Boolean(id);
+  const editing = Boolean(id);
 
   const [
     formData,
     setFormData,
-  ] = useState(
-    initialForm,
-  );
+  ] = useState(initialForm);
 
   const [
     categories,
@@ -100,11 +191,24 @@ function ProductForm() {
   ] = useState([]);
 
   const [
+    images,
+    setImages,
+  ] = useState([]);
+
+  const [
+    thumbnail,
+    setThumbnail,
+  ] = useState("");
+
+  const [
+    variants,
+    setVariants,
+  ] = useState([]);
+
+  const [
     loading,
     setLoading,
-  ] = useState(
-    editing,
-  );
+  ] = useState(editing);
 
   const [
     saving,
@@ -138,6 +242,12 @@ function ProductForm() {
         );
 
         if (!editing) {
+          setFormData(
+            initialForm,
+          );
+          setImages([]);
+          setThumbnail("");
+          setVariants([]);
           setLoading(false);
           return;
         }
@@ -156,69 +266,93 @@ function ProductForm() {
           );
         }
 
-        const tags =
-          Array.isArray(
-            product.tags,
-          )
-            ? product.tags.join(
-                ", ",
-              )
-            : "";
+        const productImages =
+          getImages(product);
+
+        const imageUrls =
+          getImageUrls(
+            productImages,
+          );
+
+        const productThumbnail =
+          product?.thumbnail ||
+          imageUrls[0] ||
+          "";
 
         setFormData({
           name:
-            product.name ||
-            "",
+            product?.name || "",
           slug:
-            product.slug ||
-            "",
+            product?.slug || "",
           sku:
-            product.sku ||
-            "",
+            product?.sku || "",
           description:
-            product.description ||
+            product?.description ||
             "",
           shortDescription:
-            product.shortDescription ||
+            product?.shortDescription ||
             "",
           category:
-            product.category?._id ||
-            product.category?.id ||
-            product.category ||
-            "",
-          image:
-            getImage(product),
+            getCategoryId(
+              product,
+            ),
           price:
-            product.price ??
-            "",
+            product?.price ?? "",
           compareAtPrice:
-            product.compareAtPrice ??
+            product?.compareAtPrice ??
             "",
           stock:
-            product.stock ??
-            0,
+            product?.stock ?? 0,
           lowStockThreshold:
-            product.lowStockThreshold ??
+            product?.lowStockThreshold ??
             5,
-          tags,
+          material:
+            product?.material || "",
+          occasion:
+            product?.occasion || "",
+          tags: Array.isArray(
+            product?.tags,
+          )
+            ? product.tags.join(", ")
+            : "",
           isFeatured:
             Boolean(
-              product.isFeatured,
+              product?.isFeatured,
             ),
           isNewArrival:
             Boolean(
-              product.isNewArrival,
+              product?.isNewArrival,
             ),
           isBestSeller:
             Boolean(
-              product.isBestSeller,
+              product?.isBestSeller,
             ),
+          isActive:
+            product?.isActive !==
+            false,
         });
-      } catch (requestError) {
+
+        setImages(
+          productImages,
+        );
+
+        setThumbnail(
+          productThumbnail,
+        );
+
+        setVariants(
+          getVariants(
+            product,
+          ),
+        );
+      } catch (
+        requestError
+      ) {
         if (active) {
           setError(
-            requestError?.message ||
-              "Unable to load product.",
+            getErrorMessage(
+              requestError,
+            ),
           );
         }
       } finally {
@@ -235,150 +369,410 @@ function ProductForm() {
     };
   }, [id, editing]);
 
-  const handleChange =
-    (event) => {
-      const {
-        name,
-        value,
-        type,
-        checked,
-      } = event.target;
+  const handleChange = (
+    event,
+  ) => {
+    const {
+      name,
+      value,
+      type,
+      checked,
+    } = event.target;
 
-      setFormData(
-        (current) => ({
-          ...current,
-          [name]:
-            type ===
-            "checkbox"
-              ? checked
-              : value,
-        }),
+    setFormData(
+      (current) => ({
+        ...current,
+        [name]:
+          type === "checkbox"
+            ? checked
+            : value,
+      }),
+    );
+  };
+
+  const handleImagesChange = (
+    nextImages,
+  ) => {
+    const normalized =
+      Array.isArray(nextImages)
+        ? nextImages
+            .map((image) => {
+              if (
+                typeof image ===
+                "string"
+              ) {
+                return {
+                  url: image,
+                  publicId: "",
+                };
+              }
+
+              return {
+                url:
+                  image?.url ||
+                  image?.secure_url ||
+                  "",
+                publicId:
+                  image?.publicId ||
+                  image?.public_id ||
+                  "",
+              };
+            })
+            .filter(
+              (image) =>
+                Boolean(
+                  image.url,
+                ),
+            )
+        : [];
+
+    setImages(
+      normalized,
+    );
+
+    setThumbnail(
+      (currentThumbnail) => {
+        if (
+          normalized.some(
+            (image) =>
+              image.url ===
+              currentThumbnail,
+          )
+        ) {
+          return currentThumbnail;
+        }
+
+        return (
+          normalized[0]?.url ||
+          ""
+        );
+      },
+    );
+  };
+
+  const handleThumbnailChange = (
+    value,
+  ) => {
+    const nextThumbnail =
+      String(
+        value || "",
+      ).trim();
+
+    if (!nextThumbnail) {
+      setThumbnail(
+        images[0]?.url || "",
+      );
+      return;
+    }
+
+    const exists =
+      images.some(
+        (image) =>
+          image?.url ===
+          nextThumbnail,
       );
 
-      setError("");
-    };
+    if (!exists) {
+      setError(
+        "Primary image must be one of the uploaded product images.",
+      );
+      return;
+    }
 
-  const handleSubmit =
-    async (event) => {
-      event.preventDefault();
+    setError("");
+    setThumbnail(
+      nextThumbnail,
+    );
+  };
 
-      setError("");
+  const handleVariantChange = (
+    index,
+    field,
+    value,
+  ) => {
+    setVariants(
+      (current) =>
+        current.map(
+          (
+            variant,
+            itemIndex,
+          ) =>
+            itemIndex === index
+              ? {
+                  ...variant,
+                  [field]:
+                    value,
+                }
+              : variant,
+        ),
+    );
+  };
 
-      const name =
-        formData.name.trim();
+  const handleAddVariant = () => {
+    setVariants(
+      (current) => [
+        ...current,
+        {
+          ...emptyVariant,
+        },
+      ],
+    );
+  };
 
-      const sku =
-        formData.sku.trim();
+  const handleRemoveVariant = (
+    index,
+  ) => {
+    setVariants(
+      (current) =>
+        current.filter(
+          (
+            _,
+            itemIndex,
+          ) =>
+            itemIndex !==
+            index,
+        ),
+    );
+  };
 
-      const category =
-        formData.category;
+  const validateForm = () => {
+    if (
+      !formData.name.trim()
+    ) {
+      return "Product name is required.";
+    }
 
-      const price =
-        Number(formData.price);
+    if (
+      !formData.category
+    ) {
+      return "Valid category is required.";
+    }
 
-      const stock =
-        Number(formData.stock);
+    const price =
+      Number(
+        formData.price,
+      );
 
-      if (!name) {
-        setError(
-          "Product name is required.",
+    if (
+      Number.isNaN(price) ||
+      price < 0
+    ) {
+      return "Valid product price is required.";
+    }
+
+    if (
+      formData.compareAtPrice !==
+      ""
+    ) {
+      const comparePrice =
+        Number(
+          formData.compareAtPrice,
         );
-        return;
-      }
-
-      if (!sku) {
-        setError(
-          "SKU is required.",
-        );
-        return;
-      }
-
-      if (!category) {
-        setError(
-          "Please select a category.",
-        );
-        return;
-      }
 
       if (
-        !Number.isFinite(
-          price,
+        Number.isNaN(
+          comparePrice,
         ) ||
-        price < 0
+        comparePrice < 0
       ) {
-        setError(
-          "Please enter a valid price.",
-        );
-        return;
+        return "Invalid compare-at price.";
       }
+    }
 
-      if (
-        !Number.isInteger(
-          stock,
-        ) ||
-        stock < 0
-      ) {
-        setError(
-          "Stock must be a whole number greater than or equal to 0.",
+    const stock =
+      Number(
+        formData.stock,
+      );
+
+    if (
+      !Number.isInteger(stock) ||
+      stock < 0
+    ) {
+      return "Stock must be a non-negative integer.";
+    }
+
+    const lowStockThreshold =
+      Number(
+        formData.lowStockThreshold,
+      );
+
+    if (
+      !Number.isInteger(
+        lowStockThreshold,
+      ) ||
+      lowStockThreshold < 0
+    ) {
+      return "Low stock threshold must be a non-negative integer.";
+    }
+
+    if (
+      images.length > 8
+    ) {
+      return "A product can have a maximum of 8 images.";
+    }
+
+    if (
+      thumbnail &&
+      !images.some(
+        (image) =>
+          image?.url ===
+          thumbnail,
+      )
+    ) {
+      return "Primary image must be one of the uploaded images.";
+    }
+
+    return "";
+  };
+
+  const buildPayload = () => {
+    const imageUrls =
+      getImageUrls(
+        images,
+      );
+
+    const selectedThumbnail =
+      imageUrls.includes(
+        thumbnail,
+      )
+        ? thumbnail
+        : imageUrls[0] || "";
+
+    const cleanedVariants =
+      variants
+        .map(
+          (variant) => ({
+            name:
+              variant.name.trim(),
+            type:
+              variant.type,
+            options:
+              variant.options
+                .split(",")
+                .map(
+                  (
+                    option,
+                  ) =>
+                    option.trim(),
+                )
+                .filter(Boolean),
+          }),
+        )
+        .filter(
+          (variant) =>
+            variant.name &&
+            variant.options
+              .length > 0,
         );
-        return;
-      }
 
-      const tags =
+    return {
+      name:
+        formData.name.trim(),
+
+      slug:
+        formData.slug.trim(),
+
+      sku:
+        formData.sku
+          .trim()
+          .toUpperCase(),
+
+      description:
+        formData.description.trim(),
+
+      shortDescription:
+        formData.shortDescription.trim(),
+
+      category:
+        formData.category,
+
+      images:
+        imageUrls,
+
+      thumbnail:
+        selectedThumbnail,
+
+      price:
+        Number(formData.price),
+
+      compareAtPrice:
+        formData.compareAtPrice ===
+        ""
+          ? null
+          : Number(
+              formData.compareAtPrice,
+            ),
+
+      stock:
+        Number(formData.stock),
+
+      lowStockThreshold:
+        Number(
+          formData.lowStockThreshold,
+        ),
+
+      variants:
+        cleanedVariants,
+
+      material:
+        formData.material.trim(),
+
+      occasion:
+        formData.occasion.trim(),
+
+      tags:
         formData.tags
           .split(",")
           .map(
             (tag) =>
               tag.trim(),
           )
-          .filter(Boolean);
+          .filter(Boolean),
 
-      const images =
-        formData.image.trim()
-          ? [
-              {
-                url:
-                  formData.image.trim(),
-              },
-            ]
-          : [];
-
-      const payload = {
-        name,
-        slug:
-          formData.slug.trim() ||
-          undefined,
-        sku,
-        description:
-          formData.description.trim(),
-        shortDescription:
-          formData.shortDescription.trim(),
-        category,
-        images,
-        price,
-        compareAtPrice:
-          formData.compareAtPrice ===
-          ""
-            ? null
-            : Number(
-                formData.compareAtPrice,
-              ),
-        stock,
-        lowStockThreshold:
-          Number(
-            formData.lowStockThreshold,
-          ) || 5,
-        tags,
-        isFeatured:
+      isFeatured:
+        Boolean(
           formData.isFeatured,
-        isNewArrival:
+        ),
+
+      isNewArrival:
+        Boolean(
           formData.isNewArrival,
-        isBestSeller:
+        ),
+
+      isBestSeller:
+        Boolean(
           formData.isBestSeller,
-      };
+        ),
+
+      isActive:
+        Boolean(
+          formData.isActive,
+        ),
+    };
+  };
+
+  const handleSubmit =
+    async (event) => {
+      event.preventDefault();
+
+      const validationError =
+        validateForm();
+
+      if (
+        validationError
+      ) {
+        setError(
+          validationError,
+        );
+        return;
+      }
 
       try {
         setSaving(true);
+        setError("");
+
+        const payload =
+          buildPayload();
 
         if (editing) {
           await updateAdminProduct(
@@ -394,10 +788,13 @@ function ProductForm() {
         navigate(
           "/admin/products",
         );
-      } catch (requestError) {
+      } catch (
+        requestError
+      ) {
         setError(
-          requestError?.message ||
-            "Unable to save product.",
+          getErrorMessage(
+            requestError,
+          ),
         );
       } finally {
         setSaving(false);
@@ -406,23 +803,38 @@ function ProductForm() {
 
   if (loading) {
     return (
-      <div className={styles.state}>
+      <div
+        className={
+          styles.state
+        }
+      >
         Loading product...
       </div>
     );
   }
 
   return (
-    <section className={styles.page}>
-      <div className={styles.heading}>
+    <section
+      className={
+        styles.page
+      }
+    >
+      <div
+        className={
+          styles.heading
+        }
+      >
         <div>
           <Link
             to="/admin/products"
-            className={styles.back}
+            className={
+              styles.back
+            }
           >
             <FiArrowLeft
               size={15}
             />
+
             Products
           </Link>
 
@@ -435,44 +847,78 @@ function ProductForm() {
           </span>
 
           <h1
-            className={styles.title}
+            className={
+              styles.title
+            }
           >
             {editing
               ? "Edit Product"
               : "Add Product"}
           </h1>
+
+          <p
+            className={
+              styles.subtitle
+            }
+          >
+            {editing
+              ? "Update product information, images and store settings."
+              : "Create a new product with complete information and product images."}
+          </p>
         </div>
       </div>
 
       {error && (
-        <div className={styles.error}>
+        <div
+          className={
+            styles.error
+          }
+        >
           {error}
         </div>
       )}
 
       <form
-        className={styles.form}
+        className={
+          styles.form
+        }
         onSubmit={
           handleSubmit
         }
       >
         <div
-          className={styles.card}
+          className={
+            styles.card
+          }
         >
           <div
             className={
               styles.cardHeader
             }
           >
-            <h2>
-              Basic Information
-            </h2>
+            <div>
+              <h2>
+                Basic Information
+              </h2>
 
-            <p>
-              Product name,
-              identifiers and
-              category.
-            </p>
+              <p>
+                Product name,
+                identifiers and
+                category.
+              </p>
+            </div>
+
+            <span
+              className={
+                formData.isActive
+                  ? styles.active
+                  : styles.inactive
+              }
+            >
+              {formData.isActive
+                ? "Active"
+                : "Inactive"}
+            </span>
           </div>
 
           <div
@@ -485,9 +931,7 @@ function ProductForm() {
                 styles.field
               }
             >
-              <label
-                htmlFor="product-name"
-              >
+              <label htmlFor="product-name">
                 Product Name *
               </label>
 
@@ -510,9 +954,7 @@ function ProductForm() {
                 styles.field
               }
             >
-              <label
-                htmlFor="product-sku"
-              >
+              <label htmlFor="product-sku">
                 SKU *
               </label>
 
@@ -535,9 +977,7 @@ function ProductForm() {
                 styles.field
               }
             >
-              <label
-                htmlFor="product-slug"
-              >
+              <label htmlFor="product-slug">
                 Slug
               </label>
 
@@ -552,6 +992,16 @@ function ProductForm() {
                 }
                 placeholder="gold-necklace"
               />
+
+              <span
+                className={
+                  styles.help
+                }
+              >
+                Leave empty if the
+                backend should generate
+                the slug.
+              </span>
             </div>
 
             <div
@@ -559,9 +1009,7 @@ function ProductForm() {
                 styles.field
               }
             >
-              <label
-                htmlFor="product-category"
-              >
+              <label htmlFor="product-category">
                 Category *
               </label>
 
@@ -581,46 +1029,95 @@ function ProductForm() {
                 </option>
 
                 {categories.map(
-                  (
-                    category,
-                  ) => (
-                    <option
-                      key={
-                        category._id ||
-                        category.id
-                      }
-                      value={
-                        category._id ||
-                        category.id
-                      }
-                    >
-                      {
-                        category.name
-                      }
-                    </option>
-                  ),
+                  (category) => {
+                    const categoryId =
+                      category?._id ||
+                      category?.id;
+
+                    return (
+                      <option
+                        key={
+                          categoryId
+                        }
+                        value={
+                          categoryId
+                        }
+                      >
+                        {category?.name ||
+                          "Unnamed category"}
+                      </option>
+                    );
+                  },
                 )}
               </select>
+            </div>
+
+            <div
+              className={
+                styles.field
+              }
+            >
+              <label htmlFor="product-material">
+                Material
+              </label>
+
+              <input
+                id="product-material"
+                name="material"
+                value={
+                  formData.material
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Gold, Silver, Pearl"
+              />
+            </div>
+
+            <div
+              className={
+                styles.field
+              }
+            >
+              <label htmlFor="product-occasion">
+                Occasion
+              </label>
+
+              <input
+                id="product-occasion"
+                name="occasion"
+                value={
+                  formData.occasion
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Wedding, Party, Daily"
+              />
             </div>
           </div>
         </div>
 
         <div
-          className={styles.card}
+          className={
+            styles.card
+          }
         >
           <div
             className={
               styles.cardHeader
             }
           >
-            <h2>
-              Product Details
-            </h2>
+            <div>
+              <h2>
+                Product Description
+              </h2>
 
-            <p>
-              Descriptions and
-              product image.
-            </p>
+              <p>
+                Customer-facing
+                product content.
+              </p>
+            </div>
           </div>
 
           <div
@@ -628,13 +1125,11 @@ function ProductForm() {
               styles.field
             }
           >
-            <label
-              htmlFor="product-short-description"
-            >
+            <label htmlFor="product-short-description">
               Short Description
             </label>
 
-            <input
+            <textarea
               id="product-short-description"
               name="shortDescription"
               value={
@@ -643,7 +1138,8 @@ function ProductForm() {
               onChange={
                 handleChange
               }
-              placeholder="A short description of the product"
+              placeholder="A short description for product cards and previews."
+              rows="4"
             />
           </div>
 
@@ -652,9 +1148,7 @@ function ProductForm() {
               styles.field
             }
           >
-            <label
-              htmlFor="product-description"
-            >
+            <label htmlFor="product-description">
               Description
             </label>
 
@@ -667,54 +1161,33 @@ function ProductForm() {
               onChange={
                 handleChange
               }
-              rows={6}
-              placeholder="Describe the product..."
-            />
-          </div>
-
-          <div
-            className={
-              styles.field
-            }
-          >
-            <label
-              htmlFor="product-image"
-            >
-              Image URL
-            </label>
-
-            <input
-              id="product-image"
-              name="image"
-              type="url"
-              value={
-                formData.image
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="https://..."
+              placeholder="Detailed product description."
+              rows="8"
             />
           </div>
         </div>
 
         <div
-          className={styles.card}
+          className={
+            styles.card
+          }
         >
           <div
             className={
               styles.cardHeader
             }
           >
-            <h2>
-              Pricing & Stock
-            </h2>
+            <div>
+              <h2>
+                Pricing & Inventory
+              </h2>
 
-            <p>
-              Set price,
-              comparison price and
-              inventory.
-            </p>
+              <p>
+                Manage selling price,
+                comparison price and
+                available stock.
+              </p>
+            </div>
           </div>
 
           <div
@@ -727,27 +1200,34 @@ function ProductForm() {
                 styles.field
               }
             >
-              <label
-                htmlFor="product-price"
-              >
+              <label htmlFor="product-price">
                 Price *
               </label>
 
-              <input
-                id="product-price"
-                name="price"
-                type="number"
-                min="0"
-                step="0.01"
-                value={
-                  formData.price
+              <div
+                className={
+                  styles.inputWithPrefix
                 }
-                onChange={
-                  handleChange
-                }
-                placeholder="0"
-                required
-              />
+              >
+                <span>
+                  ₹
+                </span>
+
+                <input
+                  id="product-price"
+                  name="price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={
+                    formData.price
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  required
+                />
+              </div>
             </div>
 
             <div
@@ -755,26 +1235,33 @@ function ProductForm() {
                 styles.field
               }
             >
-              <label
-                htmlFor="product-compare-price"
-              >
-                Compare At Price
+              <label htmlFor="product-compare-price">
+                Compare-at Price
               </label>
 
-              <input
-                id="product-compare-price"
-                name="compareAtPrice"
-                type="number"
-                min="0"
-                step="0.01"
-                value={
-                  formData.compareAtPrice
+              <div
+                className={
+                  styles.inputWithPrefix
                 }
-                onChange={
-                  handleChange
-                }
-                placeholder="Optional"
-              />
+              >
+                <span>
+                  ₹
+                </span>
+
+                <input
+                  id="product-compare-price"
+                  name="compareAtPrice"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={
+                    formData.compareAtPrice
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
             </div>
 
             <div
@@ -782,9 +1269,7 @@ function ProductForm() {
                 styles.field
               }
             >
-              <label
-                htmlFor="product-stock"
-              >
+              <label htmlFor="product-stock">
                 Stock
               </label>
 
@@ -808,9 +1293,7 @@ function ProductForm() {
                 styles.field
               }
             >
-              <label
-                htmlFor="product-low-stock"
-              >
+              <label htmlFor="product-low-stock">
                 Low Stock Threshold
               </label>
 
@@ -832,21 +1315,256 @@ function ProductForm() {
         </div>
 
         <div
-          className={styles.card}
+          className={
+            styles.card
+          }
+        >
+          <ProductImageManager
+            images={
+              images
+            }
+            thumbnail={
+              thumbnail
+            }
+            onChange={
+              handleImagesChange
+            }
+            onThumbnailChange={
+              handleThumbnailChange
+            }
+            disabled={
+              saving
+            }
+          />
+        </div>
+
+        <div
+          className={
+            styles.card
+          }
         >
           <div
             className={
               styles.cardHeader
             }
           >
-            <h2>
-              Store Settings
-            </h2>
+            <div>
+              <h2>
+                Variants
+              </h2>
 
-            <p>
-              Control collections and
-              product labels.
-            </p>
+              <p>
+                Define selectable
+                product options such
+                as size or color.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className={
+                styles.addVariant
+              }
+              onClick={
+                handleAddVariant
+              }
+              disabled={
+                saving
+              }
+            >
+              <FiPlus
+                size={14}
+              />
+
+              Add Variant
+            </button>
+          </div>
+
+          {variants.length ===
+          0 ? (
+            <div
+              className={
+                styles.variantEmpty
+              }
+            >
+              No variants added.
+            </div>
+          ) : (
+            <div
+              className={
+                styles.variantList
+              }
+            >
+              {variants.map(
+                (
+                  variant,
+                  index,
+                ) => (
+                  <div
+                    key={
+                      index
+                    }
+                    className={
+                      styles.variant
+                    }
+                  >
+                    <div
+                      className={
+                        styles.variantGrid
+                      }
+                    >
+                      <div
+                        className={
+                          styles.field
+                        }
+                      >
+                        <label>
+                          Variant Name
+                        </label>
+
+                        <input
+                          value={
+                            variant.name
+                          }
+                          onChange={(
+                            event,
+                          ) =>
+                            handleVariantChange(
+                              index,
+                              "name",
+                              event
+                                .target
+                                .value,
+                            )
+                          }
+                          placeholder="Size"
+                        />
+                      </div>
+
+                      <div
+                        className={
+                          styles.field
+                        }
+                      >
+                        <label>
+                          Type
+                        </label>
+
+                        <select
+                          value={
+                            variant.type
+                          }
+                          onChange={(
+                            event,
+                          ) =>
+                            handleVariantChange(
+                              index,
+                              "type",
+                              event
+                                .target
+                                .value,
+                            )
+                          }
+                        >
+                          <option value="select">
+                            Select
+                          </option>
+
+                          <option value="button">
+                            Button
+                          </option>
+
+                          <option value="color">
+                            Color
+                          </option>
+                        </select>
+                      </div>
+
+                      <div
+                        className={
+                          styles.field
+                        }
+                      >
+                        <label>
+                          Options
+                        </label>
+
+                        <input
+                          value={
+                            variant.options
+                          }
+                          onChange={(
+                            event,
+                          ) =>
+                            handleVariantChange(
+                              index,
+                              "options",
+                              event
+                                .target
+                                .value,
+                            )
+                          }
+                          placeholder="Small, Medium, Large"
+                        />
+
+                        <span
+                          className={
+                            styles.help
+                          }
+                        >
+                          Separate options
+                          with commas.
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        className={
+                          styles.removeVariant
+                        }
+                        onClick={() =>
+                          handleRemoveVariant(
+                            index,
+                          )
+                        }
+                        disabled={
+                          saving
+                        }
+                        title="Remove variant"
+                        aria-label="Remove variant"
+                      >
+                        <FiTrash2
+                          size={15}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                ),
+              )}
+            </div>
+          )}
+        </div>
+
+        <div
+          className={
+            styles.card
+          }
+        >
+          <div
+            className={
+              styles.cardHeader
+            }
+          >
+            <div>
+              <h2>
+                Store Settings
+              </h2>
+
+              <p>
+                Control product labels,
+                tags and visibility.
+              </p>
+            </div>
           </div>
 
           <div
@@ -854,9 +1572,7 @@ function ProductForm() {
               styles.field
             }
           >
-            <label
-              htmlFor="product-tags"
-            >
+            <label htmlFor="product-tags">
               Tags
             </label>
 
@@ -898,6 +1614,7 @@ function ProductForm() {
                   handleChange
                 }
               />
+
               <span>
                 Featured product
               </span>
@@ -914,6 +1631,7 @@ function ProductForm() {
                   handleChange
                 }
               />
+
               <span>
                 New arrival
               </span>
@@ -930,8 +1648,26 @@ function ProductForm() {
                   handleChange
                 }
               />
+
               <span>
                 Best seller
+              </span>
+            </label>
+
+            <label>
+              <input
+                type="checkbox"
+                name="isActive"
+                checked={
+                  formData.isActive
+                }
+                onChange={
+                  handleChange
+                }
+              />
+
+              <span>
+                Product active
               </span>
             </label>
           </div>
@@ -956,7 +1692,9 @@ function ProductForm() {
             className={
               styles.save
             }
-            disabled={saving}
+            disabled={
+              saving
+            }
           >
             {saving
               ? "Saving..."

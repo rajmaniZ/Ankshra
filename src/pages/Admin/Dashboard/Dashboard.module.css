@@ -3,16 +3,24 @@
 }
 
 .header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
   margin-bottom: 28px;
 }
 
-.eyebrow {
+.eyebrow,
+.sectionEyebrow {
   display: block;
-  margin-bottom: 7px;
   color: #888;
   font-size: 10px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
+}
+
+.eyebrow {
+  margin-bottom: 7px;
 }
 
 .title {
@@ -25,33 +33,68 @@
   margin-top: 7px;
   color: #777;
   font-size: 13px;
+  line-height: 1.5;
+}
+
+.refreshButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 15px;
+  border: 1px solid #222;
+  background: #222;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.refreshButton:hover {
+  background: #111;
+}
+
+.refreshButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.spinning {
+  animation: spin 0.8s linear infinite;
 }
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+  grid-template-columns: repeat(
+    3,
+    minmax(0, 1fr)
+  );
+  gap: 14px;
 }
 
 .card {
-  min-height: 125px;
-  padding: 22px;
+  min-height: 112px;
+  padding: 20px;
   display: flex;
   align-items: center;
-  gap: 17px;
-  background: #fff;
+  gap: 15px;
   border: 1px solid #e5e5e5;
+  background: #fff;
 }
 
 .cardIcon {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   background: #f5f5f5;
   color: #333;
+}
+
+.cardContent {
+  min-width: 0;
 }
 
 .cardContent span {
@@ -64,38 +107,233 @@
   display: block;
   margin-top: 7px;
   color: #222;
-  font-size: 25px;
+  font-size: 22px;
   font-weight: 500;
 }
 
-.welcome {
-  margin-top: 22px;
-  padding: 28px;
-  background: #fff;
+.section {
+  margin-top: 18px;
+  padding: 23px;
   border: 1px solid #e5e5e5;
+  background: #fff;
 }
 
-.welcomeLabel {
+.sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.sectionEyebrow {
+  margin-bottom: 6px;
+}
+
+.sectionHeader h2 {
+  color: #222;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.sectionHeader p {
+  margin-top: 5px;
+  color: #888;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.salesGrid {
+  display: grid;
+  grid-template-columns: repeat(
+    3,
+    minmax(0, 1fr)
+  );
+  gap: 12px;
+}
+
+.metric {
+  min-height: 135px;
+  padding: 18px;
+  border: 1px solid #eee;
+  background: #fafafa;
+}
+
+.metricTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #777;
+  font-size: 11px;
+}
+
+.metricTop svg {
+  color: #555;
+}
+
+.metric > strong {
   display: block;
-  margin-bottom: 8px;
+  margin-top: 17px;
+  color: #222;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.metric small {
+  display: block;
+  margin-top: 6px;
   color: #999;
   font-size: 10px;
-  letter-spacing: 1.3px;
-  text-transform: uppercase;
+  line-height: 1.4;
 }
 
-.welcome h2 {
+.twoColumn {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(
+      0,
+      1fr
+    );
+  gap: 18px;
+}
+
+.twoColumn .section {
+  min-width: 0;
+}
+
+.reviewGrid {
+  display: grid;
+  grid-template-columns: repeat(
+    3,
+    minmax(0, 1fr)
+  );
+  gap: 10px;
+}
+
+.reviewMetric {
+  min-height: 115px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid #eee;
+  background: #fafafa;
+}
+
+.reviewMetric svg {
+  margin-bottom: 13px;
+  color: #555;
+}
+
+.reviewMetric span {
+  color: #777;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.reviewMetric strong {
+  margin-top: 6px;
   color: #222;
   font-size: 19px;
   font-weight: 500;
 }
 
-.welcome p {
-  max-width: 650px;
-  margin-top: 9px;
-  color: #777;
-  font-size: 13px;
-  line-height: 1.7;
+.promotionList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.promotionRow {
+  min-height: 70px;
+  display: grid;
+  grid-template-columns: 38px minmax(
+      0,
+      1fr
+    ) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #eee;
+  background: #fafafa;
+}
+
+.promotionIcon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f1f1;
+  color: #555;
+}
+
+.promotionRow > div:nth-child(2) {
+  min-width: 0;
+}
+
+.promotionRow div:nth-child(2) strong,
+.promotionRow div:nth-child(2) span {
+  display: block;
+}
+
+.promotionRow div:nth-child(2) strong {
+  color: #333;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.promotionRow div:nth-child(2) span {
+  margin-top: 4px;
+  color: #888;
+  font-size: 10px;
+}
+
+.promotionAmount {
+  color: #333;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.managementGrid {
+  display: grid;
+  grid-template-columns: repeat(
+    4,
+    minmax(0, 1fr)
+  );
+  gap: 10px;
+}
+
+.managementGrid > div {
+  min-height: 100px;
+  padding: 16px;
+  border: 1px solid #eee;
+  background: #fafafa;
+}
+
+.managementGrid svg {
+  display: block;
+  margin-bottom: 13px;
+  color: #555;
+}
+
+.managementGrid strong,
+.managementGrid span {
+  display: block;
+}
+
+.managementGrid strong {
+  color: #333;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.managementGrid span {
+  margin-top: 5px;
+  color: #888;
+  font-size: 10px;
 }
 
 .state {
@@ -108,9 +346,9 @@
 }
 
 .error {
-  padding: 22px;
-  background: #fff;
+  padding: 24px;
   border: 1px solid #e4e4e4;
+  background: #fff;
 }
 
 .error strong {
@@ -123,20 +361,100 @@
   margin-top: 7px;
   color: #777;
   font-size: 12px;
+  line-height: 1.5;
+}
+
+.retryButton {
+  min-height: 36px;
+  margin-top: 17px;
+  padding: 0 14px;
+  border: 1px solid #222;
+  background: #222;
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.retryButton:hover {
+  background: #111;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1000px) {
+  .cards {
+    grid-template-columns: repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  }
+
+  .salesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .managementGrid {
+    grid-template-columns: repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  }
 }
 
 @media (max-width: 800px) {
-  .cards {
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .refreshButton {
+    width: 100%;
+  }
+
+  .twoColumn {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    padding: 18px;
+  }
+
+  .reviewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .managementGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .promotionRow {
+    grid-template-columns: 36px minmax(
+        0,
+        1fr
+      );
+  }
+
+  .promotionAmount {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 450px) {
   .title {
     font-size: 26px;
   }
 
-  .welcome {
-    padding: 22px;
+  .card {
+    padding: 17px;
   }
 }
