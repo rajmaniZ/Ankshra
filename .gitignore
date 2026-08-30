@@ -26,4 +26,4 @@ dist-ssr
 
 
 merge.cjs
-merged-project.txt
+**/merged-project.txt
