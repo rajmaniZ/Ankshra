@@ -60,7 +60,7 @@ function MobileMenu({
             className={styles.logo}
             onClick={onClose}
           >
-            Jewellery Store
+            ankshra jewellary
           </Link>
 
           <button

@@ -72,9 +72,9 @@ function Header() {
               <Link
                 to="/"
                 className={styles.logo}
-                aria-label="Jewellery Store home"
+                aria-label="ankshra jewellary home"
               >
-                Jewellery Store
+                ankshra jewellary
               </Link>
 
               <div className={styles.actions}>

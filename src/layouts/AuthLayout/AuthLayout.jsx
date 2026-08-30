@@ -6,7 +6,7 @@ function AuthLayout() {
     <div className={styles.layout}>
       <header className={styles.header}>
         <Link to="/" className={styles.logo}>
-          Jewellery Store
+          ankshra jewellary
         </Link>
       </header>
 
@@ -15,7 +15,7 @@ function AuthLayout() {
       </main>
 
       <footer className={styles.footer}>
-        <p>© {new Date().getFullYear()} Jewellery Store</p>
+        <p>© {new Date().getFullYear()} ankshra jewellary</p>
       </footer>
     </div>
   );

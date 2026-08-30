@@ -748,7 +748,7 @@ function Coupons() {
           >
             Create and manage
             discount coupons for
-            your jewellery store.
+            your ankshra jewellary.
           </p>
         </div>
 

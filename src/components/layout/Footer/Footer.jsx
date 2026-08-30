@@ -8,7 +8,7 @@ function Footer() {
         <div className={styles.content}>
           <div className={styles.brand}>
             <Link to="/" className={styles.logo}>
-              Jewellery Store
+              ankshra jewellary
             </Link>
 
             <p className={styles.description}>
@@ -45,7 +45,7 @@ function Footer() {
         </div>
 
         <div className={styles.bottom}>
-          <p>© {new Date().getFullYear()} Jewellery Store. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} ankshra jewellary. All rights reserved.</p>
         </div>
       </div>
     </footer>

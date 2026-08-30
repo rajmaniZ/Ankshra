@@ -369,7 +369,7 @@ function OrderPayment() {
               "INR",
 
             name:
-              "Jewellery Store",
+              "ankshra jewellary",
 
             description:
               `Payment for ${

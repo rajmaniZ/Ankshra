@@ -6,7 +6,7 @@ function CheckoutLayout() {
     <div className={styles.layout}>
       <header className={styles.header}>
         <Link to="/" className={styles.logo}>
-          Jewellery Store
+          ankshra jewellary
         </Link>
       </header>
 

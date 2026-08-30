@@ -148,7 +148,7 @@ function Offers() {
           <h1 className={styles.title}>Offers</h1>
 
           <p className={styles.description}>
-            Create and manage product offers for your jewellery store.
+            Create and manage product offers for your ankshra jewellary.
           </p>
         </div>
 

@@ -178,7 +178,7 @@ function AdminLayout() {
             className={styles.brandLink}
             onClick={closeMobileMenu}
           >
-            <span className={styles.brandName}>Jewellery Store</span>
+            <span className={styles.brandName}>ankshra jewellary</span>
 
             <span className={styles.brandLabel}>ADMIN PANEL</span>
           </Link>
