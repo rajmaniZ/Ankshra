@@ -1,11 +1,11 @@
 import {
   useEffect,
-  useMemo,
   useState,
 } from "react";
 
 import {
   Link,
+  useNavigate,
   useParams,
 } from "react-router-dom";
 
@@ -17,7 +17,10 @@ import {
 } from "react-icons/fi";
 
 import ProductCard from "../../components/product/ProductCard/ProductCard";
-import FilterSidebar from "../../components/search/SearchFilters/SearchFilters";
+import SearchFilters from "../../components/search/SearchFilters/SearchFilters";
+
+import useCategories from "../../hooks/useCategories";
+import useDebounce from "../../hooks/useDebounce";
 
 import {
   getProducts,
@@ -30,23 +33,49 @@ function normalizeProduct(product) {
     return null;
   }
 
+  const id =
+    product._id ||
+    product.id ||
+    "";
+
+  const images =
+    Array.isArray(product.images)
+      ? product.images
+      : [];
+
+  const image =
+    images.length > 0
+      ? typeof images[0] === "object"
+        ? images[0]?.url ||
+          images[0]?.secure_url ||
+          ""
+        : images[0] || ""
+      : product.image || "";
+
+  const category =
+    product.category;
+
   return {
     ...product,
 
-    id:
-      product._id ||
-      product.id ||
-      "",
+    id,
 
-    image:
-      product.images?.[0]?.url ||
-      product.images?.[0] ||
-      product.image ||
-      "",
+    image,
+
+    images,
 
     category:
-      product.category?.name ||
-      product.category ||
+      category?.name ||
+      category ||
+      "",
+
+    categoryId:
+      category?._id ||
+      category?.id ||
+      "",
+
+    categorySlug:
+      category?.slug ||
       "",
 
     rating:
@@ -68,6 +97,7 @@ function formatCategoryName(slug) {
 
   return slug
     .split("-")
+    .filter(Boolean)
     .map(
       (word) =>
         word.charAt(0).toUpperCase() +
@@ -76,83 +106,216 @@ function formatCategoryName(slug) {
     .join(" ");
 }
 
+function getProductsFromResponse(
+  response,
+) {
+  const products =
+    response?.data?.products;
+
+  return Array.isArray(products)
+    ? products
+    : [];
+}
+
+function getPaginationFromResponse(
+  response,
+) {
+  return (
+    response?.data?.pagination ||
+    null
+  );
+}
+
 function CategoryProducts() {
-  const { slug } =
-    useParams();
+  const {
+    slug = "",
+  } = useParams();
 
-  const [sortBy, setSortBy] =
-    useState("featured");
+  const navigate =
+    useNavigate();
 
-  const [view, setView] =
-    useState("grid");
+  const {
+    categories = [],
+    loading: categoriesLoading,
+  } = useCategories();
+
+  const [
+    minPrice,
+    setMinPrice,
+  ] = useState("");
+
+  const [
+    maxPrice,
+    setMaxPrice,
+  ] = useState("");
+
+  const [
+    sortBy,
+    setSortBy,
+  ] = useState("featured");
+
+  const [
+    view,
+    setView,
+  ] = useState("grid");
 
   const [
     showFilters,
     setShowFilters,
   ] = useState(false);
 
-  const [products, setProducts] =
-    useState([]);
+  const [
+    products,
+    setProducts,
+  ] = useState([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    pagination,
+    setPagination,
+  ] = useState(null);
 
-  const [error, setError] =
-    useState(null);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+  const debouncedMinPrice =
+    useDebounce(
+      minPrice,
+      350,
+    );
+
+  const debouncedMaxPrice =
+    useDebounce(
+      maxPrice,
+      350,
+    );
+
+  const normalizedSlug =
+    String(slug)
+      .trim()
+      .toLowerCase();
 
   const categoryName =
-    formatCategoryName(slug);
+    formatCategoryName(
+      normalizedSlug,
+    );
+
+  const selectedCategory =
+    categories.find(
+      (category) =>
+        String(
+          category?.slug || "",
+        )
+          .trim()
+          .toLowerCase() ===
+        normalizedSlug,
+    );
+
+  const selectedCategoryId =
+    selectedCategory?._id ||
+    selectedCategory?.id ||
+    "";
 
   useEffect(() => {
     let active = true;
 
     async function loadProducts() {
-      if (!slug) {
+      if (!normalizedSlug) {
         setProducts([]);
+        setPagination(null);
+        setLoading(false);
+        return;
+      }
+
+      if (
+        debouncedMinPrice !== "" &&
+        debouncedMaxPrice !== "" &&
+        Number(debouncedMinPrice) >
+          Number(debouncedMaxPrice)
+      ) {
+        setProducts([]);
+        setPagination(null);
+        setError(
+          "Minimum price cannot be greater than maximum price.",
+        );
         setLoading(false);
         return;
       }
 
       setLoading(true);
-      setError(null);
+      setError("");
 
       try {
         const params = {
           categorySlug:
-            slug.toLowerCase(),
+            normalizedSlug,
+
           limit: 100,
         };
 
         if (
+          debouncedMinPrice !== ""
+        ) {
+          params.minPrice =
+            debouncedMinPrice;
+        }
+
+        if (
+          debouncedMaxPrice !== ""
+        ) {
+          params.maxPrice =
+            debouncedMaxPrice;
+        }
+
+        if (
+          sortBy &&
           sortBy !== "featured"
         ) {
           params.sort = sortBy;
         }
 
         const response =
-          await getProducts(params);
-
-        const data =
-          response?.data?.products ||
-          [];
+          await getProducts(
+            params,
+          );
 
         if (!active) {
           return;
         }
 
+        const data =
+          getProductsFromResponse(
+            response,
+          );
+
+        const normalized =
+          data
+            .map(
+              normalizeProduct,
+            )
+            .filter(
+              Boolean,
+            );
+
         setProducts(
-          Array.isArray(data)
-            ? data
-                .map(
-                  normalizeProduct,
-                )
-                .filter(Boolean)
-            : [],
+          normalized,
         );
-      } catch (loadError) {
+
+        setPagination(
+          getPaginationFromResponse(
+            response,
+          ),
+        );
+      } catch (requestError) {
         console.error(
           "Failed to load category products:",
-          loadError,
+          requestError,
         );
 
         if (!active) {
@@ -160,7 +323,12 @@ function CategoryProducts() {
         }
 
         setProducts([]);
-        setError(loadError);
+        setPagination(null);
+
+        setError(
+          requestError?.message ||
+            "Unable to load products.",
+        );
       } finally {
         if (active) {
           setLoading(false);
@@ -173,13 +341,97 @@ function CategoryProducts() {
     return () => {
       active = false;
     };
-  }, [slug, sortBy]);
+  }, [
+    normalizedSlug,
+    debouncedMinPrice,
+    debouncedMaxPrice,
+    sortBy,
+  ]);
 
-  const categoryProducts =
-    useMemo(
-      () => products,
-      [products],
+  useEffect(() => {
+    if (!showFilters) {
+      document.body.style.overflow =
+        "";
+      return;
+    }
+
+    const previousOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow =
+      "hidden";
+
+    function handleEscape(
+      event,
+    ) {
+      if (
+        event.key === "Escape"
+      ) {
+        setShowFilters(false);
+      }
+    }
+
+    document.addEventListener(
+      "keydown",
+      handleEscape,
     );
+
+    return () => {
+      document.body.style.overflow =
+        previousOverflow;
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape,
+      );
+    };
+  }, [showFilters]);
+
+  function handleCategoryChange(
+    categoryId,
+  ) {
+    const value =
+      String(
+        categoryId || "",
+      );
+
+    setShowFilters(false);
+
+    if (!value) {
+      navigate("/shop");
+      return;
+    }
+
+    const category =
+      categories.find(
+        (item) =>
+          String(
+            item?._id ||
+              item?.id ||
+              "",
+          ) === value,
+      );
+
+    if (!category?.slug) {
+      return;
+    }
+
+    navigate(
+      `/category/${encodeURIComponent(
+        category.slug,
+      )}`,
+    );
+  }
+
+  function handleClearFilters() {
+    setMinPrice("");
+    setMaxPrice("");
+    setSortBy("featured");
+  }
+
+  const total =
+    pagination?.total ??
+    products.length;
 
   return (
     <main
@@ -227,6 +479,7 @@ function CategoryProducts() {
                 styles.title
               }
             >
+              Category{" "}
               {categoryName}
             </h1>
 
@@ -244,9 +497,8 @@ function CategoryProducts() {
           <span
             className={styles.count}
           >
-            {categoryProducts.length}{" "}
-            {categoryProducts.length ===
-            1
+            {total}{" "}
+            {total === 1
               ? "item"
               : "items"}
           </span>
@@ -257,21 +509,21 @@ function CategoryProducts() {
         >
           <div
             className={
-              styles.collections
+              styles.toolbarLeft
             }
           >
             <button
               type="button"
-              onClick={() =>
-                setSortBy(
-                  "featured",
-                )
-              }
-              className={
+              className={`${styles.collectionButton} ${
                 sortBy ===
                 "featured"
                   ? styles.active
                   : ""
+              }`}
+              onClick={() =>
+                setSortBy(
+                  "featured",
+                )
               }
             >
               Featured
@@ -279,13 +531,15 @@ function CategoryProducts() {
 
             <button
               type="button"
-              onClick={() =>
-                setSortBy("rating")
-              }
-              className={
+              className={`${styles.collectionButton} ${
                 sortBy === "rating"
                   ? styles.active
                   : ""
+              }`}
+              onClick={() =>
+                setSortBy(
+                  "rating",
+                )
               }
             >
               Rating
@@ -293,86 +547,109 @@ function CategoryProducts() {
 
             <button
               type="button"
+              className={
+                styles.filterButton
+              }
               onClick={() =>
-                setShowFilters(
-                  true,
-                )
+                setShowFilters(true)
               }
             >
               <FiFilter
-                size={14}
+                size={15}
               />
 
-              Filter
+              <span>
+                Filter
+              </span>
             </button>
           </div>
 
           <div
-            className={styles.sort}
+            className={
+              styles.toolbarRight
+            }
           >
-            <label htmlFor="category-sort">
-              Sort
-            </label>
-
-            <select
-              id="category-sort"
-              value={sortBy}
-              onChange={(event) =>
-                setSortBy(
-                  event.target.value,
-                )
-              }
-            >
-              <option value="featured">
-                Featured
-              </option>
-
-              <option value="price-low">
-                Price: Low to High
-              </option>
-
-              <option value="price-high">
-                Price: High to Low
-              </option>
-
-              <option value="rating">
-                Rating
-              </option>
-            </select>
-
-            <button
-              type="button"
-              onClick={() =>
-                setView("grid")
-              }
+            <div
               className={
-                view === "grid"
-                  ? styles.active
-                  : ""
+                styles.sort
               }
-              aria-label="Grid view"
             >
-              <FiGrid
-                size={16}
-              />
-            </button>
+              <label htmlFor="category-sort">
+                Sort
+              </label>
 
-            <button
-              type="button"
-              onClick={() =>
-                setView("list")
-              }
+              <select
+                id="category-sort"
+                value={sortBy}
+                onChange={(event) =>
+                  setSortBy(
+                    event.target.value,
+                  )
+                }
+              >
+                <option value="featured">
+                  Featured
+                </option>
+
+                <option value="price-low">
+                  Price: Low to High
+                </option>
+
+                <option value="price-high">
+                  Price: High to Low
+                </option>
+
+                <option value="rating">
+                  Rating
+                </option>
+              </select>
+            </div>
+
+            <div
               className={
-                view === "list"
-                  ? styles.active
-                  : ""
+                styles.viewOptions
               }
-              aria-label="List view"
             >
-              <FiList
-                size={16}
-              />
-            </button>
+              <button
+                type="button"
+                className={
+                  view === "grid"
+                    ? styles.active
+                    : ""
+                }
+                onClick={() =>
+                  setView("grid")
+                }
+                aria-label="Grid view"
+                aria-pressed={
+                  view === "grid"
+                }
+              >
+                <FiGrid
+                  size={17}
+                />
+              </button>
+
+              <button
+                type="button"
+                className={
+                  view === "list"
+                    ? styles.active
+                    : ""
+                }
+                onClick={() =>
+                  setView("list")
+                }
+                aria-label="List view"
+                aria-pressed={
+                  view === "list"
+                }
+              >
+                <FiList
+                  size={17}
+                />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -381,23 +658,114 @@ function CategoryProducts() {
             className={
               styles.filterOverlay
             }
+            onMouseDown={() =>
+              setShowFilters(false)
+            }
           >
-            <button
-              type="button"
-              onClick={() =>
-                setShowFilters(
-                  false,
-                )
-              }
+            <aside
               className={
-                styles.filterClose
+                styles.filterPanel
               }
-              aria-label="Close filters"
+              onMouseDown={(
+                event,
+              ) =>
+                event.stopPropagation()
+              }
+              aria-label="Product filters"
             >
-              <FiX />
-            </button>
+              <div
+                className={
+                  styles.filterHeader
+                }
+              >
+                <div>
+                  <span
+                    className={
+                      styles.filterEyebrow
+                    }
+                  >
+                    Refine
+                  </span>
 
-            <FilterSidebar />
+                  <h2
+                    className={
+                      styles.filterTitle
+                    }
+                  >
+                    Filters
+                  </h2>
+                </div>
+
+                <button
+                  type="button"
+                  className={
+                    styles.filterClose
+                  }
+                  onClick={() =>
+                    setShowFilters(
+                      false,
+                    )
+                  }
+                  aria-label="Close filters"
+                >
+                  <FiX
+                    size={20}
+                  />
+                </button>
+              </div>
+
+              <div
+                className={
+                  styles.filterContent
+                }
+              >
+                <SearchFilters
+                  categories={
+                    categories
+                  }
+                  selectedCategory={
+                    selectedCategoryId
+                  }
+                  minPrice={
+                    minPrice
+                  }
+                  maxPrice={
+                    maxPrice
+                  }
+                  sort={
+                    sortBy
+                  }
+                  onCategoryChange={
+                    handleCategoryChange
+                  }
+                  onMinPriceChange={
+                    setMinPrice
+                  }
+                  onMaxPriceChange={
+                    setMaxPrice
+                  }
+                  onSortChange={
+                    setSortBy
+                  }
+                  onClear={
+                    handleClearFilters
+                  }
+                  showCategoryInClear={
+                    false
+                  }
+                />
+
+                {categoriesLoading && (
+                  <p
+                    className={
+                      styles.filterLoading
+                    }
+                  >
+                    Loading categories...
+                  </p>
+                )}
+              </div>
+            </aside>
           </div>
         )}
 
@@ -407,7 +775,15 @@ function CategoryProducts() {
               styles.empty
             }
           >
-            Loading products...
+            <div
+              className={
+                styles.loadingIndicator
+              }
+            />
+
+            <p>
+              Loading products...
+            </p>
           </div>
         )}
 
@@ -417,13 +793,19 @@ function CategoryProducts() {
               styles.empty
             }
           >
-            Unable to load products.
+            <h2>
+              Unable to load products
+            </h2>
+
+            <p>
+              {error}
+            </p>
           </div>
         )}
 
         {!loading &&
           !error &&
-          categoryProducts.length ===
+          products.length ===
             0 && (
             <div
               className={
@@ -436,27 +818,44 @@ function CategoryProducts() {
 
               <p>
                 There are no products
-                available in this
-                collection right now.
+                matching the current
+                filters.
               </p>
+
+              {(minPrice ||
+                maxPrice) && (
+                <button
+                  type="button"
+                  className={
+                    styles.clearButton
+                  }
+                  onClick={
+                    handleClearFilters
+                  }
+                >
+                  Clear price filters
+                </button>
+              )}
             </div>
           )}
 
         {!loading &&
           !error &&
-          categoryProducts.length >
+          products.length >
             0 && (
             <div
               className={
                 view === "list"
-                  ? styles.list
-                  : styles.grid
+                  ? styles.productList
+                  : styles.productGrid
               }
             >
-              {categoryProducts.map(
+              {products.map(
                 (product) => (
                   <ProductCard
-                    key={product.id}
+                    key={
+                      product.id
+                    }
                     product={
                       product
                     }
