@@ -44,6 +44,13 @@ export function resendLoginOtp(
   );
 }
 
+export function sendLoginSmsOtp(data) {
+  return post(
+    "/auth/login/send-sms-otp",
+    data,
+  );
+}
+
 export function verifyLoginOtp(
   data,
 ) {

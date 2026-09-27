@@ -10,6 +10,7 @@ import {
   verifyRegistration,
   sendLoginOtp,
   resendLoginOtp,
+  sendLoginSmsOtp,
   verifyLoginOtp,
 } from "../services/authService";
 
@@ -237,6 +238,12 @@ export function AuthProvider({
     return resendLoginOtp(data);
   };
 
+  const loginSendSmsOtp = async (
+    data,
+  ) => {
+    return sendLoginSmsOtp(data);
+  };
+
   const refreshUser = async () => {
     const token =
       localStorage.getItem(
@@ -422,6 +429,8 @@ export function AuthProvider({
 
     loginResendOtp,
 
+    loginSendSmsOtp,
+
     loginVerifyOtp,
 
     refreshUser,
@@ -454,3 +463,4 @@ export function useAuthContext() {
 }
 
 export default AuthProvider;
+
