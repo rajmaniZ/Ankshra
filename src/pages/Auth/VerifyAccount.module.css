@@ -298,3 +298,42 @@
   font-size: 10px;
   font-weight: 600;
 }
+
+.secondaryButton {
+  width: 100%;
+  min-height: 45px;
+  margin-top: 10px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d8d8d8;
+  border-radius: 0;
+  background: #fff;
+  color: #333;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.secondaryButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.secondaryAction {
+  width: 100%;
+  min-height: 43px;
+  border: 0;
+  background: transparent;
+  color: #333;
+  font: inherit;
+  cursor: pointer;
+}
+
+.secondaryAction:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

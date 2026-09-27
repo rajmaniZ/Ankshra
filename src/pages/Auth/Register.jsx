@@ -173,18 +173,12 @@ function Register() {
         const channel =
           registrationData.channel ||
           response?.channel ||
-          "sms";
-
-        const fallbackUsed =
-          Boolean(
-            registrationData.fallbackUsed ??
-            response?.fallbackUsed,
-          );
+          "email";
 
         const recipient =
           registrationData.recipient ||
           response?.recipient ||
-          internationalPhone;
+          email;
 
         localStorage.setItem(
           "registrationPhone",
@@ -199,13 +193,6 @@ function Register() {
         localStorage.setItem(
           "registrationChannel",
           channel,
-        );
-
-        localStorage.setItem(
-          "registrationFallbackUsed",
-          String(
-            fallbackUsed,
-          ),
         );
 
         localStorage.setItem(

@@ -16806,18 +16806,31 @@ FILE 107: components\search\SearchFilters\SearchFilters.jsx
 
 import {
   useEffect,
+  useId,
   useRef,
   useState,
 } from "react";
+
+import {
+  FiChevronDown,
+} from "react-icons/fi";
 
 import styles from "./SearchFilters.module.css";
 
 function getCategoryValue(category) {
   return (
-    category?.slug ||
     category?._id ||
     category?.id ||
     ""
+  );
+}
+
+function getCategoryName(category) {
+  return (
+    category?.name ||
+    category?.title ||
+    category?.slug ||
+    "Unnamed Category"
   );
 }
 
@@ -16827,17 +16840,27 @@ function SearchFilters({
   minPrice = "",
   maxPrice = "",
   sort = "featured",
+
   onCategoryChange,
   onMinPriceChange,
   onMaxPriceChange,
   onSortChange,
   onClear,
-}) {
-  const [categoryOpen, setCategoryOpen] =
-    useState(false);
 
-  const [sortOpen, setSortOpen] =
-    useState(false);
+  showCategoryInClear = true,
+}) {
+  const categoryId = useId();
+  const sortId = useId();
+
+  const [
+    categoryOpen,
+    setCategoryOpen,
+  ] = useState(false);
+
+  const [
+    sortOpen,
+    setSortOpen,
+  ] = useState(false);
 
   const categoryRef =
     useRef(null);
@@ -16845,24 +16868,31 @@ function SearchFilters({
   const sortRef =
     useRef(null);
 
-  const hasFilters =
-    Boolean(selectedCategory) ||
-    Boolean(minPrice) ||
-    Boolean(maxPrice) ||
-    sort !== "featured";
+  const safeCategories =
+    Array.isArray(categories)
+      ? categories.filter(Boolean)
+      : [];
+
+  const normalizedSelectedCategory =
+    String(
+      selectedCategory ?? "",
+    );
 
   const selectedCategoryObject =
-    categories.find(
+    safeCategories.find(
       (category) =>
         String(
           getCategoryValue(category),
         ) ===
-        String(selectedCategory),
+        normalizedSelectedCategory,
     );
 
   const selectedCategoryName =
-    selectedCategoryObject?.name ||
-    "All Categories";
+    selectedCategoryObject
+      ? getCategoryName(
+          selectedCategoryObject,
+        )
+      : "All Categories";
 
   const sortOptions = [
     {
@@ -16889,6 +16919,18 @@ function SearchFilters({
         option.value === sort,
     ) || sortOptions[0];
 
+  const hasCategoryFilter =
+    showCategoryInClear &&
+    Boolean(
+      normalizedSelectedCategory,
+    );
+
+  const hasFilters =
+    hasCategoryFilter ||
+    Boolean(minPrice) ||
+    Boolean(maxPrice) ||
+    sort !== "featured";
+
   useEffect(() => {
     function handleOutsideClick(event) {
       if (
@@ -16910,15 +16952,34 @@ function SearchFilters({
       }
     }
 
+    function handleEscape(event) {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      setCategoryOpen(false);
+      setSortOpen(false);
+    }
+
     document.addEventListener(
       "mousedown",
       handleOutsideClick,
+    );
+
+    document.addEventListener(
+      "keydown",
+      handleEscape,
     );
 
     return () => {
       document.removeEventListener(
         "mousedown",
         handleOutsideClick,
+      );
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape,
       );
     };
   }, []);
@@ -16927,24 +16988,34 @@ function SearchFilters({
     value,
   ) {
     setCategoryOpen(false);
-    onCategoryChange?.(value);
+
+    onCategoryChange?.(
+      value,
+    );
   }
 
   function handleSortSelect(value) {
     setSortOpen(false);
-    onSortChange?.(value);
+
+    onSortChange?.(
+      value,
+    );
   }
 
   function handleClear() {
     setCategoryOpen(false);
     setSortOpen(false);
+
     onClear?.();
   }
 
   return (
     <div className={styles.filters}>
       <div className={styles.field}>
-        <label htmlFor="category-filter">
+        <label
+          htmlFor={categoryId}
+          className={styles.label}
+        >
           Category
         </label>
 
@@ -16953,7 +17024,7 @@ function SearchFilters({
           className={styles.selectWrapper}
         >
           <button
-            id="category-filter"
+            id={categoryId}
             type="button"
             className={`${styles.selectButton} ${
               categoryOpen
@@ -16962,7 +17033,8 @@ function SearchFilters({
             }`}
             onClick={() => {
               setCategoryOpen(
-                (current) => !current,
+                (current) =>
+                  !current,
               );
 
               setSortOpen(false);
@@ -16972,16 +17044,22 @@ function SearchFilters({
               categoryOpen
             }
           >
-            <span>
+            <span
+              className={
+                styles.selectValue
+              }
+            >
               {selectedCategoryName}
             </span>
 
-            <span
+            <FiChevronDown
               className={`${styles.chevron} ${
                 categoryOpen
                   ? styles.chevronOpen
                   : ""
               }`}
+              size={17}
+              aria-hidden="true"
             />
           </button>
 
@@ -16991,17 +17069,18 @@ function SearchFilters({
                 styles.dropdown
               }
               role="listbox"
+              aria-labelledby={
+                categoryId
+              }
             >
               <button
                 type="button"
                 role="option"
                 aria-selected={
-                  !selectedCategory
+                  !normalizedSelectedCategory
                 }
-                className={`${
-                  styles.dropdownOption
-                } ${
-                  !selectedCategory
+                className={`${styles.dropdownOption} ${
+                  !normalizedSelectedCategory
                     ? styles.dropdownOptionActive
                     : ""
                 }`}
@@ -17014,7 +17093,7 @@ function SearchFilters({
                 All Categories
               </button>
 
-              {categories.map(
+              {safeCategories.map(
                 (category) => {
                   const value =
                     getCategoryValue(
@@ -17025,48 +17104,65 @@ function SearchFilters({
                     return null;
                   }
 
+                  const valueString =
+                    String(value);
+
                   const isSelected =
-                    String(value) ===
-                    String(
-                      selectedCategory,
-                    );
+                    valueString ===
+                    normalizedSelectedCategory;
 
                   return (
                     <button
-                      key={value}
+                      key={
+                        valueString
+                      }
                       type="button"
                       role="option"
                       aria-selected={
                         isSelected
                       }
-                      className={`${
-                        styles.dropdownOption
-                      } ${
+                      className={`${styles.dropdownOption} ${
                         isSelected
                           ? styles.dropdownOptionActive
                           : ""
                       }`}
                       onClick={() =>
                         handleCategorySelect(
-                          value,
+                          valueString,
                         )
                       }
                     >
-                      {category.name}
+                      {getCategoryName(
+                        category,
+                      )}
                     </button>
                   );
                 },
+              )}
+
+              {safeCategories.length ===
+                0 && (
+                <div
+                  className={
+                    styles.emptyOption
+                  }
+                >
+                  No categories
+                  available
+                </div>
               )}
             </div>
           )}
         </div>
       </div>
 
-      <div className={styles.priceGroup}>
+      <div
+        className={
+          styles.priceGroup
+        }
+      >
         <label
-          className={
-            styles.priceLabel
-          }
+          className={styles.label}
         >
           Price
         </label>
@@ -17077,43 +17173,57 @@ function SearchFilters({
           }
         >
           <input
-            type="number"
-            min="0"
-            value={minPrice}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={minPrice ?? ""}
             onChange={(event) =>
               onMinPriceChange?.(
-                event.target.value,
+                event.target.value.replace(
+                  /\D/g,
+                  "",
+                ),
               )
             }
             placeholder="Min"
             aria-label="Minimum price"
+            autoComplete="off"
           />
 
           <span
             className={
               styles.priceDash
             }
+            aria-hidden="true"
           >
             –
           </span>
 
           <input
-            type="number"
-            min="0"
-            value={maxPrice}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={maxPrice ?? ""}
             onChange={(event) =>
               onMaxPriceChange?.(
-                event.target.value,
+                event.target.value.replace(
+                  /\D/g,
+                  "",
+                ),
               )
             }
             placeholder="Max"
             aria-label="Maximum price"
+            autoComplete="off"
           />
         </div>
       </div>
 
       <div className={styles.field}>
-        <label htmlFor="search-sort">
+        <label
+          htmlFor={sortId}
+          className={styles.label}
+        >
           Sort by
         </label>
 
@@ -17122,7 +17232,7 @@ function SearchFilters({
           className={styles.selectWrapper}
         >
           <button
-            id="search-sort"
+            id={sortId}
             type="button"
             className={`${styles.selectButton} ${
               sortOpen
@@ -17131,24 +17241,33 @@ function SearchFilters({
             }`}
             onClick={() => {
               setSortOpen(
-                (current) => !current,
+                (current) =>
+                  !current,
               );
 
               setCategoryOpen(false);
             }}
             aria-haspopup="listbox"
-            aria-expanded={sortOpen}
+            aria-expanded={
+              sortOpen
+            }
           >
-            <span>
+            <span
+              className={
+                styles.selectValue
+              }
+            >
               {selectedSort.label}
             </span>
 
-            <span
+            <FiChevronDown
               className={`${styles.chevron} ${
                 sortOpen
                   ? styles.chevronOpen
                   : ""
               }`}
+              size={17}
+              aria-hidden="true"
             />
           </button>
 
@@ -17158,6 +17277,7 @@ function SearchFilters({
                 styles.dropdown
               }
               role="listbox"
+              aria-labelledby={sortId}
             >
               {sortOptions.map(
                 (option) => {
@@ -17175,9 +17295,7 @@ function SearchFilters({
                       aria-selected={
                         isSelected
                       }
-                      className={`${
-                        styles.dropdownOption
-                      } ${
+                      className={`${styles.dropdownOption} ${
                         isSelected
                           ? styles.dropdownOptionActive
                           : ""
@@ -17219,242 +17337,172 @@ FILE 108: components\search\SearchFilters\SearchFilters.module.css
 
 .filters {
   position: relative;
-
   display: flex;
   flex-direction: column;
-
-  width: 100%;
   gap: 24px;
-
-  padding: 24px 0;
-
-  border-top: 1px solid #e8e8e8;
-  border-bottom: 1px solid #e8e8e8;
-
-  background: #fff;
-  box-sizing: border-box;
-}
-
-.field {
-  position: relative;
-
-  display: flex;
-  flex-direction: column;
-
   width: 100%;
-  gap: 8px;
-
-  box-sizing: border-box;
+  padding: 0;
+  overflow: visible;
 }
 
-.field label,
+.field,
+.priceGroup {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.label,
 .priceLabel {
   display: block;
-
-  margin: 0;
-
+  margin-bottom: 9px;
   color: #666;
   font-size: 12px;
   line-height: 1.4;
 }
 
-/* Custom select */
-
 .selectWrapper {
   position: relative;
-
   width: 100%;
-
-  box-sizing: border-box;
+  min-width: 0;
 }
 
 .selectButton {
-  position: relative;
-
+  width: 100%;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  width: 100%;
-  height: 44px;
-
+  gap: 12px;
   padding: 0 12px;
-
-  border: 1px solid #d8d8d8;
+  border: 1px solid #d7d7d7;
   border-radius: 0;
-
   outline: none;
-
   background: #fff;
   color: #222;
-
   font-family: inherit;
   font-size: 13px;
   line-height: 1;
-
+  text-align: left;
   cursor: pointer;
-
   box-sizing: border-box;
-
-  transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease;
 }
 
 .selectButton:hover {
-  border-color: #999;
+  border-color: #aaa;
+}
+
+.selectButton:focus-visible {
+  border-color: #222;
+  box-shadow: 0 0 0 1px #222;
 }
 
 .selectButtonOpen {
   border-color: #222;
 }
 
-.selectButton:focus-visible {
-  border-color: #222;
-  outline: none;
+.selectValue {
+  min-width: 0;
+  overflow: hidden;
+  color: #222;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
-
-/* Chevron */
 
 .chevron {
   flex-shrink: 0;
-
-  width: 7px;
-  height: 7px;
-
-  margin-left: 10px;
-
-  border-right: 1px solid #555;
-  border-bottom: 1px solid #555;
-
-  transform: rotate(45deg);
-
-  transition: transform 0.15s ease;
+  color: #777;
+  transition: transform 0.18s ease;
 }
 
 .chevronOpen {
-  transform: rotate(225deg);
-  margin-top: 4px;
+  transform: rotate(180deg);
 }
-
-/* Dropdown */
 
 .dropdown {
   position: absolute;
-
-  top: calc(100% + 3px);
+  top: calc(100% + 4px);
   left: 0;
-
-  z-index: 9999;
-
+  z-index: 1300;
   width: 100%;
   max-height: 240px;
-
-  overflow-x: hidden;
   overflow-y: auto;
-
-  border: 1px solid #d8d8d8;
-
+  border: 1px solid #d7d7d7;
   background: #fff;
-
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
 }
 
 .dropdownOption {
-  display: flex;
-  align-items: center;
-
   width: 100%;
   min-height: 42px;
-
+  display: flex;
+  align-items: center;
   padding: 0 12px;
-
   border: 0;
-
+  border-bottom: 1px solid #eeeeee;
   background: #fff;
   color: #222;
-
   font-family: inherit;
   font-size: 13px;
-
-  cursor: pointer;
-
   text-align: left;
+  cursor: pointer;
+}
 
-  box-sizing: border-box;
-
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
+.dropdownOption:last-child {
+  border-bottom: 0;
 }
 
 .dropdownOption:hover {
-  background: #f5f5f5;
+  background: #f7f7f7;
 }
 
 .dropdownOptionActive {
   background: #f3f3f3;
   color: #111;
+  font-weight: 500;
 }
 
-/* Price */
+.emptyOption {
+  padding: 14px 12px;
+  color: #888;
+  font-size: 12px;
+}
 
 .priceGroup {
-  position: relative;
-
-  display: flex;
-  flex-direction: column;
-
-  width: 100%;
-  gap: 8px;
-
-  box-sizing: border-box;
+  min-width: 0;
 }
 
 .priceInputs {
-  display: grid;
-
-  grid-template-columns:
-    minmax(0, 1fr)
-    20px
-    minmax(0, 1fr);
-
-  align-items: center;
-
   width: 100%;
-
-  gap: 6px;
-
-  box-sizing: border-box;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
 }
 
 .priceInputs input {
-  display: block;
-
   width: 100%;
   min-width: 0;
   height: 44px;
-
+  display: block;
   padding: 0 10px;
-
-  border: 1px solid #d8d8d8;
+  border: 1px solid #d7d7d7;
   border-radius: 0;
-
   outline: none;
-
   background: #fff;
   color: #222;
-
   font-family: inherit;
   font-size: 13px;
-
+  line-height: 44px;
   box-sizing: border-box;
+  opacity: 1;
 }
 
 .priceInputs input::placeholder {
   color: #999;
+  opacity: 1;
 }
 
 .priceInputs input:hover {
@@ -17463,124 +17511,71 @@ FILE 108: components\search\SearchFilters\SearchFilters.module.css
 
 .priceInputs input:focus {
   border-color: #222;
-}
-
-.priceInputs input::-webkit-inner-spin-button,
-.priceInputs input::-webkit-outer-spin-button {
-  margin: 0;
-  appearance: none;
+  box-shadow: 0 0 0 1px #222;
 }
 
 .priceDash {
   display: flex;
   align-items: center;
   justify-content: center;
-
   color: #555;
   font-size: 13px;
+  user-select: none;
 }
-
-/* Sort */
-
-.field:last-of-type {
-  position: relative;
-}
-
-.field:last-of-type .selectWrapper {
-  width: 100%;
-}
-
-/* Clear */
 
 .clear {
   align-self: flex-start;
-
   min-height: 34px;
-
   padding: 0;
-
   border: 0;
-
   background: transparent;
   color: #666;
-
   font-family: inherit;
   font-size: 12px;
-
   text-decoration: underline;
-  text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-
   cursor: pointer;
 }
 
 .clear:hover {
-  color: #222;
+  color: #111;
 }
-
-/* Mobile */
 
 @media (max-width: 768px) {
   .filters {
-    gap: 22px;
-    padding: 24px 0;
-  }
-
-  .field {
-    width: 100%;
-  }
-
-  .priceGroup {
-    width: 100%;
-  }
-
-  .selectWrapper {
-    width: 100%;
+    gap: 23px;
   }
 
   .selectButton {
-    height: 44px;
-  }
-
-  .dropdown {
-    max-height: 220px;
-  }
-
-  .dropdownOption {
     min-height: 44px;
   }
 
   .priceInputs {
     grid-template-columns:
       minmax(0, 1fr)
-      20px
+      18px
       minmax(0, 1fr);
   }
 
   .priceInputs input {
     height: 44px;
   }
+
+  .dropdown {
+    max-height: 220px;
+  }
 }
 
-/* Small mobile */
-
-@media (max-width: 480px) {
-  .filters {
-    gap: 20px;
-    padding: 20px 0;
-  }
-
-  .selectButton {
-    height: 42px;
-    padding: 0 11px;
-  }
-
+@media (max-width: 380px) {
   .priceInputs {
+    grid-template-columns:
+      minmax(0, 1fr)
+      14px
+      minmax(0, 1fr);
     gap: 5px;
   }
 
   .priceInputs input {
-    height: 42px;
     padding: 0 9px;
   }
 }
@@ -64021,6 +64016,7 @@ import {
 
 import {
   Link,
+  useNavigate,
   useParams,
 } from "react-router-dom";
 
@@ -64032,69 +64028,80 @@ import {
 } from "react-icons/fi";
 
 import ProductCard from "../../components/product/ProductCard/ProductCard";
+import SearchFilters from "../../components/search/SearchFilters/SearchFilters";
 
-import FilterSidebar from "../../components/search/SearchFilters/SearchFilters";
+import useCategories from "../../hooks/useCategories";
+import useDebounce from "../../hooks/useDebounce";
 
 import {
   getProducts,
 } from "../../services/productService";
 
-import {
-  getCategoryBySlug,
-} from "../../services/categoryService";
-
 import styles from "./CategoryProducts.module.css";
 
-function normalizeProduct(
-  product,
-) {
+function normalizeProduct(product) {
   if (!product) {
     return null;
   }
 
+  const id =
+    product._id ||
+    product.id ||
+    "";
+
+  const images =
+    Array.isArray(product.images)
+      ? product.images
+      : [];
+
   const image =
-    product.images?.[0]?.url ||
-    product.images?.[0] ||
-    product.image ||
-    "";
+    images.length > 0
+      ? typeof images[0] === "object"
+        ? images[0]?.url ||
+          images[0]?.secure_url ||
+          ""
+        : images[0] || ""
+      : product.image || "";
 
-  const categoryName =
-    product.category?.name ||
-    product.category ||
-    "";
-
-  const rating =
-    product.rating?.average ??
-    product.rating ??
-    0;
-
-  const reviewCount =
-    product.reviewCount ??
-    product.rating?.count ??
-    0;
+  const category =
+    product.category;
 
   return {
     ...product,
 
-    id:
-      product._id ||
-      product.id ||
-      "",
+    id,
 
     image,
 
+    images,
+
     category:
-      categoryName,
+      category?.name ||
+      category ||
+      "",
 
-    rating,
+    categoryId:
+      category?._id ||
+      category?.id ||
+      "",
 
-    reviewCount,
+    categorySlug:
+      category?.slug ||
+      "",
+
+    rating:
+      product.rating?.average ??
+      product.rating ??
+      0,
+
+    reviewCount:
+      product.reviewCount ??
+      product.rating?.count ??
+      0,
   };
 }
 
-function formatCategoryName(
-  slug,
-) {
+function formatCategoryName(slug) {
   if (!slug) {
     return "Products";
   }
@@ -64104,22 +64111,54 @@ function formatCategoryName(
     .filter(Boolean)
     .map(
       (word) =>
-        word
-          .charAt(0)
-          .toUpperCase() +
+        word.charAt(0).toUpperCase() +
         word.slice(1),
     )
     .join(" ");
 }
 
+function getProductsFromResponse(
+  response,
+) {
+  const products =
+    response?.data?.products;
+
+  return Array.isArray(products)
+    ? products
+    : [];
+}
+
+function getPaginationFromResponse(
+  response,
+) {
+  return (
+    response?.data?.pagination ||
+    null
+  );
+}
+
 function CategoryProducts() {
-  const { slug } =
-    useParams();
+  const {
+    slug = "",
+  } = useParams();
+
+  const navigate =
+    useNavigate();
+
+  const {
+    categories = [],
+    loading: categoriesLoading,
+  } = useCategories();
 
   const [
-    category,
-    setCategory,
-  ] = useState(null);
+    minPrice,
+    setMinPrice,
+  ] = useState("");
+
+  const [
+    maxPrice,
+    setMaxPrice,
+  ] = useState("");
 
   const [
     sortBy,
@@ -64142,13 +64181,13 @@ function CategoryProducts() {
   ] = useState([]);
 
   const [
-    loading,
-    setLoading,
-  ] = useState(true);
+    pagination,
+    setPagination,
+  ] = useState(null);
 
   const [
-    categoryLoading,
-    setCategoryLoading,
+    loading,
+    setLoading,
   ] = useState(true);
 
   const [
@@ -64156,87 +64195,67 @@ function CategoryProducts() {
     setError,
   ] = useState("");
 
-  const [
-    categoryError,
-    setCategoryError,
-  ] = useState("");
+  const debouncedMinPrice =
+    useDebounce(
+      minPrice,
+      350,
+    );
 
-  useEffect(() => {
-    let active = true;
+  const debouncedMaxPrice =
+    useDebounce(
+      maxPrice,
+      350,
+    );
 
-    async function loadCategory() {
-      if (!slug) {
-        if (active) {
-          setCategory(null);
-          setCategoryLoading(
-            false,
-          );
-        }
+  const normalizedSlug =
+    String(slug)
+      .trim()
+      .toLowerCase();
 
-        return;
-      }
+  const categoryName =
+    formatCategoryName(
+      normalizedSlug,
+    );
 
-      setCategoryLoading(true);
-      setCategoryError("");
+  const selectedCategory =
+    categories.find(
+      (category) =>
+        String(
+          category?.slug || "",
+        )
+          .trim()
+          .toLowerCase() ===
+        normalizedSlug,
+    );
 
-      try {
-        const response =
-          await getCategoryBySlug(
-            slug,
-          );
-
-        const categoryData =
-          response?.data?.category ||
-          null;
-
-        if (!active) {
-          return;
-        }
-
-        setCategory(
-          categoryData,
-        );
-      } catch (loadError) {
-        console.error(
-          "Failed to load category:",
-          loadError,
-        );
-
-        if (!active) {
-          return;
-        }
-
-        setCategory(null);
-
-        setCategoryError(
-          "Unable to load category information.",
-        );
-      } finally {
-        if (active) {
-          setCategoryLoading(
-            false,
-          );
-        }
-      }
-    }
-
-    loadCategory();
-
-    return () => {
-      active = false;
-    };
-  }, [slug]);
+  const selectedCategoryId =
+    selectedCategory?._id ||
+    selectedCategory?.id ||
+    "";
 
   useEffect(() => {
     let active = true;
 
     async function loadProducts() {
-      if (!slug) {
-        if (active) {
-          setProducts([]);
-          setLoading(false);
-        }
+      if (!normalizedSlug) {
+        setProducts([]);
+        setPagination(null);
+        setLoading(false);
+        return;
+      }
 
+      if (
+        debouncedMinPrice !== "" &&
+        debouncedMaxPrice !== "" &&
+        Number(debouncedMinPrice) >
+          Number(debouncedMaxPrice)
+      ) {
+        setProducts([]);
+        setPagination(null);
+        setError(
+          "Minimum price cannot be greater than maximum price.",
+        );
+        setLoading(false);
         return;
       }
 
@@ -64246,12 +64265,24 @@ function CategoryProducts() {
       try {
         const params = {
           categorySlug:
-            slug
-              .trim()
-              .toLowerCase(),
+            normalizedSlug,
 
           limit: 100,
         };
+
+        if (
+          debouncedMinPrice !== ""
+        ) {
+          params.minPrice =
+            debouncedMinPrice;
+        }
+
+        if (
+          debouncedMaxPrice !== ""
+        ) {
+          params.maxPrice =
+            debouncedMaxPrice;
+        }
 
         if (
           sortBy &&
@@ -64265,36 +64296,37 @@ function CategoryProducts() {
             params,
           );
 
-        const productData =
-          response?.data?.products ||
-          [];
-
         if (!active) {
           return;
         }
 
-        const normalizedProducts =
-          Array.isArray(
-            productData,
-          )
-            ? productData
-                .map(
-                  normalizeProduct,
-                )
-                .filter(
-                  (product) =>
-                    product &&
-                    product.id,
-                )
-            : [];
+        const data =
+          getProductsFromResponse(
+            response,
+          );
+
+        const normalized =
+          data
+            .map(
+              normalizeProduct,
+            )
+            .filter(
+              Boolean,
+            );
 
         setProducts(
-          normalizedProducts,
+          normalized,
         );
-      } catch (loadError) {
+
+        setPagination(
+          getPaginationFromResponse(
+            response,
+          ),
+        );
+      } catch (requestError) {
         console.error(
           "Failed to load category products:",
-          loadError,
+          requestError,
         );
 
         if (!active) {
@@ -64302,9 +64334,11 @@ function CategoryProducts() {
         }
 
         setProducts([]);
+        setPagination(null);
 
         setError(
-          "Unable to load products. Please try again.",
+          requestError?.message ||
+            "Unable to load products.",
         );
       } finally {
         if (active) {
@@ -64318,56 +64352,96 @@ function CategoryProducts() {
     return () => {
       active = false;
     };
-  }, [slug, sortBy]);
+  }, [
+    normalizedSlug,
+    debouncedMinPrice,
+    debouncedMaxPrice,
+    sortBy,
+  ]);
 
   useEffect(() => {
     if (!showFilters) {
-      return undefined;
+      document.body.style.overflow =
+        "";
+      return;
     }
 
-    const handleEscape = (
+    const previousOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow =
+      "hidden";
+
+    function handleEscape(
       event,
-    ) => {
+    ) {
       if (
         event.key === "Escape"
       ) {
         setShowFilters(false);
       }
-    };
+    }
 
     document.addEventListener(
       "keydown",
       handleEscape,
     );
 
-    document.body.style.overflow =
-      "hidden";
-
     return () => {
+      document.body.style.overflow =
+        previousOverflow;
+
       document.removeEventListener(
         "keydown",
         handleEscape,
       );
-
-      document.body.style.overflow =
-        "";
     };
   }, [showFilters]);
 
-  const fallbackName =
-    formatCategoryName(
-      slug,
+  function handleCategoryChange(
+    categoryId,
+  ) {
+    const value =
+      String(
+        categoryId || "",
+      );
+
+    setShowFilters(false);
+
+    if (!value) {
+      navigate("/shop");
+      return;
+    }
+
+    const category =
+      categories.find(
+        (item) =>
+          String(
+            item?._id ||
+              item?.id ||
+              "",
+          ) === value,
+      );
+
+    if (!category?.slug) {
+      return;
+    }
+
+    navigate(
+      `/category/${encodeURIComponent(
+        category.slug,
+      )}`,
     );
+  }
 
-  const categoryName =
-    category?.name ||
-    fallbackName;
+  function handleClearFilters() {
+    setMinPrice("");
+    setMaxPrice("");
+    setSortBy("featured");
+  }
 
-  const categoryDescription =
-    category?.description ||
-    `Discover our carefully selected collection of ${categoryName.toLowerCase()}.`;
-
-  const productCount =
+  const total =
+    pagination?.total ??
     products.length;
 
   return (
@@ -64381,37 +64455,20 @@ function CategoryProducts() {
           className={
             styles.breadcrumb
           }
-          aria-label="Breadcrumb"
         >
           <Link to="/">
             Home
           </Link>
 
-          <span
-            className={
-              styles.breadcrumbSeparator
-            }
-          >
-            /
-          </span>
+          <span>/</span>
 
           <Link to="/shop">
             Shop
           </Link>
 
-          <span
-            className={
-              styles.breadcrumbSeparator
-            }
-          >
-            /
-          </span>
+          <span>/</span>
 
-          <span
-            className={
-              styles.breadcrumbCurrent
-            }
-          >
+          <span>
             {categoryName}
           </span>
         </nav>
@@ -64419,11 +64476,7 @@ function CategoryProducts() {
         <header
           className={styles.header}
         >
-          <div
-            className={
-              styles.headerContent
-            }
-          >
+          <div>
             <span
               className={
                 styles.eyebrow
@@ -64437,9 +64490,8 @@ function CategoryProducts() {
                 styles.title
               }
             >
-              {categoryLoading
-                ? "Category"
-                : categoryName}
+              Category{" "}
+              {categoryName}
             </h1>
 
             <p
@@ -64447,39 +64499,21 @@ function CategoryProducts() {
                 styles.description
               }
             >
-              {categoryLoading
-                ? "Loading collection..."
-                : categoryDescription}
+              Discover our carefully
+              selected collection of{" "}
+              {categoryName.toLowerCase()}.
             </p>
           </div>
 
-          <div
-            className={
-              styles.count
-            }
+          <span
+            className={styles.count}
           >
-            <strong>
-              {productCount}
-            </strong>
-
-            <span>
-              {productCount ===
-              1
-                ? "item"
-                : "items"}
-            </span>
-          </div>
+            {total}{" "}
+            {total === 1
+              ? "item"
+              : "items"}
+          </span>
         </header>
-
-        {categoryError && (
-          <div
-            className={
-              styles.notice
-            }
-          >
-            {categoryError}
-          </div>
-        )}
 
         <div
           className={styles.toolbar}
@@ -64491,12 +64525,12 @@ function CategoryProducts() {
           >
             <button
               type="button"
-              className={
+              className={`${styles.collectionButton} ${
                 sortBy ===
                 "featured"
-                  ? `${styles.toolbarButton} ${styles.toolbarButtonActive}`
-                  : styles.toolbarButton
-              }
+                  ? styles.active
+                  : ""
+              }`}
               onClick={() =>
                 setSortBy(
                   "featured",
@@ -64508,13 +64542,15 @@ function CategoryProducts() {
 
             <button
               type="button"
-              className={
+              className={`${styles.collectionButton} ${
                 sortBy === "rating"
-                  ? `${styles.toolbarButton} ${styles.toolbarButtonActive}`
-                  : styles.toolbarButton
-              }
+                  ? styles.active
+                  : ""
+              }`}
               onClick={() =>
-                setSortBy("rating")
+                setSortBy(
+                  "rating",
+                )
               }
             >
               Rating
@@ -64526,9 +64562,7 @@ function CategoryProducts() {
                 styles.filterButton
               }
               onClick={() =>
-                setShowFilters(
-                  true,
-                )
+                setShowFilters(true)
               }
             >
               <FiFilter
@@ -64536,7 +64570,7 @@ function CategoryProducts() {
               />
 
               <span>
-                Filters
+                Filter
               </span>
             </button>
           </div>
@@ -64551,21 +64585,16 @@ function CategoryProducts() {
                 styles.sort
               }
             >
-              <label
-                htmlFor="category-sort"
-              >
+              <label htmlFor="category-sort">
                 Sort
               </label>
 
               <select
                 id="category-sort"
                 value={sortBy}
-                onChange={(
-                  event,
-                ) =>
+                onChange={(event) =>
                   setSortBy(
-                    event.target
-                      .value,
+                    event.target.value,
                   )
                 }
               >
@@ -64591,14 +64620,13 @@ function CategoryProducts() {
               className={
                 styles.viewOptions
               }
-              aria-label="View options"
             >
               <button
                 type="button"
                 className={
                   view === "grid"
-                    ? styles.viewActive
-                    : styles.viewButton
+                    ? styles.active
+                    : ""
                 }
                 onClick={() =>
                   setView("grid")
@@ -64609,7 +64637,7 @@ function CategoryProducts() {
                 }
               >
                 <FiGrid
-                  size={16}
+                  size={17}
                 />
               </button>
 
@@ -64617,8 +64645,8 @@ function CategoryProducts() {
                 type="button"
                 className={
                   view === "list"
-                    ? styles.viewActive
-                    : styles.viewButton
+                    ? styles.active
+                    : ""
                 }
                 onClick={() =>
                   setView("list")
@@ -64629,7 +64657,7 @@ function CategoryProducts() {
                 }
               >
                 <FiList
-                  size={16}
+                  size={17}
                 />
               </button>
             </div>
@@ -64637,28 +64665,28 @@ function CategoryProducts() {
         </div>
 
         {showFilters && (
-          <>
-            <button
-              type="button"
-              className={
-                styles.filterBackdrop
-              }
-              onClick={() =>
-                setShowFilters(
-                  false,
-                )
-              }
-              aria-label="Close filters"
-            />
-
+          <div
+            className={
+              styles.filterOverlay
+            }
+            onMouseDown={() =>
+              setShowFilters(false)
+            }
+          >
             <aside
               className={
                 styles.filterPanel
               }
+              onMouseDown={(
+                event,
+              ) =>
+                event.stopPropagation()
+              }
+              aria-label="Product filters"
             >
               <div
                 className={
-                  styles.filterPanelHeader
+                  styles.filterHeader
                 }
               >
                 <div>
@@ -64670,25 +64698,29 @@ function CategoryProducts() {
                     Refine
                   </span>
 
-                  <h2>
+                  <h2
+                    className={
+                      styles.filterTitle
+                    }
+                  >
                     Filters
                   </h2>
                 </div>
 
                 <button
                   type="button"
+                  className={
+                    styles.filterClose
+                  }
                   onClick={() =>
                     setShowFilters(
                       false,
                     )
                   }
-                  className={
-                    styles.filterClose
-                  }
                   aria-label="Close filters"
                 >
                   <FiX
-                    size={19}
+                    size={20}
                   />
                 </button>
               </div>
@@ -64698,50 +64730,71 @@ function CategoryProducts() {
                   styles.filterContent
                 }
               >
-                <FilterSidebar />
+                <SearchFilters
+                  categories={
+                    categories
+                  }
+                  selectedCategory={
+                    selectedCategoryId
+                  }
+                  minPrice={
+                    minPrice
+                  }
+                  maxPrice={
+                    maxPrice
+                  }
+                  sort={
+                    sortBy
+                  }
+                  onCategoryChange={
+                    handleCategoryChange
+                  }
+                  onMinPriceChange={
+                    setMinPrice
+                  }
+                  onMaxPriceChange={
+                    setMaxPrice
+                  }
+                  onSortChange={
+                    setSortBy
+                  }
+                  onClear={
+                    handleClearFilters
+                  }
+                  showCategoryInClear={
+                    false
+                  }
+                />
+
+                {categoriesLoading && (
+                  <p
+                    className={
+                      styles.filterLoading
+                    }
+                  >
+                    Loading categories...
+                  </p>
+                )}
               </div>
             </aside>
-          </>
+          </div>
         )}
 
         {loading && (
           <div
             className={
-              view === "list"
-                ? styles.productList
-                : styles.productGrid
+              styles.empty
             }
           >
-            {Array.from({
-              length: 6,
-            }).map(
-              (_, index) => (
-                <div
-                  className={
-                    styles.skeletonCard
-                  }
-                  key={index}
-                >
-                  <div
-                    className={
-                      styles.skeletonImage
-                    }
-                  />
+            <div
+              className={
+                styles.loadingIndicator
+              }
+            />
 
-                  <div
-                    className={
-                      styles.skeletonLine
-                    }
-                  />
-
-                  <div
-                    className={
-                      styles.skeletonLineSmall
-                    }
-                  />
-                </div>
-              ),
-            )}
+            <p>
+              Loading products...
+            </p>
           </div>
         )}
 
@@ -64751,14 +64804,6 @@ function CategoryProducts() {
               styles.empty
             }
           >
-            <div
-              className={
-                styles.emptyIcon
-              }
-            >
-              !
-            </div>
-
             <h2>
               Unable to load products
             </h2>
@@ -64766,62 +64811,48 @@ function CategoryProducts() {
             <p>
               {error}
             </p>
-
-            <button
-              type="button"
-              className={
-                styles.retryButton
-              }
-              onClick={() =>
-                window.location.reload()
-              }
-            >
-              Try Again
-            </button>
           </div>
         )}
 
         {!loading &&
           !error &&
-          productCount ===
+          products.length ===
             0 && (
             <div
               className={
                 styles.empty
               }
             >
-              <div
-                className={
-                  styles.emptyIcon
-                }
-              >
-                ◇
-              </div>
-
               <h2>
                 No products found
               </h2>
 
               <p>
-                There are currently no
-                products available in
-                this collection.
+                There are no products
+                matching the current
+                filters.
               </p>
 
-              <Link
-                to="/shop"
-                className={
-                  styles.shopButton
-                }
-              >
-                Continue Shopping
-              </Link>
+              {(minPrice ||
+                maxPrice) && (
+                <button
+                  type="button"
+                  className={
+                    styles.clearButton
+                  }
+                  onClick={
+                    handleClearFilters
+                  }
+                >
+                  Clear price filters
+                </button>
+              )}
             </div>
           )}
 
         {!loading &&
           !error &&
-          productCount >
+          products.length >
             0 && (
             <div
               className={
@@ -64856,12 +64887,13 @@ FILE 200: pages\Category\CategoryProducts.module.css
 ============================================================
 
 .page {
-  padding: 48px 0 90px;
+  min-height: 70vh;
+  padding: 50px 0 80px;
   background: #fff;
 }
 
 .container {
-  width: min(1200px, calc(100% - 48px));
+  width: min(1200px, calc(100% - 40px));
   margin: 0 auto;
 }
 
@@ -64869,149 +64901,118 @@ FILE 200: pages\Category\CategoryProducts.module.css
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 9px;
+  gap: 8px;
   margin-bottom: 38px;
   color: #777;
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 12px;
 }
 
 .breadcrumb a {
   color: #555;
-  transition: color 0.2s ease;
 }
 
 .breadcrumb a:hover {
   color: #111;
 }
 
-.breadcrumbSeparator {
-  color: #aaa;
-}
-
-.breadcrumbCurrent {
-  color: #222;
-}
-
 .header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 40px;
+  gap: 30px;
   margin-bottom: 38px;
 }
 
-.headerContent {
-  min-width: 0;
-}
-
-.eyebrow {
+.eyebrow,
+.filterEyebrow {
   display: block;
-  margin-bottom: 10px;
   color: #777;
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 1.8px;
-  line-height: 1.4;
+  letter-spacing: 1.6px;
   text-transform: uppercase;
+}
+
+.eyebrow {
+  margin-bottom: 9px;
 }
 
 .title {
   margin: 0;
-  color: #171717;
-  font-size: 36px;
+  color: #181818;
+  font-size: 34px;
   font-weight: 500;
   line-height: 1.2;
-  letter-spacing: -0.4px;
 }
 
 .description {
-  max-width: 620px;
-  margin: 13px 0 0;
+  max-width: 560px;
+  margin-top: 12px;
   color: #777;
-  font-size: 13px;
-  line-height: 1.75;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .count {
-  display: flex;
-  align-items: baseline;
-  gap: 5px;
   flex-shrink: 0;
   color: #777;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.count strong {
-  color: #222;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.notice {
-  margin-bottom: 20px;
-  padding: 11px 14px;
-  border: 1px solid #ead9d9;
-  background: #fffafa;
-  color: #9b3e3e;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .toolbar {
+  position: relative;
+  z-index: 5;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  min-height: 58px;
+  gap: 20px;
+  min-height: 60px;
   padding: 10px 0;
   border-top: 1px solid #e7e7e7;
   border-bottom: 1px solid #e7e7e7;
 }
 
-.toolbarLeft {
+.toolbarLeft,
+.toolbarRight {
   display: flex;
   align-items: center;
-  gap: 26px;
 }
 
-.toolbarButton,
+.toolbarLeft {
+  gap: 22px;
+}
+
+.toolbarRight {
+  gap: 20px;
+}
+
+.collectionButton,
 .filterButton {
+  min-height: 36px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 7px;
-  height: 36px;
   padding: 0;
   border: 0;
   background: transparent;
   color: #777;
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 13px;
   cursor: pointer;
-  transition:
-    color 0.2s ease,
-    border-color 0.2s ease;
 }
 
-.toolbarButton:hover,
-.filterButton:hover {
+.collectionButton:hover,
+.filterButton:hover,
+.collectionButton.active {
   color: #111;
 }
 
-.toolbarButtonActive {
-  color: #111;
+.collectionButton.active {
   font-weight: 500;
 }
 
 .filterButton {
-  padding-left: 24px;
-  border-left: 1px solid #e3e3e3;
-}
-
-.toolbarRight {
-  display: flex;
-  align-items: center;
-  gap: 22px;
+  color: #222;
 }
 
 .sort {
@@ -65021,26 +65022,22 @@ FILE 200: pages\Category\CategoryProducts.module.css
 }
 
 .sort label {
-  color: #777;
-  font-size: 12px;
+  color: #555;
+  font-size: 13px;
 }
 
 .sort select {
-  min-width: 165px;
-  height: 36px;
+  width: 170px;
+  height: 38px;
   padding: 0 30px 0 10px;
-  border: 1px solid #d8d8d8;
+  border: 1px solid #d7d7d7;
   border-radius: 0;
   outline: none;
-  background-color: #fff;
+  background: #fff;
   color: #222;
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 13px;
   cursor: pointer;
-  transition: border-color 0.2s ease;
-}
-
-.sort select:hover {
-  border-color: #aaa;
 }
 
 .sort select:focus {
@@ -65050,211 +65047,151 @@ FILE 200: pages\Category\CategoryProducts.module.css
 .viewOptions {
   display: flex;
   align-items: center;
-  gap: 3px;
-  padding-left: 15px;
-  border-left: 1px solid #e3e3e3;
+  gap: 2px;
 }
 
-.viewButton,
-.viewActive {
+.viewOptions button {
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
   border: 0;
   background: transparent;
+  color: #999;
   cursor: pointer;
 }
 
-.viewButton {
-  color: #aaa;
-}
-
-.viewButton:hover {
-  color: #222;
-}
-
-.viewActive {
+.viewOptions button:hover,
+.viewOptions button.active {
   color: #111;
-  background: #f5f5f5;
 }
 
 .productGrid {
+  min-width: 0;
   display: grid;
-  grid-template-columns: repeat(
-    3,
-    minmax(0, 1fr)
-  );
-  gap: 42px 20px;
-  margin-top: 34px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 42px 18px;
+  margin-top: 38px;
 }
 
 .productList {
+  min-width: 0;
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
-  margin-top: 34px;
+  margin-top: 38px;
 }
 
 .productList > article {
   display: grid;
-  grid-template-columns: 230px minmax(
-    0,
-    1fr
-  );
-  gap: 28px;
-  align-items: start;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 25px;
 }
 
 .productList > article a {
-  width: 230px;
+  width: 220px;
 }
 
 .empty {
-  min-height: 420px;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 50px 20px;
   text-align: center;
-}
-
-.emptyIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  margin-bottom: 20px;
-  border: 1px solid #dcdcdc;
-  border-radius: 50%;
-  color: #777;
-  font-size: 16px;
 }
 
 .empty h2 {
   margin: 0;
   color: #222;
-  font-size: 21px;
+  font-size: 22px;
   font-weight: 500;
 }
 
 .empty p {
-  max-width: 430px;
-  margin: 10px 0 0;
+  max-width: 480px;
+  margin-top: 10px;
   color: #777;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
 }
 
-.shopButton,
-.retryButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  margin-top: 22px;
-  padding: 0 20px;
+.loadingIndicator {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 16px;
+  border: 2px solid #e2e2e2;
+  border-top-color: #222;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+.clearButton {
+  margin-top: 20px;
+  padding: 11px 18px;
   border: 1px solid #222;
   background: #222;
   color: #fff;
+  font-family: inherit;
   font-size: 12px;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
 }
 
-.shopButton:hover,
-.retryButton:hover {
+.clearButton:hover {
   background: #000;
 }
 
-.filterBackdrop {
+.filterOverlay {
   position: fixed;
   inset: 0;
-  z-index: 1090;
-  border: 0;
-  background: rgba(
-    0,
-    0,
-    0,
-    0.42
-  );
-  cursor: default;
+  z-index: 1200;
+  display: flex;
+  align-items: stretch;
+  background: rgba(0, 0, 0, 0.34);
 }
 
 .filterPanel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  z-index: 1100;
-  width: min(
-    390px,
-    calc(100vw - 30px)
-  );
-  height: 100vh;
-  overflow-y: auto;
+  width: min(390px, 92vw);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   background: #fff;
-  box-shadow:
-    -10px 0 30px
-      rgba(0, 0, 0, 0.08);
-  animation: filterPanelIn
-    0.22s ease-out;
+  box-shadow: 12px 0 35px rgba(0, 0, 0, 0.12);
+  animation: filterSlideIn 0.22s ease-out;
 }
 
-@keyframes filterPanelIn {
-  from {
-    opacity: 0;
-    transform: translateX(
-      30px
-    );
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(
-      0
-    );
-  }
-}
-
-.filterPanelHeader {
+.filterHeader {
+  min-height: 88px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 24px;
-  border-bottom: 1px solid #e8e8e8;
+  padding: 0 22px;
+  border-bottom: 1px solid #e7e7e7;
 }
 
 .filterEyebrow {
-  display: block;
-  margin-bottom: 5px;
-  color: #888;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
+  margin-bottom: 7px;
+  font-size: 10px;
 }
 
-.filterPanelHeader h2 {
+.filterTitle {
   margin: 0;
   color: #222;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 500;
 }
 
 .filterClose {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  border: 1px solid #ddd;
+  border: 1px solid #d8d8d8;
   background: #fff;
   color: #222;
   cursor: pointer;
@@ -65265,124 +65202,69 @@ FILE 200: pages\Category\CategoryProducts.module.css
 }
 
 .filterContent {
-  padding: 24px;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 26px 22px;
+  overflow-y: auto;
+  overflow-x: visible;
 }
 
-.skeletonCard {
-  min-width: 0;
+.filterContent::before {
+  content: "";
+  display: block;
+  margin-bottom: 24px;
+  border-top: 1px solid #e7e7e7;
 }
 
-.skeletonImage {
-  width: 100%;
-  aspect-ratio: 0.82;
-  background: linear-gradient(
-    90deg,
-    #f1f1f1 25%,
-    #e8e8e8 50%,
-    #f1f1f1 75%
-  );
-  background-size: 200% 100%;
-  animation: skeletonLoading
-    1.3s infinite;
+.filterLoading {
+  margin-top: 14px;
+  color: #888;
+  font-size: 11px;
 }
 
-.skeletonLine {
-  width: 68%;
-  height: 12px;
-  margin-top: 15px;
-  background: #eeeeee;
-}
-
-.skeletonLineSmall {
-  width: 42%;
-  height: 10px;
-  margin-top: 9px;
-  background: #f1f1f1;
-}
-
-@keyframes skeletonLoading {
-  0% {
-    background-position: 200%
-      0;
+@keyframes filterSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
   }
 
-  100% {
-    background-position: -200%
-      0;
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-@media (max-width: 1050px) {
-  .container {
-    width: min(
-      100% - 40px,
-      1200px
-    );
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
+}
 
+@media (max-width: 992px) {
   .productGrid {
-    grid-template-columns: repeat(
-      3,
-      minmax(0, 1fr)
-    );
-    gap: 35px 15px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 850px) {
-  .header {
-    gap: 25px;
-  }
-
-  .title {
-    font-size: 31px;
-  }
-
-  .productGrid {
-    grid-template-columns: repeat(
-      2,
-      minmax(0, 1fr)
-    );
-  }
-
-  .toolbar {
-    align-items: flex-start;
-  }
-
-  .toolbarLeft {
-    gap: 18px;
-  }
-
-  .toolbarRight {
-    gap: 12px;
-  }
-
-  .viewOptions {
-    display: none;
-  }
-}
-
-@media (max-width: 650px) {
+@media (max-width: 768px) {
   .page {
     padding: 30px 0 60px;
   }
 
   .container {
-    width: min(
-      100% - 28px,
-      1200px
-    );
+    width: min(100% - 30px, 1200px);
   }
 
   .breadcrumb {
-    margin-bottom: 27px;
+    margin-bottom: 25px;
   }
 
   .header {
     align-items: flex-start;
     flex-direction: column;
-    gap: 15px;
-    margin-bottom: 25px;
+    gap: 14px;
+    margin-bottom: 26px;
   }
 
   .title {
@@ -65390,55 +65272,58 @@ FILE 200: pages\Category\CategoryProducts.module.css
   }
 
   .description {
-    font-size: 12px;
-  }
-
-  .count {
-    align-self: flex-end;
+    font-size: 13px;
   }
 
   .toolbar {
-    flex-wrap: wrap;
-    min-height: 0;
-    padding: 10px 0;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    padding: 13px 0;
+  }
+
+  .toolbarLeft,
+  .toolbarRight {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .toolbarLeft {
-    width: 100%;
-    justify-content: flex-start;
+    gap: 16px;
   }
 
   .toolbarRight {
-    width: 100%;
-    justify-content: flex-end;
+    gap: 12px;
   }
 
-  .filterButton {
-    margin-left: auto;
+  .sort {
+    flex: 1;
+  }
+
+  .sort label {
+    display: none;
   }
 
   .sort select {
-    min-width: 145px;
+    width: 100%;
+  }
+
+  .viewOptions {
+    flex-shrink: 0;
   }
 
   .productGrid {
-    grid-template-columns: repeat(
-      2,
-      minmax(0, 1fr)
-    );
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 30px 12px;
-    margin-top: 26px;
+    margin-top: 28px;
   }
 
   .productList {
-    margin-top: 26px;
+    margin-top: 28px;
   }
 
   .productList > article {
-    grid-template-columns: 150px minmax(
-      0,
-      1fr
-    );
+    grid-template-columns: 150px minmax(0, 1fr);
     gap: 18px;
   }
 
@@ -65446,63 +65331,52 @@ FILE 200: pages\Category\CategoryProducts.module.css
     width: 150px;
   }
 
-  .empty {
-    min-height: 350px;
+  .filterPanel {
+    width: min(390px, 94vw);
   }
 }
 
-@media (max-width: 430px) {
+@media (max-width: 480px) {
   .container {
-    width: min(
-      100% - 22px,
-      1200px
-    );
+    width: calc(100% - 24px);
+  }
+
+  .count {
+    font-size: 12px;
   }
 
   .toolbarLeft {
-    gap: 14px;
-  }
-
-  .toolbarButton,
-  .filterButton {
-    font-size: 11px;
-  }
-
-  .filterButton {
-    padding-left: 14px;
-  }
-
-  .sort {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .sort select {
-    min-width: 145px;
-  }
-
-  .toolbarRight {
-    justify-content: space-between;
-  }
-
-  .productGrid {
-    gap: 25px 9px;
-  }
-
-  .productList > article {
-    grid-template-columns: 105px minmax(
-      0,
-      1fr
-    );
     gap: 13px;
   }
 
-  .productList > article a {
-    width: 105px;
+  .collectionButton,
+  .filterButton {
+    font-size: 12px;
   }
 
-  .title {
-    font-size: 25px;
+  .productGrid {
+    gap: 24px 10px;
+  }
+
+  .productList > article {
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .productList > article a {
+    width: 110px;
+  }
+
+  .filterPanel {
+    width: min(360px, 94vw);
+  }
+
+  .filterHeader {
+    padding: 0 18px;
+  }
+
+  .filterContent {
+    padding: 24px 18px;
   }
 }
 
